@@ -33,7 +33,7 @@ Or install it yourself as:
 
   #TODO: should return a User object based on the custom view.
   User.view 'view_name', {key: ["a", "b", "c"], reduce: true} #Returns a simple HTTParty request
-</td>
+</tt>
 
 
 
