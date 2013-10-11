@@ -18,6 +18,12 @@ Or install it yourself as:
 
 ## Usage
 
+The model requires a view on your couch server:
+
+    (d)->
+      [t] = d._id.split("/")
+      if t is 'user' emit(d._id, 1)
+
     User < Dolly::Base
       database_name 'db'
       set_design_doc 'dolly' #defaults to 'dolly'
