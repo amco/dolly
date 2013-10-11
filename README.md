@@ -18,22 +18,20 @@ Or install it yourself as:
 
 ## Usage
 
-<tt>
-  User < Dolly::Base
-    database_name 'db'
-    set_design_doc 'dolly' #defaults to 'dolly'
+    User < Dolly::Base
+      database_name 'db'
+      set_design_doc 'dolly' #defaults to 'dolly'
 
-    property :name, :surname, :address
-  end
+      property :name, :surname, :address
+    end
 
-  User.all #Dolly::Collection #<#User...>, <#User...>
+    User.all #Dolly::Collection #<#User...>, <#User...>
 
-  user = User.find "a1b2d3e" #<#User...>
-  user.name
+    user = User.find "a1b2d3e" #<#User...>
+    user.name
 
-  #TODO: should return a User object based on the custom view.
-  User.view 'view_name', {key: ["a", "b", "c"], reduce: true} #Returns a simple HTTParty request
-</tt>
+    #TODO: should return a User object based on the custom view.
+    User.view 'view_name', {key: ["a", "b", "c"], reduce: true} #Returns a simple HTTParty request
 
 
 
