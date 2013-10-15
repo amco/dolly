@@ -11,22 +11,42 @@ module Dolly
     end
 
     def value
-      #TODO: Get rid of the case...when, for some more readable structure
       return @default if @value.nil?
-      case self_klass.try(:name)
-      when nil
-        @value
-      when Hash.name
-        @value.to_h
-      when Integer.name
-        @value.to_i
-      when FalseClass.name
-        @value =~ /true/ || @value === true
-      when TrueClass.name
-        @value =~ /true/ || @value === true
-      else
-        self_klass.new @value
-      end
+      return @value unless self_klass
+
+      klass_sym = :"#{self_klass.name.underscore}_#{__method__}"
+
+      return self_klass.new @value unless self.respond_to?(klass_sym)
+
+      self.send klass_sym
+    end
+
+    def array_value
+      @value.to_a
+    end
+
+    def hash_value
+      @value.to_h
+    end
+
+    def string_value
+      @value.to_s
+    end
+
+    def integer_value
+      @value.to_i
+    end
+
+    def float_value
+      @value.to_f
+    end
+
+    def true_class_value
+      @value =~ /true/ || @value === true
+    end
+
+    def false_class_value
+      @value =~ /true/ || @value === true
     end
 
     def boolean?
