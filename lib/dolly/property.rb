@@ -42,11 +42,11 @@ module Dolly
     end
 
     def true_class_value
-      @value =~ /true/ || @value === true
+      truthy_value?
     end
 
     def false_class_value
-      @value =~ /true/ || @value === true
+      truthy_value?
     end
 
     def boolean?
@@ -54,6 +54,10 @@ module Dolly
     end
 
     private
+    def truthy_value?
+      @value =~ /true/ || @value === true
+    end
+
     def self_klass
       return unless @class_name
       @class_name.is_a?(Class)? @class_name : @class_name.constantize
