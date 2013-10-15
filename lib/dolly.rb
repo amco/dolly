@@ -1,5 +1,6 @@
 require "dolly/version"
 require "dolly/document"
+require "dolly/property"
 
 module Dolly
 
@@ -10,19 +11,30 @@ module Dolly
     def rows= col
       col.each{ |r| @doc = r['doc'] }
       _properties.each do |p|
-        self.send "#{p}=", doc[p.to_s]
+        self.send "#{p.name}=", doc[p.name]
       end
       @rows = col
     end
 
     def self.property *ary
-      #TODO: add options for representable.
+      options       = ary.pop if ary.last.kind_of? Hash
+      options     ||= {}
       @properties ||= []
-      @properties += ary
 
-      ary.each do |name|
-        define_method(name) { @doc[name.to_s] }
-        define_method("#{name.to_s}=") {|val| @doc[name.to_s] = val}
+      @properties += ary.map do |name|
+        options.merge!({name: name})
+        property = Property.new(options)
+
+        define_method(name) do
+          property.value = @doc[name.to_s]
+          property.value
+        end
+
+        define_method(:"#{name}?") { send name } if property.boolean?
+        define_method("[]") {|n| send n.to_sym}
+        define_method("#{name}=") {|val| @doc[name.to_s] = val}
+
+        property
       end
     end
 

@@ -10,7 +10,7 @@ module Dolly
 
       def self.config properties
         properties.each do |p|
-          self.property p
+          self.property p.name
         end
         self
       end

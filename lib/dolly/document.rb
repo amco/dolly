@@ -35,7 +35,7 @@ module Dolly
         response = default_view(keys: ids.map{|id| namespace(id)}).parsed_response
         ids.count > 1 ? Collection.new(response, name.constantize) : self.new.from_json(response)
       rescue NoMethodError => err
-        if "undefined method `[]' for nil:NilClass"
+        if err.message == "undefined method `[]' for nil:NilClass"
           raise Dolly::ResourceNotFound
         else
           raise
