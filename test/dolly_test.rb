@@ -5,6 +5,8 @@ class FooBar < Dolly::Base
   set_design_doc 'test'
 
   property :foo, :bar
+
+  timestamps!
 end
 
 class DollyTest < ActiveSupport::TestCase
@@ -22,6 +24,21 @@ class DollyTest < ActiveSupport::TestCase
     build_request ["foo_bar/2"], empty_resp
     build_request ["foo_bar/1","foo_bar/2"], @multi_resp
     build_request [], @multi_resp
+  end
+
+  test 'with timestamps!' do
+    later = DateTime.new 1963, 1, 1
+    now = DateTime.now
+    DateTime.stubs(:now).returns(now)
+    foo = FooBar.find "1"
+    assert_equal now, foo.created_at
+    assert_equal now, foo['created_at']
+    assert_equal now, foo.updated_at
+    assert foo.updated_at = later
+    assert_equal later, foo.updated_at
+    assert foo['created_at'] = later
+    assert_equal later, foo['created_at']
+    assert_equal foo['created_at'], foo.created_at
   end
 
   test 'find will get a FooBar document' do
