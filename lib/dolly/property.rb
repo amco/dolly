@@ -12,6 +12,7 @@ module Dolly
 
     def value
       #TODO: Get rid of the case...when, for some more readable structure
+      return @default if @value.nil?
       case self_klass.try(:name)
       when nil
         @value
@@ -20,12 +21,16 @@ module Dolly
       when Integer.name
         @value.to_i
       when FalseClass.name
-        false if !@value || @value =~ /false/
+        @value =~ /true/ || @value === true
       when TrueClass.name
-        true if @value || @value =~ /true/
+        @value =~ /true/ || @value === true
       else
         self_klass.new @value
-      end || @default
+      end
+    end
+
+    def boolean?
+      self_klass == TrueClass || self_klass == FalseClass
     end
 
     private

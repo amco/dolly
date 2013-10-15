@@ -6,6 +6,7 @@ class FooBar < Dolly::Base
 
   property :foo, :bar
   property :with_default, default: 1
+  property :boolean, class_name: TrueClass, default: true
 end
 
 class DollyTest < ActiveSupport::TestCase
@@ -22,6 +23,14 @@ class DollyTest < ActiveSupport::TestCase
     build_request ["foo_bar/2"], empty_resp
     build_request ["foo_bar/1","foo_bar/2"], @multi_resp
     build_request [], @multi_resp
+  end
+
+  test 'will have object with boolean? method' do
+    foo = FooBar.find "1"
+    assert_equal true, foo.boolean?
+    foo.boolean = false
+    assert_equal false, foo['boolean']
+    assert_equal false, foo.boolean?
   end
 
   test 'find will get a FooBar document' do

@@ -30,13 +30,9 @@ module Dolly
           property.value
         end
 
-        define_method("[]") do |n|
-          send n.to_sym
-        end
-
-        define_method("#{name.to_s}=") do |val|
-          @doc[name.to_s] = val
-        end
+        define_method(:"#{name}?") { send name } if property.boolean?
+        define_method("[]") {|n| send n.to_sym}
+        define_method("#{name}=") {|val| @doc[name.to_s] = val}
 
         property
       end
