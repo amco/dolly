@@ -5,10 +5,10 @@ class FooBar < Dolly::Base
   set_design_doc 'test'
 
   property :foo, :bar
+  property :with_default, default: 1
 end
 
 class DollyTest < ActiveSupport::TestCase
-
 
   def setup
     data     = {foo: 'Foo', bar: 'Bar', type: 'foo_bar'}
@@ -29,11 +29,29 @@ class DollyTest < ActiveSupport::TestCase
     assert_equal true, foo.kind_of?(FooBar)
   end
 
+  test 'will have key properties' do
+    foo = FooBar.find "1"
+    assert_equal 'Foo', foo['foo']
+    assert_equal 'Bar', foo['bar']
+  end
+
   test 'will have only set properties' do
     foo = FooBar.find "1"
     assert_equal 'Foo', foo.foo
     assert_equal 'Bar', foo.bar
     assert_equal false, foo.respond_to?(:type)
+  end
+
+  test 'with default will return default value on nil' do
+    foo = FooBar.find "1"
+    assert_equal 1, foo.with_default
+  end
+
+  test 'default will be avoerwriten' do
+    foo = FooBar.find "1"
+    assert_equal 1, foo.with_default
+    assert foo.with_default = 30
+    assert_equal 30, foo.with_default
   end
 
   test 'getting not found document' do
