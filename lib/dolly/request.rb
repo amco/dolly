@@ -44,7 +44,14 @@ module Dolly
 
     def request method, resource, data = nil
       headers = { 'Content-Type' => 'application/json' }
-      self.class.send method, full_path(resource), data.merge(headers: headers)
+      response = self.class.send method, full_path(resource), data.merge(headers: headers)
+      if response.code == 404
+        raise Dolly::ResourceNotFound
+      elsif (500..600).include? response.code
+        raise Dolly::ServerError
+      else
+        response
+      end
     end
   end
 

@@ -42,6 +42,20 @@ class DollyTest < ActiveSupport::TestCase
     assert_equal foo['created_at'], foo.created_at
   end
 
+  test 'empty find should raise error' do
+    assert_raise Dolly::ResourceNotFound do
+      FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/foo_bar?keys=%5B%5D&include_docs=true", :status => ["404", "Not Found"]
+      foo = FooBar.find
+    end
+  end
+
+  test 'error on server raises Dolly::ServerError' do
+    assert_raise Dolly::ServerError do
+      FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/foo_bar?keys=%5B%5D&include_docs=true", :status => ["500", "Error"]
+      foo = FooBar.find
+    end
+  end
+
   test 'will have object with boolean? method' do
     foo = FooBar.find "1"
     assert_equal true, foo.boolean?
