@@ -21,6 +21,10 @@ module Dolly
       request :get, resource, {query: values_to_json(data)}
     end
 
+    def put resource, data
+      request :put, resource, {body: data}
+    end
+
     def protocol
       @protocol || 'http'
     end
@@ -35,7 +39,8 @@ module Dolly
     end
 
     def request method, resource, data = nil
-      self.class.send method, full_path(resource), data
+      headers = { 'Content-Type' => 'application/json' }
+      self.class.send method, full_path(resource), data.merge(headers: headers)
     end
   end
 

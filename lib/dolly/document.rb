@@ -16,8 +16,25 @@ module Dolly
       doc['_rev']
     end
 
+    def save
+      database.put id_as_resource, self.doc.to_json
+    end
+
+    def save!
+      #TODO: decide how to handle validations...
+      save
+    end
+
     def from_json string
       self.class.new.extend(representation).from_json( string )
+    end
+
+    def database
+      self.class.database
+    end
+
+    def id_as_resource
+      CGI::escape id
     end
 
     def representation
