@@ -77,11 +77,11 @@ module Dolly
       end
 
       def design_doc
-        "_design/#{@design_doc || DESIGN_DOC}"
+        "_design/#{@@design_doc || DESIGN_DOC}"
       end
 
       def set_design_doc value
-        @design_doc = value
+        @@design_doc = value
       end
 
       def name_paramitized
