@@ -25,6 +25,10 @@ module Dolly
       request :put, resource, {body: data}
     end
 
+    def delete resource
+      request :delete, resource, {}
+    end
+
     def protocol
       @protocol || 'http'
     end
