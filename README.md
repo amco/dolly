@@ -38,7 +38,7 @@ The model requires a view on your couch server:
     user.name
 
     #Return a User object based on the custom view.
-    User.view 'view_name', {key: ["a", "b", "c"], reduce: true} #Returns a simple HTTParty request
+    user = User.view 'view_name', {key: ["a", "b", "c"], reduce: true}
 
     # Save doc
     user.email = 'foo'
