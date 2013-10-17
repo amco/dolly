@@ -29,6 +29,7 @@ The model requires a view on your couch server:
       set_design_doc 'dolly' #defaults to 'dolly'
 
       property :name, :surname, :address
+      property :date_of_birth, class_name: Date, default: Date.today
     end
 
     User.all #Dolly::Collection #<#User...>, <#User...>
@@ -39,12 +40,22 @@ The model requires a view on your couch server:
     #Return a User object based on the custom view.
     User.view 'view_name', {key: ["a", "b", "c"], reduce: true} #Returns a simple HTTParty request
 
-    #Save doc
+    # Save doc
     user.email = 'foo'
     user.save #user.save! exists but doesn do anything yet.
-
+    
+    #New Doc
+    user = User.new
+    user.name = 'A'
+    user.save
 
 ## TODO
+  * Generators for creating a Model with its couch views
+  * Validations?
+  * Dirty Tracking?
+  * Create method
+  * intializer with properties ```User.new name: 'Foo'```
+ 
   Add to do's
 
 ## Contributing
