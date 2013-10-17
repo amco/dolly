@@ -36,14 +36,16 @@ The model requires a view on your couch server:
     user = User.find "a1b2d3e" #<#User...>
     user.name
 
-    #TODO: should return a User object based on the custom view.
+    #Return a User object based on the custom view.
     User.view 'view_name', {key: ["a", "b", "c"], reduce: true} #Returns a simple HTTParty request
 
+    #Save doc
+    user.email = 'foo'
+    user.save #user.save! exists but doesn do anything yet.
 
 
 ## TODO
-  This is a simple find and all interface for getting documents
-  Still need to be able to update, create and delete those documents
+  Add to do's
 
 ## Contributing
 
