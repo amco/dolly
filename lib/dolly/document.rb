@@ -17,7 +17,10 @@ module Dolly
     end
 
     def save
-      database.put id_as_resource, self.doc.to_json
+      response = database.put(id_as_resource, self.doc.to_json)
+      obj = JSON::parse response.parsed_response
+      doc['_rev'] = obj['rev'] if obj['rev']
+      obj['ok']
     end
 
     def save!
