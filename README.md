@@ -27,7 +27,7 @@ The model requires a view on your couch server:
 ```
 
 ```ruby
-User < Dolly::Base
+class User < Dolly::Base
   database_name 'db'
   set_design_doc 'dolly' #defaults to 'dolly'
 
