@@ -20,34 +20,39 @@ Or install it yourself as:
 
 The model requires a view on your couch server:
 
-    (d)->
-      [t] = d._id.split("/")
-      if t is 'user' emit(d._id, 1)
+```coffeescript
+(d)->
+  [t] = d._id.split("/")
+  if t is 'user' emit(d._id, 1)
+```
 
-    User < Dolly::Base
-      database_name 'db'
-      set_design_doc 'dolly' #defaults to 'dolly'
+```ruby
+User < Dolly::Base
+  database_name 'db'
+  set_design_doc 'dolly' #defaults to 'dolly'
 
-      property :name, :surname, :address
-      property :date_of_birth, class_name: Date, default: Date.today
-    end
+  property :name, :surname, :address
+  property :date_of_birth, class_name: Date, default: Date.today
+end
 
-    User.all #Dolly::Collection #<#User...>, <#User...>
+User.all #Dolly::Collection #<#User...>, <#User...>
 
-    user = User.find "a1b2d3e" #<#User...>
-    user.name
+user = User.find "a1b2d3e" #<#User...>
+user.name
 
-    #Return a User object based on the custom view.
-    user = User.view 'view_name', {key: ["a", "b", "c"], reduce: true}
+#Return a User object based on the custom view.
+user = User.view 'view_name', {key: ["a", "b", "c"], reduce: true}
 
-    # Save doc
-    user.email = 'foo'
-    user.save #user.save! exists but doesn do anything yet.
-    
-    #New Doc
-    user = User.new
-    user.name = 'A'
-    user.save
+
+# Save doc
+user.email = 'foo'
+user.save #user.save! exists but doesn do anything yet.
+
+#New Doc
+user = User.new
+user.name = 'A'
+user.save
+```
 
 ## TODO
   * Generators for creating a Model with its couch views
