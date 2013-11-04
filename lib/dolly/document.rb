@@ -7,6 +7,7 @@ module Dolly
     include Dolly::Query
 
     attr_accessor :rows, :doc, :key
+    class_attribute :properties
 
     def id
       doc['_id']
@@ -49,15 +50,15 @@ module Dolly
     end
 
     def representation
-      Representations::DocumentRepresentation.config(self.class.properties)
+      Representations::DocumentRepresentation.config(self.properties)
     end
 
     def self.property *ary
-      options       = ary.pop if ary.last.kind_of? Hash
-      options     ||= {}
-      @properties ||= []
+      options           = ary.pop if ary.last.kind_of? Hash
+      options         ||= {}
+      self.properties ||= []
 
-      @properties += ary.map do |name|
+      self.properties += ary.map do |name|
         options.merge!({name: name})
         property = Property.new(options)
 
@@ -80,7 +81,7 @@ module Dolly
 
     private
     def _properties
-      self.class.properties
+      self.properties
     end
   end
 end

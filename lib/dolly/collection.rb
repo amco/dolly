@@ -40,6 +40,11 @@ module Dolly
       @set = self.extend(representation).from_json(json).rows
     end
 
+    def to_json options = {}
+      load if empty?
+      map{|r| r.doc }.to_json(options)
+    end
+
     private
     def representation
       Representations::CollectionRepresentation.config(docs_class)
