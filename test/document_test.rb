@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class FooBar < Dolly::Base
+class FooBar < Dolly::Document
   database_name 'test'
   set_design_doc 'test'
 
@@ -11,7 +11,7 @@ class FooBar < Dolly::Base
   timestamps!
 end
 
-class DollyTest < ActiveSupport::TestCase
+class DocumentTest < ActiveSupport::TestCase
 
   def setup
     data     = {foo: 'Foo', bar: 'Bar', type: 'foo_bar'}
