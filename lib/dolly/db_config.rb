@@ -10,11 +10,6 @@ module Dolly
       parse_config[Rails.env]
     end
 
-    def auth_info parts
-      return "" unless parts['username'].present?
-      "#{parts['username']}:#{parts['password']}@"
-    end
-
     def config_file
       root = Rails.root || File.expand_path("../../../test/dummy/",  __FILE__)
       File.join(root, 'config', 'couchdb.yml')
