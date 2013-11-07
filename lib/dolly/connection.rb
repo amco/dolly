@@ -1,16 +1,20 @@
 require "dolly/request"
 require "dolly/name_space"
+require "dolly/db_config"
 
 module Dolly
   module Connection
     include Dolly::NameSpace
+    include Dolly::DbConfig
+
+    @@design_doc = nil
 
     def database
-      @database ||= Request.new(database_name: @@database_name)
+      @database ||= Request.new(env)
     end
 
     def database_name value
-       @@database_name ||= value
+      @@database_name ||= value
     end
 
     def default_doc
@@ -18,11 +22,8 @@ module Dolly
     end
 
     def design_doc
-      "_design/#{@@design_doc || DESIGN_DOC}"
+      "_design/#{env["design"]}"
     end
 
-    def set_design_doc value
-      @@design_doc = value
-    end
   end
 end

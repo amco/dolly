@@ -10,11 +10,14 @@ module Dolly
     attr_accessor :database_name, :host, :port
 
     def initialize options = {}
-      @host = options[:host] || DEFAULT_HOST
-      @port = options[:port] || DEFAULT_PORT
-      @database_name = options[:database_name]
+      @host = options["host"] || DEFAULT_HOST
+      @port = options["port"] || DEFAULT_PORT
 
-      self.class.base_uri "#{protocol}://#{host}:#{port}"
+      @database_name = options["name"]
+      @username      = options["username"]
+      @password      = options["password"]
+
+      self.class.base_uri "#{protocol}://#{auth_info}#{host}:#{port}"
     end
 
     def get resource, data = nil
@@ -35,6 +38,11 @@ module Dolly
     end
 
     private
+    def auth_info
+      return "" unless @username.present?
+      "#{@username}:#{@password}@"
+    end
+
     def values_to_json hash
       hash.reduce({}){|h, v| h[v.first] = v.last.to_json; h}
     end

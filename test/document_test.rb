@@ -1,9 +1,6 @@
 require 'test_helper'
 
 class FooBar < Dolly::Document
-  database_name 'test'
-  set_design_doc 'test'
-
   property :foo, :bar
   property :with_default, default: 1
   property :boolean, class_name: TrueClass, default: true
@@ -24,9 +21,9 @@ class DocumentTest < ActiveSupport::TestCase
     empty_resp  =  build_view_response []
     @multi_resp = build_view_response all_docs
 
-    build_request [["foo_bar","foo_bar/1"]], view_resp
-    build_request [["foo_bar","foo_bar/2"]], empty_resp
-    build_request [["foo_bar","foo_bar/1"],["foo_bar","foo_bar/2"]], @multi_resp
+    build_request [["foo_bar","1"]], view_resp
+    build_request [["foo_bar","2"]], empty_resp
+    build_request [["foo_bar","1"],["foo_bar","2"]], @multi_resp
 
     FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&include_docs=true", body: @multi_resp.to_json
   end

@@ -2,7 +2,7 @@ defaults: &defaults
   host: localhost
   port: 5984
   protocol: http
-  design_doc: 'my_app'
+  design: 'test'
 
 development:
   <<: *defaults
@@ -11,5 +11,3 @@ development:
 test:
   <<: *defaults
   name: test
-
-
