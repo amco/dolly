@@ -12,19 +12,23 @@ class FooBar < Dolly::Document
 end
 
 class DocumentTest < ActiveSupport::TestCase
+  DB_BASE_PATH = "http://localhost:5984/test/_design/test/_view/".freeze
+  VIEW_DOC = "find".freeze
 
   def setup
     data     = {foo: 'Foo', bar: 'Bar', type: 'foo_bar'}
+
     all_docs = [ {foo: 'Foo B', bar: 'Bar B', type: 'foo_bar'},  {foo: 'Foo A', bar: 'Bar A', type: 'foo_bar'}]
 
     view_resp   = build_view_response [data]
     empty_resp  =  build_view_response []
     @multi_resp = build_view_response all_docs
 
-    build_request ["foo_bar/1"], view_resp
-    build_request ["foo_bar/2"], empty_resp
-    build_request ["foo_bar/1","foo_bar/2"], @multi_resp
-    build_request [], @multi_resp
+    build_request [["foo_bar","foo_bar/1"]], view_resp
+    build_request [["foo_bar","foo_bar/2"]], empty_resp
+    build_request [["foo_bar","foo_bar/1"],["foo_bar","foo_bar/2"]], @multi_resp
+
+    FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&include_docs=true", body: @multi_resp.to_json
   end
 
   test 'with timestamps!' do
@@ -44,14 +48,14 @@ class DocumentTest < ActiveSupport::TestCase
 
   test 'empty find should raise error' do
     assert_raise Dolly::ResourceNotFound do
-      FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/foo_bar?keys=%5B%5D&include_docs=true", :status => ["404", "Not Found"]
+      FakeWeb.register_uri :get, "#{view_base_path}?keys=%5B%5D&include_docs=true", :status => ["404", "Not Found"]
       foo = FooBar.find
     end
   end
 
   test 'error on server raises Dolly::ServerError' do
     assert_raise Dolly::ServerError do
-      FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/foo_bar?keys=%5B%5D&include_docs=true", :status => ["500", "Error"]
+      FakeWeb.register_uri :get, "#{view_base_path}?keys=%5B%5D&include_docs=true", :status => ["500", "Error"]
       foo = FooBar.find
     end
   end
@@ -139,9 +143,12 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   def build_request keys, body, view_name = 'foo_bar'
-    base_url = "http://localhost:5984/test/_design/test/_view/foo_bar"
     query = "keys=#{CGI::escape keys.to_s.gsub(' ','')}&" unless keys.blank?
-    FakeWeb.register_uri :get, "#{base_url}?#{query.to_s}include_docs=true", body: body.to_json
+    FakeWeb.register_uri :get, "#{view_base_path}?#{query.to_s}include_docs=true", body: body.to_json
+  end
+
+  def view_base_path
+    "#{DB_BASE_PATH}#{VIEW_DOC}"
   end
 
 end

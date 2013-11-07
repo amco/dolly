@@ -17,8 +17,9 @@ module Dolly
       self.class.base_uri "#{protocol}://#{host}:#{port}"
     end
 
-    def get resource, data
-      request :get, resource, {query: values_to_json(data)}
+    def get resource, data = nil
+      q = {query: values_to_json(data)} if data
+      request :get, resource, q
     end
 
     def put resource, data
@@ -43,6 +44,7 @@ module Dolly
     end
 
     def request method, resource, data = nil
+      data ||= {}
       headers = { 'Content-Type' => 'application/json' }
       response = self.class.send method, full_path(resource), data.merge(headers: headers)
       if response.code == 404
