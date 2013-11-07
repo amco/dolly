@@ -14,7 +14,7 @@ module Dolly
     end
 
     def default_doc
-      "#{design_doc}/_view/#{name_paramitized}"
+      "#{design_doc}/_view/find"
     end
 
     def design_doc

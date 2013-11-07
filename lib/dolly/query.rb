@@ -17,7 +17,7 @@ module Dolly
       DESIGN_DOC = "dolly"
 
       def find *ids
-        response = default_view(keys: ids.map{|id| namespace(id)}).parsed_response
+        response = default_view(keys: ids.map{ |id| [name_paramitized, namespace(id)] }).parsed_response
         ids.count > 1 ? Collection.new(response, name.constantize) : self.new.from_json(response)
       rescue NoMethodError => err
         if err.message == "undefined method `[]' for nil:NilClass"
@@ -28,7 +28,8 @@ module Dolly
       end
 
       def all
-        Collection.new default_view.parsed_response, name.constantize
+        q = {startkey: [name_paramitized,nil], endkey: [name_paramitized,{}]}
+        Collection.new default_view(q).parsed_response, name.constantize
       end
 
       def default_view options = {}
