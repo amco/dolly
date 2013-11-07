@@ -5,10 +5,8 @@ module Dolly
     end
 
     def base_id id
-      return id unless id =~ /^#{name_paramitized}/
-      base = id.split('/')
-      base.shift
-      base.join('/')
+      return id unless id =~ /^#{name_paramitized}\//
+      id.match("[^/]+[/](.+)")[1]
     end
 
     def namespace id
