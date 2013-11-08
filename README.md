@@ -83,15 +83,18 @@ user.save #user.save! exists but doesn do anything yet.
 user = User.new
 user.name = 'A'
 user.save
+
+user = User.new name: 'A'
+user.save
+
+user = User.create name: 'A'
 ```
 
 ## TODO
   * Generators for creating views for attributes search on models.
   * Validations?
   * Dirty Tracking?
-  * Create method
-  * intializer with properties ```User.new name: 'Foo'```
- 
+
   Add to do's
 
 ## Contributing
