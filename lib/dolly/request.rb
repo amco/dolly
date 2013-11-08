@@ -37,7 +37,16 @@ module Dolly
       @protocol || 'http'
     end
 
+    def uuids opts = {}
+      tools("_uuids", opts)["uuids"]
+    end
+
     private
+    def tools path, opts = nil
+      q = "?#{CGI.unescape(opts.to_query)}" unless opts.blank?
+      JSON::parse self.class.get("/#{path}#{q}")
+    end
+
     def auth_info
       return "" unless @username.present?
       "#{@username}:#{@password}@"

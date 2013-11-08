@@ -9,8 +9,12 @@ module Dolly
     attr_accessor :rows, :doc, :key
     class_attribute :properties
 
+    def initialize options = {}
+      init_properties options
+    end
+
     def id
-      doc['_id']
+      doc['_id'] ||= self.class.next_id
     end
 
     def rev
@@ -53,6 +57,12 @@ module Dolly
       Representations::DocumentRepresentation.config(self.properties)
     end
 
+    def self.create options = {}
+      obj = new options
+      obj.save
+      obj
+    end
+
     def self.property *ary
       options           = ary.pop if ary.last.kind_of? Hash
       options         ||= {}
@@ -82,6 +92,10 @@ module Dolly
     private
     def _properties
       self.properties
+    end
+
+    def init_properties options = {}
+      options.each{|k, v| send(:"#{k}=", v)}
     end
   end
 end
