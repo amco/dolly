@@ -46,8 +46,9 @@ The model requires a view on your couch server:
 
 ```coffeescript
 (d)->
-  [str, t, id] = d._id.match /([^/]+)[/](.+)
-  emit [t, id], 1 if t and id
+  if d._id
+    [str, t, id] = d._id.match /([^/]+)[/](.+)
+    emit [t, id], 1 if t and id
 ```
 
 This view, and the database on config/couchdb.yml will be added with the task:
