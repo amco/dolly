@@ -46,7 +46,7 @@ class DocumentTest < ActiveSupport::TestCase
   test 'new in memory document' do
     #TODO: clean up all the fake request creation
     resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
-    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_bar%2F[\d\s\-]+/, body: resp.to_json
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_bar%2F.+/, body: resp.to_json
     properties = {foo: 1, bar: 2, boolean: false}
     foo = FooBar.new properties
     assert_equal 1, foo.with_default

@@ -57,6 +57,12 @@ module Dolly
       Representations::DocumentRepresentation.config(self.properties)
     end
 
+    def self.create options = {}
+      obj = new options
+      obj.save
+      obj
+    end
+
     def self.property *ary
       options           = ary.pop if ary.last.kind_of? Hash
       options         ||= {}
