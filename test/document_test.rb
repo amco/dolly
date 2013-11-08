@@ -43,6 +43,19 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal foo['created_at'], foo.created_at
   end
 
+  test 'new in memory document' do
+    #TODO: clean up all the fake request creation
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_bar%2F[\d\s]+/, body: resp.to_json
+    properties = {foo: 1, bar: 2, boolean: false}
+    foo = FooBar.new properties
+    assert_equal 1, foo.with_default
+    foo.save
+    properties.each do |k, v|
+      assert_equal v, foo[k]
+    end
+  end
+
   test 'empty find should raise error' do
     assert_raise Dolly::ResourceNotFound do
       FakeWeb.register_uri :get, "#{view_base_path}?keys=%5B%5D&include_docs=true", :status => ["404", "Not Found"]

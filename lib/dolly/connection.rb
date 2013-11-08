@@ -25,5 +25,9 @@ module Dolly
       "_design/#{env["design"]}"
     end
 
+    def next_id
+      namespace database.uuids.first
+    end
+
   end
 end
