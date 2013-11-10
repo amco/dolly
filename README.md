@@ -58,7 +58,7 @@ This view, and the database on config/couchdb.yml will be added with the task:
 ####Document Model
 
 ```ruby
-class User < Dolly::Base
+class User < Dolly::Document
   database_name 'db'
   set_design_doc 'dolly' #defaults to 'dolly'
 
