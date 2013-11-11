@@ -52,6 +52,13 @@ user.save #user.save! exists but doesn do anything yet.
 user = User.new
 user.name = 'A'
 user.save
+
+#Quering available
+
+User.all
+User.first
+User.last
+
 ```
 
 ## TODO
