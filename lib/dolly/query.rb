@@ -1,4 +1,3 @@
-require "active_model/naming"
 require "dolly/connection"
 require "dolly/collection"
 require "dolly/representations/document_representation"
@@ -10,7 +9,6 @@ module Dolly
   module Query
     module ClassMethods
       include Dolly::NameSpace
-      include ActiveModel::Naming
       include Dolly::Connection
       attr_accessor :properties
 

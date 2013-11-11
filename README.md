@@ -18,16 +18,47 @@ Or install it yourself as:
 
 ## Usage
 
+Add config/couchdb.yml
+
+sample file:
+
+```yml
+defaults: &defaults
+  host: localhost
+  port: 5984
+  protocol: http
+  design: 'test'
+
+development:
+  <<: *defaults
+  name: dolly
+
+test:
+  <<: *defaults
+  name: dolly_test
+
+production:
+  <<: *defaults
+  name: dolly_production
+```
+
 The model requires a view on your couch server:
 
 ```coffeescript
 (d)->
-  [t] = d._id.split("/")
-  if t is 'user' emit(d._id, 1)
+  if d._id
+    [str, t, id] = d._id.match /([^/]+)[/](.+)
+    emit [t, id], 1 if t and id
 ```
 
+This view, and the database on config/couchdb.yml will be added with the task:
+
+```rake db:setup```
+
+####Document Model
+
 ```ruby
-class User < Dolly::Base
+class User < Dolly::Document
   database_name 'db'
   set_design_doc 'dolly' #defaults to 'dolly'
 
@@ -53,21 +84,25 @@ user = User.new
 user.name = 'A'
 user.save
 
+user = User.new name: 'A'
+user.save
+
+user = User.create name: 'A'
+
 #Quering available
 
 User.all
 User.first
 User.last
 
+
 ```
 
 ## TODO
-  * Generators for creating a Model with its couch views
+  * Generators for creating views for attributes search on models.
   * Validations?
   * Dirty Tracking?
-  * Create method
-  * intializer with properties ```User.new name: 'Foo'```
- 
+
   Add to do's
 
 ## Contributing
