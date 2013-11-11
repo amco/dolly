@@ -14,6 +14,14 @@ module Dolly
       @json = str
     end
 
+    def first
+      to_a.first
+    end
+
+    def last
+      to_a.last
+    end
+
     def map &block
       load if empty?
       @set.collect &block

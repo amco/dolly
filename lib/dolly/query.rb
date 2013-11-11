@@ -26,7 +26,20 @@ module Dolly
       end
 
       def all
-        q = {startkey: [name_paramitized,nil], endkey: [name_paramitized,{}]}
+        build_collection startkey: [name_paramitized,nil], endkey: [name_paramitized,{}]
+      end
+
+      def first limit = 1
+        res = build_collection startkey: [name_paramitized,nil], endkey: [name_paramitized,{}], limit: limit
+        limit == 1 ? res.first : res
+      end
+
+      def last limit = 1
+        res = build_collection startkey: [name_paramitized,{}], endkey: [name_paramitized,nil], limit: limit, descending: true
+        limit == 1 ? res.first : res
+      end
+
+      def build_collection q
         Collection.new default_view(q).parsed_response, name.constantize
       end
 

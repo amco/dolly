@@ -26,6 +26,10 @@ class DocumentTest < ActiveSupport::TestCase
     build_request [["foo_bar","1"],["foo_bar","2"]], @multi_resp
 
     FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&limit=1&include_docs=true", body: view_resp.to_json
+    FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&limit=2&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2C%7B%7D%5D&endkey=%5B%22foo_bar%22%2Cnull%5D&limit=1&descending=true&include_docs=true", body: view_resp.to_json
+    FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2C%7B%7D%5D&endkey=%5B%22foo_bar%22%2Cnull%5D&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json
   end
 
   test 'with timestamps!' do
@@ -124,6 +128,16 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 2, all.count
   end
 
+  test 'all first returns FooBar' do
+    first = FooBar.all.first
+    assert first.kind_of?(FooBar)
+  end
+
+  test 'all last returns FooBar' do
+    last = FooBar.all.last
+    assert last.kind_of?(FooBar)
+  end
+
   test 'all will get FooBar documents' do
      all = FooBar.all
      all.each{ |d| assert_equal true, d.kind_of?(FooBar) }
@@ -137,6 +151,26 @@ class DocumentTest < ActiveSupport::TestCase
     all.each do |d|
       assert foos.include?(d.foo)
     end
+  end
+
+  test 'first class method returns single item' do
+    first = FooBar.first
+    assert first.kind_of?(FooBar)
+  end
+
+  test 'first class method returns collection' do
+    first_2 = FooBar.first 2
+    assert first_2.kind_of?(Dolly::Collection)
+  end
+
+  test 'last class method returns single item' do
+    last = FooBar.last
+    assert last.kind_of?(FooBar)
+  end
+
+  test 'last class method returns collection' do
+    last_2 = FooBar.last 2
+    assert last_2.kind_of?(Dolly::Collection)
   end
 
   private

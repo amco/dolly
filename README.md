@@ -88,6 +88,14 @@ user = User.new name: 'A'
 user.save
 
 user = User.create name: 'A'
+
+#Quering available
+
+User.all
+User.first
+User.last
+
+
 ```
 
 ## TODO
