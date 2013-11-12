@@ -43,6 +43,11 @@ module Dolly
         Collection.new default_view(q).parsed_response, name.constantize
       end
 
+      def find_with doc, view_name, opts = {}
+        res = view "_design/#{doc}/_view/#{view_name}", opts
+        Collection.new res.parsed_response, name.constantize
+      end
+
       def default_view options = {}
         view default_doc, options
       end
