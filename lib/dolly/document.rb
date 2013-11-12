@@ -33,6 +33,13 @@ module Dolly
       save
     end
 
+    def destroy soft = false
+      #TODO: Add soft delete support
+      q = id_as_resource + "?rev=#{rev}"
+      response = database.delete(q)
+      JSON::parse response.parsed_response
+    end
+
     def rows= col
       col.each{ |r| @doc = r['doc'] }
       _properties.each do |p|
