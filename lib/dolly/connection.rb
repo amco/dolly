@@ -1,6 +1,7 @@
 require "dolly/request"
 require "dolly/name_space"
 require "dolly/db_config"
+require "dolly/bulk_document"
 
 module Dolly
   module Connection
@@ -11,6 +12,14 @@ module Dolly
 
     def database
       @database ||= Request.new(env)
+    end
+
+    def bulk_document
+      @bulk_document ||= BulkDocument.new(database)
+    end
+
+    def bulk_save
+      bulk_document.save
     end
 
     def database_name value

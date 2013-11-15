@@ -34,6 +34,7 @@ module Dolly
     end
 
     def rows= col
+      raise Dolly::ResourceNotFound if col.empty?
       col.each{ |r| @doc = r['doc'] }
       _properties.each do |p|
         self.send "#{p.name}=", doc[p.name]
@@ -96,6 +97,8 @@ module Dolly
 
     def init_properties options = {}
       options.each{|k, v| send(:"#{k}=", v)}
+      self.doc ||= {}
+      self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
     end
   end
 end
