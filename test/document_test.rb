@@ -181,7 +181,7 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test 'soft delete on document' do
-    pending "delete should be able to do soft deletion."
+    skip "delete should be able to do soft deletion."
   end
 
   test 'query custom view' do
