@@ -184,6 +184,13 @@ class DocumentTest < ActiveSupport::TestCase
     pending "delete should be able to do soft deletion."
   end
 
+  test 'query custom view' do
+    FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/custom_view?key=1&include_docs=true", body: @multi_resp.to_json
+    f = FooBar.find_with "test", "custom_view", key: 1
+    assert_equal 2, f.count
+    f.each{ |d| assert d.kind_of?(FooBar) }
+  end
+
   private
   def build_view_response properties
     rows = properties.map.with_index do |v, i|
