@@ -173,6 +173,17 @@ class DocumentTest < ActiveSupport::TestCase
     assert last_2.kind_of?(Dolly::Collection)
   end
 
+  test 'delete method on document' do
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :delete, /http:\/\/localhost:5984\/test\/foo_bar%2F[^\?]+\?rev=.+/, body: resp.to_json
+    doc = FooBar.find "1"
+    doc.destroy
+  end
+
+  test 'soft delete on document' do
+    skip "delete should be able to do soft deletion."
+  end
+
   test 'query custom view' do
     FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/custom_view?key=1&include_docs=true", body: @multi_resp.to_json
     f = FooBar.find_with "test", "custom_view", key: 1
