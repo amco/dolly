@@ -49,6 +49,10 @@ module Dolly
       self.response.each do |doc|
         next if doc['error']
         item = self.payload[:docs].detect{|d| d.id == doc['id']}
+        if item.nil?
+          self.errors << BulkError.new({"error" => "Document saved but not local rev updated.", "reason" => "Document with id #{doc['id']} on bulk doc was not found in payload.", "obj" => nil})
+          next
+        end
         item.doc['_rev'] = doc['rev']
         self.payload[:docs].delete item
       end
