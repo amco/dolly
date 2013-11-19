@@ -95,6 +95,18 @@ User.all
 User.first
 User.last
 
+# Bulk save
+
+#Bulk saving works adding docs to the bulk_document property.
+
+Dolly::Document.bulk_document << User.new name: 'foo'
+
+# bulk_document includes :[], :<<, :first, :last, :to_a, :count
+# it is forwarding to Set, so this will avoid duplicated documents.
+# You can add as many documents as you want.
+# To trigger the remote save you have to call.
+
+Dolly::Document.bulk_save
 
 ```
 
