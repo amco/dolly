@@ -1,7 +1,5 @@
 require "dolly/connection"
 require "dolly/collection"
-require "dolly/representations/document_representation"
-require "dolly/representations/collection_representation"
 require "dolly/name_space"
 require "exceptions/dolly"
 
@@ -40,7 +38,8 @@ module Dolly
       end
 
       def build_collection q
-        Collection.new default_view(q).parsed_response, name.constantize
+        res = default_view(q)
+        Collection.new res.parsed_response, name.constantize
       end
 
       def find_with doc, view_name, opts = {}

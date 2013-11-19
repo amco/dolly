@@ -1,4 +1,5 @@
 require "httparty"
+require "dolly/bulk_document"
 
 module Dolly
 
@@ -7,7 +8,7 @@ module Dolly
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = '5984'
 
-    attr_accessor :database_name, :host, :port
+    attr_accessor :database_name, :host, :port, :bulk_document
 
     def initialize options = {}
       @host = options["host"] || DEFAULT_HOST
@@ -17,6 +18,7 @@ module Dolly
       @username      = options["username"]
       @password      = options["password"]
 
+      @bulk_document = Dolly::BulkDocument.new []
       self.class.base_uri "#{protocol}://#{auth_info}#{host}:#{port}"
     end
 
@@ -27,6 +29,10 @@ module Dolly
 
     def put resource, data
       request :put, resource, {body: data}
+    end
+
+    def post resource, data
+      request :post, resource, {body: data}
     end
 
     def delete resource

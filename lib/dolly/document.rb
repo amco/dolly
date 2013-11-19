@@ -22,6 +22,7 @@ module Dolly
     end
 
     def save
+      self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
       response = database.put(id_as_resource, self.doc.to_json)
       obj = JSON::parse response.parsed_response
       doc['_rev'] = obj['rev'] if obj['rev']
@@ -41,6 +42,7 @@ module Dolly
     end
 
     def rows= col
+      raise Dolly::ResourceNotFound if col.empty?
       col.each{ |r| @doc = r['doc'] }
       _properties.each do |p|
         self.send "#{p.name}=", doc[p.name]
@@ -49,7 +51,9 @@ module Dolly
     end
 
     def from_json string
-      self.class.new.extend(representation).from_json( string )
+      parsed = JSON::parse( string )
+      self.rows = parsed['rows']
+      self
     end
 
     def database
@@ -58,10 +62,6 @@ module Dolly
 
     def id_as_resource
       CGI::escape id
-    end
-
-    def representation
-      Representations::DocumentRepresentation.config(self.properties)
     end
 
     def self.create options = {}
@@ -102,7 +102,12 @@ module Dolly
     end
 
     def init_properties options = {}
-      options.each{|k, v| send(:"#{k}=", v)}
+      #TODO: right now not listed properties will be ignored
+      options.each do |k, v|
+        next unless respond_to? :"#{k}="
+        send(:"#{k}=", v)
+      end
+      self.doc ||= {}
     end
   end
 end

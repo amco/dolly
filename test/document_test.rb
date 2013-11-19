@@ -191,6 +191,15 @@ class DocumentTest < ActiveSupport::TestCase
     f.each{ |d| assert d.kind_of?(FooBar) }
   end
 
+  test 'new document have id' do
+    foo = FooBar.new
+    assert_equal 0, (foo.id =~ /^foo_bar\/[abcdef0-9]+/i)
+  end
+
+  test 'Dolly::Document have bulk_document instance' do
+    assert Dolly::Document.bulk_document.kind_of?(Dolly::BulkDocument)
+  end
+
   private
   def build_view_response properties
     rows = properties.map.with_index do |v, i|
