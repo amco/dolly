@@ -17,6 +17,10 @@ module Dolly
       doc['_id'] ||= self.class.next_id
     end
 
+    def id= base_value
+      doc['_id'] = self.class.namespace(base_value)
+    end
+
     def rev
       doc['_rev']
     end
