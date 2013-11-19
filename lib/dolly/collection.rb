@@ -1,5 +1,3 @@
-require 'dolly/representations/collection_representation'
-
 module Dolly
   class Collection
     extend Forwardable
@@ -44,8 +42,22 @@ module Dolly
       length
     end
 
+    def rows= ary
+      @set = ary.map do |r|
+        next unless r['doc']
+        properties = r['doc']
+        id = properties.delete '_id'
+        rev = properties.delete '_rev' if properties['_rev']
+        document = docs_class.new properties
+        document.doc = properties.merge({'_id' => id, '_rev' => rev})
+        document
+      end
+      @rows = ary
+    end
+
     def load
-      @set = self.extend(representation).from_json(json).rows
+      parsed = JSON::parse json
+      self.rows = parsed['rows']
     end
 
     def to_json options = {}
@@ -54,10 +66,6 @@ module Dolly
     end
 
     private
-    def representation
-      Representations::CollectionRepresentation.config(docs_class)
-    end
-
     def docs_class
       @docs_class
     end
