@@ -22,6 +22,7 @@ module Dolly
     end
 
     def save
+      self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
       response = database.put(id_as_resource, self.doc.to_json)
       obj = JSON::parse response.parsed_response
       doc['_rev'] = obj['rev'] if obj['rev']
@@ -100,7 +101,6 @@ module Dolly
         send(:"#{k}=", v)
       end
       self.doc ||= {}
-      self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
     end
   end
 end

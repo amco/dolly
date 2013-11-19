@@ -43,14 +43,14 @@ module Dolly
     end
 
     def rows= ary
-      @set = ary.map do |r|
+      ary.each do |r|
         next unless r['doc']
         properties = r['doc']
         id = properties.delete '_id'
         rev = properties.delete '_rev' if properties['_rev']
         document = docs_class.new properties
         document.doc = properties.merge({'_id' => id, '_rev' => rev})
-        document
+        @set << document
       end
       @rows = ary
     end
