@@ -5,6 +5,7 @@ module Dolly
   class Document
     extend Dolly::Connection
     include Dolly::Query
+    include Dolly::NameSpace
 
     attr_accessor :rows, :doc, :key
     class_attribute :properties
@@ -17,11 +18,21 @@ module Dolly
       doc['_id'] ||= self.class.next_id
     end
 
+    def id= base_value
+      doc ||= {}
+      doc['_id'] = self.class.namespace(base_value)
+    end
+
     def rev
       doc['_rev']
     end
 
+    def rev= value
+      doc['_rev'] = value
+    end
+
     def save
+      self.doc['_id'] = self.id if self.id.present?
       self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
       response = database.put(id_as_resource, self.doc.to_json)
       obj = JSON::parse response.parsed_response
@@ -107,7 +118,12 @@ module Dolly
         next unless respond_to? :"#{k}="
         send(:"#{k}=", v)
       end
+      init_doc options
+    end
+
+    def init_doc options
       self.doc ||= {}
+      self.doc['_id'] = self.class.namespace(options[:id]) if options[:id]
     end
   end
 end
