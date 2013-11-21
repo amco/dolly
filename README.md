@@ -55,6 +55,13 @@ This view, and the database on config/couchdb.yml will be added with the task:
 
 ```rake db:setup```
 
+You can save your views as coffescript files inside ```db/designs/*.map.coffee```
+And push them into the default design document with:
+
+```rake db:design```
+
+This will not replace de default find view.
+
 ####Document Model
 
 ```ruby
