@@ -1,13 +1,11 @@
 namespace :db do
   desc "Will create if missing database and add default views"
   task setup: :environment do
-    VIEW_DOC = {
-      language: "coffeescript",
-      views: {
-        find: {
-          map: "(d)->\n  if d._id\n    [str, t, id] = d._id.match /([^/]+)[/](.+)/\n    emit [t, id], 1 if t and id"
-        }
-      }
+    FIND_VIEW = { "find" => { "map" => "(d)->\n  if d._id\n    [str, t, id] = d._id.match /([^/]+)[/](.+)/\n    emit [t, id], 1 if t and id"} }
+
+    default_doc = {
+      "language" => "coffeescript",
+      "views" => FIND_VIEW
     }.freeze
 
     Dolly::Document.database.put "", nil
@@ -15,12 +13,17 @@ namespace :db do
     remote_doc = begin
       JSON.parse Dolly::Document.database.get(Dolly::Document.design_doc).parsed_response
     rescue Dolly::ResourceNotFound
-      {}
+      nil
     end
 
-    doc = VIEW_DOC.merge remote_doc
+    doc = if remote_doc
+      remote_doc["views"].merge! FIND_VIEW
+      remote_doc
+    else
+      default_doc
+    end
 
-    Dolly::Document.database.put Dolly::Document.design_doc, doc.to_json
+    res = Dolly::Document.database.put Dolly::Document.design_doc, doc.to_json
     puts "design document #{Dolly::Document.design_doc} was created/updated."
   end
 
