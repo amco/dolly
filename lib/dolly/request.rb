@@ -19,7 +19,7 @@ module Dolly
       @password      = options["password"]
 
       @bulk_document = Dolly::BulkDocument.new []
-      self.class.base_uri "#{protocol}://#{auth_info}#{host}:#{port}"
+      self.class.base_uri "#{protocol}://#{host}:#{port}"
     end
 
     def get resource, data = nil
@@ -54,8 +54,8 @@ module Dolly
     end
 
     def auth_info
-      return "" unless @username.present?
-      "#{@username}:#{@password}@"
+      return nil unless @username.present?
+      {username: @username, password: @password}
     end
 
     def values_to_json hash
@@ -68,6 +68,7 @@ module Dolly
 
     def request method, resource, data = nil
       data ||= {}
+      data.merge!(basic_auth: auth_info) if auth_info.present?
       headers = { 'Content-Type' => 'application/json' }
       response = self.class.send method, full_path(resource), data.merge(headers: headers)
       if response.code == 404
