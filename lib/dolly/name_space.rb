@@ -5,7 +5,7 @@ module Dolly
     include ActiveModel::Naming
 
     def name_paramitized
-      model_name.param_key
+      model_name.element
     end
 
     def base_id id
