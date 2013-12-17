@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dolly (0.5.4)
+    dolly (0.5.5)
       httparty
       rails (~> 4.0.0)
 
