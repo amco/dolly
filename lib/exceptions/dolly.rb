@@ -14,4 +14,14 @@ module Dolly
       'Design document is missing. Add it into couchdb.yml as design:name.'
     end
   end
+  class InvalidConfigFileError < RuntimeError
+
+    def initialize filename
+      @filename = filename
+    end
+
+    def to_s
+      "Invalid config file at #{filename}"
+    end
+  end
 end

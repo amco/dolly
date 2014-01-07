@@ -3,7 +3,9 @@ module Dolly
     attr_accessor :config_file
 
     def parse_config
-      YAML::load( ERB.new( File.read(config_file) ).result)
+      @config_data ||= File.read(config_file)
+      raise Dolly::InvalidConfigFileError unless @config_data.present?
+      YAML::load( ERB.new(@config_data).result )
     end
 
     def env
