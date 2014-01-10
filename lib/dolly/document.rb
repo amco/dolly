@@ -86,12 +86,14 @@ module Dolly
       options         ||= {}
       self.properties ||= []
 
+      default_value = options[:default]
+
       self.properties += ary.map do |name|
         options.merge!({name: name})
         property = Property.new(options)
 
         define_method(name) do
-          property.value = @doc[name.to_s]
+          property.value = @doc[name.to_s] || default_value
           property.value
         end
 
