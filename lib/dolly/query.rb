@@ -13,7 +13,7 @@ module Dolly
       DESIGN_DOC = "dolly"
 
       def find *ids
-        response = default_view(keys: ids.map{ |id| [name_paramitized, base_id(id)] }).parsed_response
+        response = database.all_docs(ids.map{ |id| [name_paramitized, base_id(id)] }).parsed_response
         ids.count > 1 ? Collection.new(response, name.constantize) : self.new.from_json(response)
       rescue NoMethodError => err
         if err.message == "undefined method `[]' for nil:NilClass"

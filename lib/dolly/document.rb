@@ -93,7 +93,8 @@ module Dolly
         property = Property.new(options)
 
         define_method(name) do
-          property.value = @doc[name.to_s] || default_value
+          value = @doc[name.to_s]
+          property.value = property.boolean? ? value : (value || default_value)
           property.value
         end
 
@@ -115,6 +116,7 @@ module Dolly
     end
 
     def init_properties options = {}
+      raise Dolly::ResourceNotFound if options['error'] == 'not_found'
       #TODO: right now not listed properties will be ignored
       options.each do |k, v|
         next unless respond_to? :"#{k}="
