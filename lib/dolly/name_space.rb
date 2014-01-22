@@ -9,6 +9,7 @@ module Dolly
     end
 
     def base_id id
+      id = URI.unescape id
       return id unless id =~ /^#{name_paramitized}\//
       id.match("[^/]+[/](.+)")[1]
     end
