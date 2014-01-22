@@ -31,12 +31,12 @@ class DocumentTest < ActiveSupport::TestCase
     FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&limit=2&include_docs=true", body: @multi_resp.to_json
     FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2C%7B%7D%5D&endkey=%5B%22foo_bar%22%2Cnull%5D&limit=1&descending=true&include_docs=true", body: view_resp.to_json
     FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2C%7B%7D%5D&endkey=%5B%22foo_bar%22%2Cnull%5D&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F1%22%5D", body: view_resp.to_json
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F222%5D", body: @multy_resp.to_json
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%5D", body: not_found_resp.to_json
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2Ferror%22%5D", body: 'error', status: ["500", "Error"]
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F2%22%5D", body: not_found_resp.to_json
+    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F1%22%5D&include_docs=true", body: view_resp.to_json
+    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F222%5D&include_docs-true", body: @multy_resp.to_json
+    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%5D&include_docs=true", body: not_found_resp.to_json
+    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"]
+    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json
   end
 
   test 'with timestamps!' do
