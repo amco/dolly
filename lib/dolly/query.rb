@@ -23,17 +23,21 @@ module Dolly
         end
       end
 
+      def default_query_args
+        {startkey: "#{name_paramitized}/", endkey: "#{name_paramitized}/{}"}
+      end
+
       def all
-        build_collection startkey: [name_paramitized,nil], endkey: [name_paramitized,{}]
+        build_collection default_query_args
       end
 
       def first limit = 1
-        res = build_collection startkey: [name_paramitized,nil], endkey: [name_paramitized,{}], limit: limit
+        res = build_collection default_query_args.merge( limit: 1)
         limit == 1 ? res.first : res
       end
 
       def last limit = 1
-        res = build_collection startkey: [name_paramitized,{}], endkey: [name_paramitized,nil], limit: limit, descending: true
+        res = build_collection default_query_args.merge( limit: limit, descending: true )
         limit == 1 ? res.first : res
       end
 
@@ -65,5 +69,6 @@ module Dolly
     def self.included(base)
       base.extend ClassMethods
     end
+
   end
 end

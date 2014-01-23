@@ -25,11 +25,11 @@ class DocumentTest < ActiveSupport::TestCase
     build_request [["foo_bar","2"]], empty_resp
     build_request [["foo_bar","1"],["foo_bar","2"]], @multi_resp
 
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&limit=1&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&limit=2&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%5B%22foo_bar%22%2C%7B%7D%5D&endkey=%5B%22foo_bar%22%2Cnull%5D&limit=1&descending=true&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%5B%22foo_bar%22%2C%7B%7D%5D&endkey=%5B%22foo_bar%22%2Cnull%5D&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%7B%7D%22&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%7B%7D%22&limit=1&include_docs=true", body: view_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%7B%7D%22&limit=1&descending=true&include_docs=true", body: view_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%22%2C%7B%7D&limit=2&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%7B%7D%22&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%5D&include_docs=true", body: view_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%5D&include_docs=true", body: not_found_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"]
