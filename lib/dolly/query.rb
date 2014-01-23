@@ -37,7 +37,7 @@ module Dolly
       end
 
       def last limit = 1
-        res = build_collection default_query_args.merge( limit: limit, descending: true )
+        res = build_collection({startkey: default_query_args[:endkey], endkey: default_query_args[:startkey], limit: limit, descending: true})
         limit == 1 ? res.first : res
       end
 
