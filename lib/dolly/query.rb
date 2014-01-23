@@ -12,9 +12,9 @@ module Dolly
 
       DESIGN_DOC = "dolly"
 
-      def find *ids
-        response = database.all_docs(ids.map{ |id| [name_paramitized, base_id(id)] }).parsed_response
-        ids.count > 1 ? Collection.new(response, name.constantize) : self.new.from_json(response)
+      def find *keys
+        response = database.all_docs( keys: keys.map{|key| namespace key} ).parsed_response
+        keys.count > 1 ? Collection.new(response, name.constantize) : self.new.from_json(response)
       rescue NoMethodError => err
         if err.message == "undefined method `[]' for nil:NilClass"
           raise Dolly::ResourceNotFound
@@ -38,17 +38,13 @@ module Dolly
       end
 
       def build_collection q
-        res = default_view(q)
+        res = database.all_docs(q)
         Collection.new res.parsed_response, name.constantize
       end
 
       def find_with doc, view_name, opts = {}
         res = view "_design/#{doc}/_view/#{view_name}", opts
         Collection.new res.parsed_response, name.constantize
-      end
-
-      def default_view options = {}
-        view default_doc, options
       end
 
       def view doc, options = {}

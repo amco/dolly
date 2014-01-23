@@ -47,8 +47,8 @@ module Dolly
       tools("_uuids", opts)["uuids"]
     end
 
-    def all_docs keys = []
-      data = values_to_json({keys: keys.map{|k| k.join('/') }, include_docs: true})
+    def all_docs data = {}
+      data =  values_to_json data.merge( include_docs: true )
       request :get, '_all_docs', {query: data}
     end
 

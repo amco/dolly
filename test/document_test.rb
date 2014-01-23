@@ -9,8 +9,7 @@ class FooBar < Dolly::Document
 end
 
 class DocumentTest < ActiveSupport::TestCase
-  DB_BASE_PATH = "http://localhost:5984/test/_design/test/_view/".freeze
-  VIEW_DOC = "find".freeze
+  DB_BASE_PATH = "http://localhost:5984/test".freeze
 
   def setup
     data     = {foo: 'Foo', bar: 'Bar', type: 'foo_bar'}
@@ -26,17 +25,16 @@ class DocumentTest < ActiveSupport::TestCase
     build_request [["foo_bar","2"]], empty_resp
     build_request [["foo_bar","1"],["foo_bar","2"]], @multi_resp
 
-    FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&limit=1&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&limit=2&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2C%7B%7D%5D&endkey=%5B%22foo_bar%22%2Cnull%5D&limit=1&descending=true&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{view_base_path}?startkey=%5B%22foo_bar%22%2C%7B%7D%5D&endkey=%5B%22foo_bar%22%2Cnull%5D&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F1%22%5D&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F222%5D&include_docs-true", body: @multy_resp.to_json
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%5D&include_docs=true", body: not_found_resp.to_json
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"]
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_all_docs?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&limit=1&include_docs=true", body: view_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%5B%22foo_bar%22%2Cnull%5D&endkey=%5B%22foo_bar%22%2C%7B%7D%5D&limit=2&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%5B%22foo_bar%22%2C%7B%7D%5D&endkey=%5B%22foo_bar%22%2Cnull%5D&limit=1&descending=true&include_docs=true", body: view_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%5B%22foo_bar%22%2C%7B%7D%5D&endkey=%5B%22foo_bar%22%2Cnull%5D&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%5D&include_docs=true", body: view_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%5D&include_docs=true", body: not_found_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"]
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json
   end
 
   test 'with timestamps!' do
@@ -69,14 +67,14 @@ class DocumentTest < ActiveSupport::TestCase
 
   test 'empty find should raise error' do
     assert_raise Dolly::ResourceNotFound do
-      FakeWeb.register_uri :get, "#{view_base_path}?keys=%5B%5D&include_docs=true", :status => ["404", "Not Found"]
+      FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%5D&include_docs=true", :status => ["404", "Not Found"]
       foo = FooBar.find
     end
   end
 
   test 'error on server raises Dolly::ServerError' do
     assert_raise Dolly::ServerError do
-      FakeWeb.register_uri :get, "#{view_base_path}?keys=", :status => ["500", "Error"]
+      FakeWeb.register_uri :get, "#{query_base_path}?keys=", :status => ["500", "Error"]
       foo = FooBar.find 'error'
     end
   end
@@ -226,11 +224,11 @@ class DocumentTest < ActiveSupport::TestCase
 
   def build_request keys, body, view_name = 'foo_bar'
     query = "keys=#{CGI::escape keys.to_s.gsub(' ','')}&" unless keys.blank?
-    FakeWeb.register_uri :get, "#{view_base_path}?#{query.to_s}include_docs=true", body: body.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?#{query.to_s}include_docs=true", body: body.to_json
   end
 
-  def view_base_path
-    "#{DB_BASE_PATH}#{VIEW_DOC}"
+  def query_base_path
+    "#{DB_BASE_PATH}/_all_docs"
   end
 
 end
