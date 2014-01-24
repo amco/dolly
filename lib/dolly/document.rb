@@ -93,8 +93,8 @@ module Dolly
         property = Property.new(options)
 
         define_method(name) do
-          value = @doc[name.to_s]
-          property.value = property.boolean? ? value : (value || default_value)
+          key = name.to_s
+          property.value = @doc.has_key?(key) ? @doc[key] : default_value
           property.value
         end
 

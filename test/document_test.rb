@@ -25,6 +25,7 @@ class DocumentTest < ActiveSupport::TestCase
     build_request [["foo_bar","2"]], empty_resp
     build_request [["foo_bar","1"],["foo_bar","2"]], @multi_resp
 
+    #TODO: Mock Dolly::Request to return helper with expected response. request builder can be tested by itself.
     FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%7B%7D%22&include_docs=true", body: @multi_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%7B%7D%22&limit=1&include_docs=true", body: view_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%7B%7D%22&limit=1&descending=true&include_docs=true", body: view_resp.to_json
@@ -103,6 +104,11 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 'Foo', foo.foo
     assert_equal 'Bar', foo.bar
     assert_equal false, foo.respond_to?(:type)
+  end
+
+  test 'can find with fixnum id' do
+    foo = FooBar.find 1
+    assert_equal 'Foo', foo.foo
   end
 
   test 'with default will return default value on nil' do

@@ -1,5 +1,6 @@
 require "active_model/naming"
 
+#TODO: remove this module to be part of Dolly::Document
 module Dolly
   module NameSpace
     include ActiveModel::Naming
@@ -10,12 +11,11 @@ module Dolly
 
     def base_id id
       id = URI.unescape id
-      return id unless id =~ /^#{name_paramitized}\//
-      id.match("[^/]+[/](.+)")[1]
+      id.sub %r~^#{name_paramitized}/~, ''
     end
 
     def namespace id
-      return id if id =~ /^#{name_paramitized}/
+      return id if id =~ %r~^#{name_paramitized}/~
       "#{name_paramitized}/#{id}"
     end
   end

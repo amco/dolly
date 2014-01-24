@@ -13,8 +13,13 @@ module Dolly
       DESIGN_DOC = "dolly"
 
       def find *keys
-        response = database.all_docs( keys: keys.map{|key| namespace key} ).parsed_response
-        keys.count > 1 ? Collection.new(response, name.constantize) : self.new.from_json(response)
+        query_hash = { keys: keys.map{|key| namespace key} }
+
+        if keys.count > 1
+          build_collection( query_hash )
+        else
+          self.new.from_json( database.all_docs(query_hash).parsed_response )
+        end
       rescue NoMethodError => err
         if err.message == "undefined method `[]' for nil:NilClass"
           raise Dolly::ResourceNotFound
