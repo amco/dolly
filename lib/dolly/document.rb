@@ -109,7 +109,21 @@ module Dolly
       end
     end
 
+    def self.method_missing method_name, *args, &block
+      method_match = method_name.to_s.match(/^view_(.+)_on_(.+)$/)
+      if method_match
+        process_call_view(method_match, args.first)
+      else
+        super
+      end
+    end
+
     private
+    def self.process_call_view method_match, options
+      _, doc_name, map_name = method_match.to_a
+      find_with doc_name, map_name, options
+    end
+
     def _properties
       self.properties
     end
