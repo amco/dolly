@@ -42,20 +42,13 @@ production:
   name: dolly_production
 ```
 
-The model requires a view on your couch server:
-
-```coffeescript
-(d)->
-  if d._id
-    [str, t, id] = d._id.match /([^/]+)[/](.+)
-    emit [t, id], 1 if t and id
-```
-
-This view, and the database on config/couchdb.yml will be added with the task:
+The database on config/couchdb.yml will be added with the task:
 
 ```rake db:setup```
 
-You can save your views as coffescript files inside ```db/designs/*.map.coffee```
+Since 0.6 Dolly will not require couch-view for find, all, first and last methods.
+
+You can save your custom views as coffescript files inside ```db/designs/*.map.coffee```
 And push them into the default design document with:
 
 ```rake db:design```

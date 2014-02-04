@@ -12,9 +12,14 @@ module Dolly
 
       DESIGN_DOC = "dolly"
 
-      def find *ids
-        response = default_view(keys: ids.map{ |id| [name_paramitized, base_id(id)] }).parsed_response
-        ids.count > 1 ? Collection.new(response, name.constantize) : self.new.from_json(response)
+      def find *keys
+        query_hash = { keys: keys.map{|key| namespace key} }
+
+        if keys.count > 1
+          build_collection( query_hash )
+        else
+          self.new.from_json( database.all_docs(query_hash).parsed_response )
+        end
       rescue NoMethodError => err
         if err.message == "undefined method `[]' for nil:NilClass"
           raise Dolly::ResourceNotFound
@@ -23,32 +28,32 @@ module Dolly
         end
       end
 
+      def default_query_args
+        {startkey: "#{name_paramitized}/", endkey: "#{name_paramitized}/{}"}
+      end
+
       def all
-        build_collection startkey: [name_paramitized,nil], endkey: [name_paramitized,{}]
+        build_collection default_query_args
       end
 
       def first limit = 1
-        res = build_collection startkey: [name_paramitized,nil], endkey: [name_paramitized,{}], limit: limit
+        res = build_collection default_query_args.merge( limit: 1)
         limit == 1 ? res.first : res
       end
 
       def last limit = 1
-        res = build_collection startkey: [name_paramitized,{}], endkey: [name_paramitized,nil], limit: limit, descending: true
+        res = build_collection({startkey: default_query_args[:endkey], endkey: default_query_args[:startkey], limit: limit, descending: true})
         limit == 1 ? res.first : res
       end
 
       def build_collection q
-        res = default_view(q)
+        res = database.all_docs(q)
         Collection.new res.parsed_response, name.constantize
       end
 
       def find_with doc, view_name, opts = {}
         res = view "_design/#{doc}/_view/#{view_name}", opts
         Collection.new res.parsed_response, name.constantize
-      end
-
-      def default_view options = {}
-        view default_doc, options
       end
 
       def view doc, options = {}
@@ -69,5 +74,6 @@ module Dolly
     def self.included(base)
       base.extend ClassMethods
     end
+
   end
 end
