@@ -201,11 +201,9 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test 'call_view helper method' do
-    doc = 'foo'
-    map = 'bar'
-    query = {keys: [1,2,3]}
+    doc, map, query  = ['foo', 'bar', {keys: [1,2,3]}]
     FooBar.expects(:find_with).once.with( doc, map, query)
-    FooBar.view_foo_on_bar query
+    FooBar.send(:"view_#{doc}_on_#{map}", query)
   end
 
   private
