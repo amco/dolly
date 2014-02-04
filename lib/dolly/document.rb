@@ -119,7 +119,7 @@ module Dolly
 
     private
     def self.process_call_view method_match, options
-      _, doc_name, map_name = method_match.to_a
+      _, map_name, doc_name = method_match.to_a
       find_with doc_name, map_name, options
     end
 
