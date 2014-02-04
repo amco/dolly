@@ -211,6 +211,12 @@ class DocumentTest < ActiveSupport::TestCase
     assert Dolly::Document.bulk_document.kind_of?(Dolly::BulkDocument)
   end
 
+  test 'call_view helper method' do
+    doc, map, query  = ['foo', 'bar', {keys: [1,2,3]}]
+    FooBar.expects(:find_with).once.with( doc, map, query)
+    FooBar.send(:"view_#{map}_on_#{doc}", query)
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
