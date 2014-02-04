@@ -110,8 +110,7 @@ module Dolly
     end
 
     def self.method_missing method_name, *args, &block
-      method_match = method_name.to_s.match(/^view_(.+)_on_(.+)$/)
-      if method_match
+      if method_match = method_name.to_s.match(/^view_(.+)_on_(.+)$/)
         process_call_view(method_match, args.first)
       else
         super
