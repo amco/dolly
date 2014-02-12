@@ -8,7 +8,7 @@ namespace :db do
   desc "Will update design document with what is on db/designs/*.coffee"
   task design: :environment do
     path = File.join Rails.root, 'db', 'designs'
-    files = Dir.glob("**/*.coffee")
+    files = Dir.glob("#{path}/*.coffee")
     views = {}
     filters = {}
 
