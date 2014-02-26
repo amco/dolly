@@ -238,6 +238,13 @@ class DocumentTest < ActiveSupport::TestCase
     assert foo.id.match(uuid)
   end
 
+  test 'new document with string keys' do
+    foo = FooBar.new 'id' => 'a'
+    bar = FooBar.new '_id' => 'b'
+    assert_equal "foo_bar/a", foo.id
+    assert_equal "foo_bar/b", bar.id
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}

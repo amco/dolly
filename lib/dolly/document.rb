@@ -129,7 +129,8 @@ module Dolly
     def init_doc options
       self.doc ||= {}
       #TODO: define what will be the preference _id or id
-      normalized_id = options[:_id] || options[:id]
+      symbolized_options = options.symbolize_keys
+      normalized_id = symbolized_options[:_id] || symbolized_options[:id]
       self.doc['_id'] = self.class.namespace( normalized_id ) if normalized_id
     end
 
