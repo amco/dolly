@@ -24,6 +24,14 @@ module Dolly
       doc['_id'] = self.class.namespace(base_value)
     end
 
+    def [] property
+      send property.to_sym
+    end
+
+    def []= property, value
+      send "#{property}=".to_sym, value
+    end
+
     def rev
       doc['_rev']
     end
@@ -105,7 +113,6 @@ module Dolly
         end
 
         define_method(:"#{name}?") { send name } if property.boolean?
-        define_method("[]") {|n| send n.to_sym}
 
         property
       end
