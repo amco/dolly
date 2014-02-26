@@ -218,6 +218,11 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal "foo_bar/b", bar.id
   end
 
+  test 'new document with no id' do
+    foo = FooBar.new
+    assert foo.id.match(%r{foo_bar/[a-f0-1]+}).present?
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
