@@ -1,3 +1,11 @@
+GIT
+  remote: git://github.com/turn-project/turn.git
+  revision: c6bed426b85178498e11c6d2c6a27cb2b9505158
+  specs:
+    turn (0.9.6)
+      ansi
+      minitest (~> 4)
+
 PATH
   remote: .
   specs:
@@ -32,6 +40,7 @@ GEM
       multi_json (~> 1.3)
       thread_safe (~> 0.1)
       tzinfo (~> 0.3.37)
+    ansi (1.4.3)
     arel (4.0.1)
     atomic (1.1.14)
     builder (3.1.4)
@@ -104,3 +113,4 @@ DEPENDENCIES
   fakeweb (~> 1.3.0)
   mocha (~> 0.4)
   rake
+  turn!

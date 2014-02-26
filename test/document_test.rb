@@ -220,7 +220,15 @@ class DocumentTest < ActiveSupport::TestCase
 
   test 'new document with no id' do
     foo = FooBar.new
-    assert foo.id.match(%r{foo_bar/[a-f0-1]+}).present?
+    uuid = %r{
+      \A
+      foo_bar /
+      \h{8}    # 8 hex chars
+      (?: - \h{4} ){3}  # 3 groups of 4 hex chars (hyphen sep)
+      - \h{12}  # 12 hex chars (hyphen sep again)
+      \Z
+    }x
+    assert foo.id.match(uuid)
   end
 
   private
