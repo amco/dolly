@@ -11,6 +11,7 @@ module Dolly
     class_attribute :properties
 
     def initialize options = {}
+      options = options.with_indifferent_access
       init_properties options
     end
 

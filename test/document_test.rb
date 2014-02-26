@@ -218,6 +218,13 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal "foo_bar/b", bar.id
   end
 
+  test 'new document will have id from _id or id strings' do
+    foo = FooBar.new 'id' => 'a'
+    bar = FooBar.new '_id' => 'b'
+    assert_equal "foo_bar/a", foo.id
+    assert_equal "foo_bar/b", bar.id
+  end
+
   test 'new document with no id' do
     foo = FooBar.new
     uuid = %r{
