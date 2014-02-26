@@ -211,6 +211,13 @@ class DocumentTest < ActiveSupport::TestCase
     assert Dolly::Document.bulk_document.kind_of?(Dolly::BulkDocument)
   end
 
+  test 'new document will have id from _id or id symbols' do
+    foo = FooBar.new id: 'a'
+    bar = FooBar.new _id: 'b'
+    assert_equal "foo_bar/a", foo.id
+    assert_equal "foo_bar/b", bar.id
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
