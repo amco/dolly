@@ -35,6 +35,7 @@ module Dolly
     end
 
     def next_id
+      # TODO: cache these UUIDs and only retrieve when we need them
       namespace database.uuids.first
     end
 

@@ -7,6 +7,8 @@ module Dolly
     include Dolly::Query
     include Dolly::NameSpace
 
+    include Dolly::PropertyMethods
+
     attr_accessor :rows, :doc, :key
     class_attribute :properties
 
@@ -25,7 +27,7 @@ module Dolly
     end
 
     def [] property
-      send property.to_sym
+      doc[property]
     end
 
     def []= property, value

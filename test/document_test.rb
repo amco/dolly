@@ -53,6 +53,19 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal foo['created_at'], foo.created_at
   end
 
+  test 'overridden accessor works with defaults' do
+    class Foo2 < Dolly::Document
+      property :foo, default: 'wee'
+
+      def foo
+        self[:foo]
+      end
+    end
+
+    f2 = Foo2.new
+    assert_equal 'wee', f2.foo
+  end
+
   test 'new in memory document' do
     #TODO: clean up all the fake request creation
     resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
