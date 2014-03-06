@@ -1,5 +1,6 @@
 require "dolly/query"
 require "dolly/property"
+require "dolly/property_methods"
 
 module Dolly
   class Document
@@ -13,8 +14,9 @@ module Dolly
     class_attribute :properties
 
     def initialize options = {}
-      options = options.with_indifferent_access
-      init_properties options
+      @doc ||= {}
+      @property = options.with_indifferent_access
+      init_properties
     end
 
     def id
@@ -24,14 +26,6 @@ module Dolly
     def id= base_value
       doc ||= {}
       doc['_id'] = self.class.namespace(base_value)
-    end
-
-    def [] property
-      doc[property]
-    end
-
-    def []= property, value
-      send "#{property}=".to_sym, value
     end
 
     def rev
@@ -97,25 +91,12 @@ module Dolly
       options         ||= {}
       self.properties ||= []
 
-      default_value = options[:default]
-
       self.properties += ary.map do |name|
-        options.merge!({name: name})
-        property = Property.new(options)
+        property = Property.new( options.merge(name: name) )
 
-        define_method(name) do
-          key = name.to_s
-          property.value = @doc.has_key?(key) ? @doc[key] : default_value
-          property.value
-        end
-
-        define_method("#{name}=") do |val|
-          @doc ||={}
-          @doc[name.to_s] = val
-        end
-
+        define_method(name) { @property[name.to_sym] ||= property.value }
+        define_method("#{name}=") { |val| property.value = @property[name.to_sym] = val }
         define_method(:"#{name}?") { send name } if property.boolean?
-
         property
       end
     end
@@ -125,16 +106,16 @@ module Dolly
       self.properties
     end
 
-    def init_properties options = {}
-      raise Dolly::ResourceNotFound if options['error'] == 'not_found'
-      #TODO: right now not listed properties will be ignored
-      options.each do |k, v|
+    def init_properties
+      raise Dolly::ResourceNotFound if @property['error'] == 'not_found'
+      @property.each do |k, v|
         next unless respond_to? :"#{k}="
         send(:"#{k}=", v)
       end
-      init_doc options
+      init_doc @property
     end
 
+    #TODO: refactor this method into property_methods
     def init_doc options
       self.doc ||= {}
       #TODO: define what will be the preference _id or id

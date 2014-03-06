@@ -1,7 +1,6 @@
 module Dolly
   class Property
-    attr_writer :value
-    attr_accessor :name
+    attr_accessor :name, :default
 
     def initialize opts = {}
       @class_name = opts.delete(:class_name) if opts.present?
@@ -19,6 +18,10 @@ module Dolly
       return self_klass.new @value unless self.respond_to?(klass_sym)
 
       self.send klass_sym
+    end
+
+    def value= v
+      @value = v.nil? ? @default : v
     end
 
     def array_value

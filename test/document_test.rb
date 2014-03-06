@@ -57,13 +57,14 @@ class DocumentTest < ActiveSupport::TestCase
     class Foo2 < Dolly::Document
       property :foo, default: 'wee'
 
-      def foo
+      def bar
         self[:foo]
       end
     end
 
     f2 = Foo2.new
     assert_equal 'wee', f2.foo
+    assert_equal 'wee', f2.bar
   end
 
   test 'new in memory document' do

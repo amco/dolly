@@ -17,9 +17,12 @@ module Dolly
       end
 
       ( @property_cache ||= {} )[n] ||= @property[n]
+      @doc[n.to_s] = @property_cache[n]
     end
 
     def write_property prop_name, value
+      @property_cache ||= {}
+
       n = prop_name.to_sym
 
       if n == :_id
@@ -29,10 +32,9 @@ module Dolly
       @property_cache.delete n
 
       if @property.has_key? n
-        @property[n] = value
+        @property[n] = @doc[n.to_s] = value
       else
-        # TODO: make this error
-        raise Dolly::MissingPropertyError, "can't write unknown property `#{n}'"
+        raise Dolly::MissingPropertyError.new(n)
       end
     end
   end
