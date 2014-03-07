@@ -1,13 +1,13 @@
 require "dolly/query"
 require "dolly/property"
 require "dolly/property_methods"
+require "dolly/couch_document"
 
 module Dolly
   class Document
     extend Dolly::Connection
     include Dolly::Query
     include Dolly::NameSpace
-
     include Dolly::PropertyMethods
 
     attr_accessor :rows, :doc, :key
@@ -24,7 +24,6 @@ module Dolly
     end
 
     def id= base_value
-      doc ||= {}
       doc['_id'] = self.class.namespace(base_value)
     end
 
@@ -109,18 +108,10 @@ module Dolly
     def init_properties
       raise Dolly::ResourceNotFound if @property['error'] == 'not_found'
       @property.each do |k, v|
+        k = 'id' if k == '_id'
         next unless respond_to? :"#{k}="
         send(:"#{k}=", v)
       end
-      init_doc @property
-    end
-
-    #TODO: refactor this method into property_methods
-    def init_doc options
-      self.doc ||= {}
-      #TODO: define what will be the preference _id or id
-      normalized_id = options[:_id] || options[:id]
-      self.doc['_id'] = self.class.namespace( normalized_id ) if normalized_id
     end
 
   end

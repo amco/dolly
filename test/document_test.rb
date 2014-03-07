@@ -225,6 +225,13 @@ class DocumentTest < ActiveSupport::TestCase
     assert Dolly::Document.bulk_document.kind_of?(Dolly::BulkDocument)
   end
 
+  test 'can reset id' do
+    foo = FooBar.new id: 'a'
+    assert_equal "foo_bar/a", foo.id
+    foo.id = "b"
+    assert_equal "foo_bar/b", foo.id
+  end
+
   test 'new document will have id from _id or id symbols' do
     foo = FooBar.new id: 'a'
     bar = FooBar.new _id: 'b'

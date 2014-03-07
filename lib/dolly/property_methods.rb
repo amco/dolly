@@ -37,5 +37,6 @@ module Dolly
         raise Dolly::MissingPropertyError.new(n)
       end
     end
+
   end
 end
