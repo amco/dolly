@@ -1,7 +1,6 @@
 require "dolly/query"
 require "dolly/property"
 require "dolly/property_methods"
-require "dolly/couch_document"
 require "dolly/identifier_cache"
 
 module Dolly
