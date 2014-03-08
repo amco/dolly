@@ -218,7 +218,7 @@ class DocumentTest < ActiveSupport::TestCase
 
   test 'new document have id' do
     foo = FooBar.new
-    assert_equal 0, (foo.id =~ /^foo_bar\/[abcdef0-9]+/i)
+    assert_equal 0, (foo.id =~ /^foo_bar\/\h+/i)
   end
 
   test 'Dolly::Document have bulk_document instance' do

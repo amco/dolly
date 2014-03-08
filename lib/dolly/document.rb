@@ -1,6 +1,8 @@
 require "dolly/query"
 require "dolly/property"
 require "dolly/property_methods"
+require "dolly/couch_document"
+require "dolly/identifier_cache"
 
 module Dolly
   class Document
@@ -10,16 +12,18 @@ module Dolly
     include Dolly::PropertyMethods
 
     attr_accessor :rows, :doc, :key
+    attr_reader :id_cache
     class_attribute :properties
 
     def initialize options = {}
       @doc ||= {}
       @property = options.with_indifferent_access
+      @id_cache = IdentifierCache.new self.database
       init_properties
     end
 
     def id
-      doc['_id'] ||= self.class.next_id
+      doc['_id'] ||= self.class.namespace(id_cache.next)
     end
 
     def id= base_value
