@@ -22,6 +22,7 @@ module Dolly
     end
 
     def id
+      #TODO: We probably want to hide the namespace for the api user
       doc['_id'] ||= self.class.namespace(id_cache.next)
     end
 
