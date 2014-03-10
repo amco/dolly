@@ -8,7 +8,6 @@ module Dolly
     module ClassMethods
       include Dolly::NameSpace
       include Dolly::Connection
-      attr_accessor :properties
 
       DESIGN_DOC = "dolly"
 
@@ -63,8 +62,14 @@ module Dolly
 
       def timestamps!
         %i/created_at updated_at/.each do |method|
-          define_method(method){ @doc[method.to_s] ||= DateTime.now }
-          define_method(:"#{method}="){|val| @doc[method.to_s] = val }
+          define_method(method) do
+            @doc[method.to_s] ||= DateTime.now
+            @property[method.to_sym] = @doc[method.to_s]
+          end
+
+          define_method(:"#{method}=") do |val|
+            @doc[method.to_s] = @property[method.to_s] = val
+          end
         end
       end
     end

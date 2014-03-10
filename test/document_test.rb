@@ -57,13 +57,14 @@ class DocumentTest < ActiveSupport::TestCase
     class Foo2 < Dolly::Document
       property :foo, default: 'wee'
 
-      def foo
+      def bar
         self[:foo]
       end
     end
 
     f2 = Foo2.new
     assert_equal 'wee', f2.foo
+    assert_equal 'wee', f2.bar
   end
 
   test 'new in memory document' do
@@ -217,11 +218,18 @@ class DocumentTest < ActiveSupport::TestCase
 
   test 'new document have id' do
     foo = FooBar.new
-    assert_equal 0, (foo.id =~ /^foo_bar\/[abcdef0-9]+/i)
+    assert_equal 0, (foo.id =~ /^foo_bar\/\h+/i)
   end
 
   test 'Dolly::Document have bulk_document instance' do
     assert Dolly::Document.bulk_document.kind_of?(Dolly::BulkDocument)
+  end
+
+  test 'can reset id' do
+    foo = FooBar.new id: 'a'
+    assert_equal "foo_bar/a", foo.id
+    foo.id = "b"
+    assert_equal "foo_bar/b", foo.id
   end
 
   test 'new document will have id from _id or id symbols' do

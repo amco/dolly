@@ -24,7 +24,7 @@ class ActiveSupport::TestCase
   def global_setup
     FakeWeb.allow_net_connect = false
 
-    response = { uuids: [SecureRandom.uuid] }
+    response = { uuids: 10.times.map{ SecureRandom.uuid } }
     FakeWeb.register_uri(:get, %r|http://.*:5984/_uuids.*|, body: response.to_json)
   end
 

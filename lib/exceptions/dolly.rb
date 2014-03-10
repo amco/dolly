@@ -1,4 +1,14 @@
 module Dolly
+  class MissingPropertyError < RuntimeError
+    def initialize name
+      @name = name
+    end
+
+    def to_s
+      "can't write unknown property `#{@name}'"
+    end
+  end
+
   class ResourceNotFound < RuntimeError
     def to_s
       'The document was not found.'
