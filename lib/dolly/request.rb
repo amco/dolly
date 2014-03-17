@@ -52,6 +52,14 @@ module Dolly
       request :get, '_all_docs', {query: data}
     end
 
+    def activity_tasks
+      tools("_active_tasks")
+    end
+
+    def trigger_index id
+      get id
+    end
+
     private
     def tools path, opts = nil
       data = {}

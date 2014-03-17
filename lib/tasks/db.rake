@@ -5,6 +5,15 @@ namespace :db do
     puts "Database created"
   end
 
+  namespace :load do
+    desc 'Creates/Update design document based on files under db/designs/[doc_name]/*.[coffee|js]/'
+    task document: :environment do
+      require 'dolly/design_tasks_helper'
+
+      Dolly::DesignTasksHelper.new.load!
+    end
+  end
+
   desc "Will update design document with what is on db/designs/*.coffee"
   task design: :environment do
     path = File.join Rails.root, 'db', 'designs'

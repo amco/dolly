@@ -1,4 +1,6 @@
 module Dolly
+  class TimeOut < RuntimeError; end
+
   class ResourceNotFound < RuntimeError
     def to_s
       'The document was not found.'
