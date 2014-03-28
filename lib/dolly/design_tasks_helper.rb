@@ -4,81 +4,81 @@ require 'dolly/couch_view_doc'
 module Dolly
   class DesignTasksHelper
 
-    EXTENSIONS = {coffee: 'coffeescript', erl: 'erlang', js: 'javascript'}
+    EXTENSIONS = {coffee: 'coffeescript', js: 'javascript'}
     DESIGNS_PATH = File.join(Rails.root, 'db', 'designs')
 
     def load!
-      documents = {}
-
-      design_docs.each do |view_path|
-        doc_id = view_path.split('/')[-2]
-        file_type = file_type( view_path )
-        view_name, view_functions = process_view( view_path )
-        documents[ doc_id ] ||= CouchViewDoc.new(doc_id, file_type)
-        documents[ doc_id ][:views][view_name] = view_functions
-      end
-
-      documents.each{ |id, doc| post_process_design doc }
-
-      Dolly::Document.bulk_save
+      design_views = {}
+      designs.each{ |view_path| design_views.merge! build_design( view_path ) }
+      design_views.each{ |id, design| post_process design }
     end
 
-    def design_docs
+    private
+
+    def build_design view_path
+      view_id   = view_path.split('/')[-2]
+      file_type = file_type( view_path )
+
+      design = CouchView.new(view_id, file_type)
+      design.set_view( process_view( view_path ) )
+
+      { view_id => design }
+    end
+
+    def designs
       base_path = File.join(DESIGNS_PATH, '*/*')
       Dir[ base_path ]
     end
 
+    def post_process design
+      remote_design = design_hash( retrieve_design design.id )
+      ensure_design(design, *remote_design)
+    end
+
     def file_type filename
-      ext = File.extname filename
-      ext_key = ext.gsub('.','').to_sym
+      ext     = File.extname filename
+      ext_key = ext.gsub('.','')
+
       EXTENSIONS[ ext_key ]
     end
 
-    def post_process_design doc
-      if remote_doc = retrieve_doc( doc.id )
-        update_existing_design_document doc, *doc_to_hash( remote_doc )
-      else
-        create_design_document doc
-      end
-    end
-
     def process_view filename
-      name, key  = File.basename(filename).sub(/.coffee/i, '').split(/\./)
+      name, key = File.basename(filename).sub(/.coffee/i, '').split(/\./)
       key ||= 'map'
       data = File.read filename
-      [name, { key => data }]
+      { name => { key => data } }
     end
 
-    def retrieve_doc doc_id
-      request = Dolly::Document.database.get( doc_id )
+    def retrieve_design name
+      request = Document.database.get( name )
       request.parsed_response.is_a?(Hash) ? request.parsed_response : JSON::parse( request.parsed_response )
-    rescue Dolly::ResourceNotFound
+    rescue ResourceNotFound
       nil
     end
 
-    def doc_to_hash doc
-      hash_doc = doc.to_hash
-      rev = hash_doc.delete('_rev')
-      [hash_doc, rev]
+    def design_hash design
+      hash = design.to_hash
+      rev = hash.delete('_rev')
+      [hash, rev]
     end
 
-    def update_existing_design_document new_doc, remote_doc, rev = nil
-      if new_doc.to_hash == remote_doc
-        puts "#{new_doc.id} is up to date"
+    def ensure_design design, remote_design, rev = nil
+      if design.present?
+        update_existing_design design, remote_design, rev
       else
-        new_doc.rev = rev
-        puts "updating #{new_doc.id}"
-        new_doc.save
+        create_design design
       end
     end
 
-    def create_design_document doc
-      puts "creating #{doc.id}"
-      doc.save true
+    def update_existing_design new_design, remote_design, rev
+      unless new_design.to_hash == remote_design
+        new_design.rev = rev
+        new_design.save
+      end
     end
 
-    def is_main_path? path
-      path == "#{DESIGNS_PATH}/"
+    def create_design design
+      design.save true
     end
 
   end

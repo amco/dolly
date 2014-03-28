@@ -26,4 +26,5 @@ module Dolly
       "Invalid config file at #{filename}"
     end
   end
+  class UnsupportedFileType < RuntimeError; end
 end

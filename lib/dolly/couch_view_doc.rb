@@ -1,5 +1,5 @@
 module Dolly
-  class CouchViewDoc
+  class CouchView
     extend Forwardable
 
     DEFAULT_TIMEOUT = 10
@@ -10,20 +10,25 @@ module Dolly
 
     def initialize id, type
       @id = "_design/#{id}"
-      @type = type
+      type = type
       @doc = build_view_doc
     end
 
-    def timeout
-      @timeout ||= DEFAULT_TIMEOUT
+    def type= value
+      raise UnsupportedFileType if value.blank?
+      @type = type
     end
 
-    def timeout= time
-      @timeout = time
+    def set_view view_hash
+      views.merge! view_hash
     end
 
     def save bulk = false
       bulk ? bulk_save : document_save
+    end
+
+    def to_hash
+      @doc
     end
 
     def rev= value
@@ -34,6 +39,12 @@ module Dolly
       self[:views] = value
     end
 
+    def views
+      self[:views]
+    end
+
+    private
+
     def build_view_doc
       {
         _id: id,
@@ -42,12 +53,16 @@ module Dolly
       }
     end
 
-    def tmp_id
-      "#{id}_tmp"
+    def timeout
+      @timeout ||= DEFAULT_TIMEOUT
     end
 
-    def to_hash
-      @doc
+    def timeout= time
+      @timeout = time
+    end
+
+    def tmp_id
+      "#{id}_tmp"
     end
 
     def bare_json
@@ -57,9 +72,9 @@ module Dolly
     end
 
     def bulk_save
-      model = Dolly::Document.new
+      model = Document.new
       model.doc = @doc
-      Dolly::Document.bulk_document << model
+      Document.bulk_document << model
     end
 
     def document_save
@@ -70,9 +85,9 @@ module Dolly
     end
 
     def retrieve_tmp_doc
-      d = Dolly::Document.database.get tmp_id
+      d = Document.database.get tmp_id
       JSON.parse d.parsed_response
-    rescue
+    rescue ResourceNotFound
       nil
     end
 
@@ -82,24 +97,24 @@ module Dolly
 
     def push_design_start
       clean_tmp if tmp_doc
-      @tmp_doc = JSON.parse push_tmp_doc
-      Dolly::Document.database.trigger_index( tmp_id )
+      @tmp_doc = JSON.parse update_tmp_design
+      Document.database.trigger_index( tmp_id )
       @indexing_starts ||= Time.now()
     end
 
     def indexing_status
-      running_tasks = Dolly::Document.database.activity_tasks
+      running_tasks = Document.database.activity_tasks
       running_tasks.detect{ |r| r["design_document"] == new_id }
     end
 
     def push_document id = nil
       id ||= self[:_id]
-      Dolly::Document.database.put id, to_json
+      Document.database.put id, to_json
       clean_tmp
     end
 
-    def push_tmp_doc
-      Dolly::Document.database.put( tmp_id, bare_json ).parsed_response
+    def update_tmp_design
+      Document.database.put( tmp_id, bare_json ).parsed_response
     end
 
     def tmp_rev
@@ -107,7 +122,7 @@ module Dolly
     end
 
     def clean_tmp
-      Dolly::Document.database.delete "#{tmp_id}?rev=#{tmp_rev}"
+      Document.database.delete "#{tmp_id}?rev=#{tmp_rev}"
       @indexing_starts = nil
     end
 
