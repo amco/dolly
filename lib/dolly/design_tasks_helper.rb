@@ -1,5 +1,5 @@
 require 'dolly/document'
-require 'dolly/couch_view_doc'
+require 'dolly/couch_view'
 
 module Dolly
   class DesignTasksHelper
