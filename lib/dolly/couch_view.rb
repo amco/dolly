@@ -82,7 +82,7 @@ module Dolly
     def document_save
       push_design_start
       while indexing_status.present?
-        raise DollyError::TimeOut if timed_out
+        raise TimeOut if timed_out
       end
       push_document
     end
