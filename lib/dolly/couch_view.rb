@@ -67,16 +67,12 @@ module Dolly
       Document.bulk_document << model
     end
 
-    #TODO: use a forked process or some other async method to continue
-    #with the task and leave the indexing/replacing view doc on the background
     def document_save
       fork do
+        at_exit { puts "View #{id} was pushed and index recreated." }
         push_design_start
-        while indexing_status.present?
-          #Wait for index to finish
-        end
+        sleep 1 while indexing_status.present?
         push_document
-        puts "View #{id} was pushed and index recreated."
         exit
       end
     end
