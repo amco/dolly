@@ -9,8 +9,8 @@ module Dolly
 
     def load!
       design_views = {}
-      designs.each{ |view_path| design_views.merge! build_design( view_path ) }
-      design_views.each{ |id, design| post_process design }
+      designs.each{ |view_path| design_views.deep_merge! build_design( view_path ) }
+      design_views.each{ |id, design| post_process design, id }
     end
 
     private
@@ -19,10 +19,7 @@ module Dolly
       view_id   = view_path.split('/')[-2]
       file_type = file_type( view_path )
 
-      design = CouchView.new(view_id, file_type)
-      design.set_view( process_view( view_path ) )
-
-      { view_id => design }
+      { view_id => { type: file_type, views: process_view( view_path ) } }
     end
 
     def designs
@@ -30,16 +27,17 @@ module Dolly
       Dir[ base_path ]
     end
 
-    def post_process design
-      remote_design = design_hash( retrieve_design design.id )
-      ensure_design(design, *remote_design)
+    def post_process design, view_id
+      design_view = CouchView.new( view_id, design[ :type ] )
+      design_view.set_view( design[ :views ] )
+
+      remote_design = design_hash( retrieve_design design_view.id )
+      ensure_design( design_view, *remote_design )
     end
 
     def file_type filename
-      ext     = File.extname filename
-      ext_key = ext.gsub('.','')
-
-      EXTENSIONS[ ext_key ]
+      ext = File.extname( filename ).sub('.','')
+      EXTENSIONS[ ext.to_sym ]
     end
 
     def process_view filename

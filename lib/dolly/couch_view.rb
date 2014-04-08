@@ -2,21 +2,19 @@ module Dolly
   class CouchView
     extend Forwardable
 
-    DEFAULT_TIMEOUT = 10
-
     def_delegators :@doc, :[], :[]=, :to_json
 
-    attr_reader :id, :type, :timeout
+    attr_reader :id, :type
 
-    def initialize id, type
+    def initialize id, file_type
       @id = "_design/#{id}"
-      type = type
+      self.type = file_type
       @doc = build_view_doc
     end
 
     def type= value
       raise UnsupportedFileType if value.blank?
-      @type = type
+      @type = value
     end
 
     def set_view view_hash
@@ -53,14 +51,6 @@ module Dolly
       }
     end
 
-    def timeout
-      @timeout ||= DEFAULT_TIMEOUT
-    end
-
-    def timeout= time
-      @timeout = time
-    end
-
     def tmp_id
       "#{id}_tmp"
     end
@@ -80,11 +70,15 @@ module Dolly
     #TODO: use a forked process or some other async method to continue
     #with the task and leave the indexing/replacing view doc on the background
     def document_save
-      push_design_start
-      while indexing_status.present?
-        raise TimeOut if timed_out
+      fork do
+        push_design_start
+        while indexing_status.present?
+          #Wait for index to finish
+        end
+        push_document
+        puts "View #{id} was pushed and index recreated."
+        exit
       end
-      push_document
     end
 
     def retrieve_tmp_doc
@@ -101,13 +95,12 @@ module Dolly
     def push_design_start
       clean_tmp if tmp_doc
       @tmp_doc = JSON.parse update_tmp_design
-      Document.database.trigger_index( tmp_id )
-      @indexing_starts ||= Time.now()
+      Document.database.trigger_index( "#{tmp_id}/_view/#{query_trigger}" )
     end
 
     def indexing_status
       running_tasks = Document.database.activity_tasks
-      running_tasks.detect{ |r| r["design_document"] == new_id }
+      running_tasks.detect{ |r| r["design_document"] == tmp_id }
     end
 
     def push_document id = nil
@@ -129,8 +122,8 @@ module Dolly
       @indexing_starts = nil
     end
 
-    def timed_out
-      @indexing_starts.seconds.to_i == timeout
+    def query_trigger
+      views.keys.first
     end
 
   end
