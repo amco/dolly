@@ -68,13 +68,13 @@ module Dolly
     end
 
     def document_save
-      fork do
+      pid = fork do
         at_exit { puts "View #{id} was pushed and index recreated." }
         push_design_start
         sleep 1 while indexing_status.present?
         push_document
-        exit
       end
+      Process.detach pid
     end
 
     def retrieve_tmp_doc
