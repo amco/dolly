@@ -74,7 +74,7 @@ module Dolly
         sleep 1 while indexing_status.present?
         push_document
       end
-      Process.detach pid
+      Process.wait
     end
 
     def retrieve_tmp_doc
