@@ -134,7 +134,7 @@ module Dolly
 
     def indexing_finished?
       running_tasks = Document.database.activity_tasks
-      running_tasks.detect{ |r| r["design_document"] == copy_id }
+      running_tasks.none? { |r| r["design_document"] == copy_id }
     end
 
     def move_copy_to_self
