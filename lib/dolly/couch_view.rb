@@ -8,7 +8,7 @@ module Dolly
 
     attr_reader :id, :type
     # todo make this into a proper enum once we have that ported to our Property code
-    attr :status
+    attr_accessor :status
 
     def initialize id, file_type
       @id = "_design/#{id}"
