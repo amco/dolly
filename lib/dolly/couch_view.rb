@@ -7,8 +7,6 @@ module Dolly
     def_delegators :@doc, :[], :[]=, :to_json
 
     attr_reader :id, :type
-    # todo make this into a proper enum once we have that ported to our Property code
-    attr_accessor :status
 
     def initialize id, file_type
       @id = "_design/#{id}"
@@ -65,21 +63,13 @@ module Dolly
       Document.bulk_document << model
     end
 
-    def saving?
-      status == :saving
-    end
-
     def document_save
-      # todo change to an exception?
-      return if saving?
+      #TODO add status check if saving
+      #returns/raise exception
 
       fork do
-        self.status = :saving
-
         create_and_index_copy
         move_copy_to_self
-
-        self.status = :saved
 
         # todo change this to be a logging statement?
         puts "View #{id} was pushed and index recreated."
