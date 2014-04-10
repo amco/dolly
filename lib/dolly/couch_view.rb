@@ -7,6 +7,7 @@ module Dolly
     def_delegators :@doc, :[], :[]=, :to_json
 
     attr_reader :id, :type
+    # todo make this into a proper enum once we have that ported to our Property code
     attr :status
 
     def initialize id, file_type
