@@ -1,9 +1,10 @@
 GIT
   remote: git://github.com/turn-project/turn.git
-  revision: c6bed426b85178498e11c6d2c6a27cb2b9505158
+  revision: 660c7431a3a412c1c89417d9bd44f9e88c707a78
   specs:
-    turn (0.9.6)
-      ansi
+    turn (0.9.7)
+      ansi (>= 1.1)
+      bundler (>= 1.3)
       minitest (~> 4)
 
 PATH
@@ -11,7 +12,7 @@ PATH
   specs:
     dolly (0.6.2)
       httparty
-      rails (~> 4.0.0)
+      rails
 
 GEM
   remote: https://rubygems.org/
@@ -44,14 +45,14 @@ GEM
     arel (4.0.2)
     builder (3.1.4)
     erubis (2.7.0)
-    factory_girl (4.2.0)
+    factory_girl (4.4.0)
       activesupport (>= 3.0.0)
-    factory_girl_rails (4.2.1)
-      factory_girl (~> 4.2.0)
+    factory_girl_rails (4.4.1)
+      factory_girl (~> 4.4.0)
       railties (>= 3.0.0)
     fakeweb (1.3.0)
     hike (1.2.3)
-    httparty (0.12.0)
+    httparty (0.13.1)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     i18n (0.6.9)
@@ -59,12 +60,12 @@ GEM
     mail (2.5.4)
       mime-types (~> 1.16)
       treetop (~> 1.4.8)
-    metaclass (0.0.1)
+    metaclass (0.0.4)
     mime-types (1.25.1)
     minitest (4.7.5)
     mocha (0.14.0)
       metaclass (~> 0.0.1)
-    multi_json (1.10.0)
+    multi_json (1.10.1)
     multi_xml (0.5.5)
     polyglot (0.3.4)
     rack (1.5.2)
@@ -83,7 +84,7 @@ GEM
       activesupport (= 4.0.5)
       rake (>= 0.8.7)
       thor (>= 0.18.1, < 2.0)
-    rake (10.3.1)
+    rake (10.3.2)
     sprockets (2.12.1)
       hike (~> 1.2)
       multi_json (~> 1.0)

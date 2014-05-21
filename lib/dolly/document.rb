@@ -7,7 +7,7 @@ module Dolly
     include Dolly::Query
     include Dolly::NameSpace
 
-    attr_accessor :rows, :doc, :key
+    attr_accessor :rows, :doc, :key, :raw
     class_attribute :properties
 
     def initialize options = {}
