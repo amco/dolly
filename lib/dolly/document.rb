@@ -5,7 +5,6 @@ module Dolly
   class Document
     extend Dolly::Connection
     include Dolly::Query
-    include Dolly::NameSpace
 
     attr_accessor :rows, :doc, :key, :raw
     class_attribute :properties
