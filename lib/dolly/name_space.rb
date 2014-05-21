@@ -1,6 +1,3 @@
-require "active_model/naming"
-
-#TODO: remove this module to be part of Dolly::Document
 module Dolly
   module NameSpace
 
