@@ -1,12 +1,8 @@
-require "active_model/naming"
-
-#TODO: remove this module to be part of Dolly::Document
 module Dolly
   module NameSpace
-    include ActiveModel::Naming
 
     def name_paramitized
-      model_name.element
+      underscore name.split("::").last
     end
 
     def base_id id
@@ -18,5 +14,15 @@ module Dolly
       return id if id =~ %r~^#{name_paramitized}/~
       "#{name_paramitized}/#{id}"
     end
+
+    #FROM ActiveModel::Name
+    def underscore(camel_cased_word)
+      camel_cased_word.to_s.gsub(/::/, '/').
+        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
+        gsub(/([a-z\d])([A-Z])/,'\1_\2').
+        tr("-", "_").
+        downcase
+    end
+
   end
 end
