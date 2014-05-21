@@ -6,7 +6,7 @@ module Dolly
     extend Dolly::Connection
     include Dolly::Query
 
-    attr_accessor :rows, :doc, :key, :raw
+    attr_accessor :rows, :doc, :key
     class_attribute :properties
 
     def initialize options = {}
