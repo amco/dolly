@@ -17,6 +17,7 @@ module Dolly
       @database_name = options["name"]
       @username      = options["username"]
       @password      = options["password"]
+      @protocol      = options["protocol"]
 
       @bulk_document = Dolly::BulkDocument.new []
       self.class.base_uri "#{protocol}://#{host}:#{port}"
