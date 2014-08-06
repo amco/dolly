@@ -41,7 +41,7 @@ namespace :db do
         puts 'everything up to date'
       else
         view_doc["_rev"] = rev
-        view_doc["views"].merge!(hash_doc['views'])
+        view_doc["views"].reverse_merge!(hash_doc['views'])
         puts 'updating design document'
         will_save = true
       end
