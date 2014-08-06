@@ -7,51 +7,51 @@ namespace :db do
 
   desc "Will update design document with what is on db/designs/*.coffee"
   task design: :environment do
-    path = File.join Rails.root, 'db', 'designs'
-    files = Dir.glob("#{path}/*.coffee")
-    views = {}
-    filters = {}
+    design_dir = Rails.root.join 'db', 'designs'
+    files = Dir.glob File.join design_dir, '**', '*.coffee'
+    data = {}
 
     files.each do |filename|
+      parts = filename[design_dir.to_s.length+1..-1].split '/'
+      design_doc_name = parts.count == 1 ? Dolly::Document.design_doc : "_design/#{parts.first}"
+
       name, key  = File.basename(filename).sub(/.coffee/i, '').split(/\./)
       key ||= 'map'
-      data = File.read filename
+      source = File.read filename
+
+      vd = data[design_doc_name] ||= { 'views' => {}, 'filters' => {} }
 
       if key == 'filter'
-        filters[name] ||= data
+        vd['filters'][name] = source
       else
-        views[name] ||= {}
-        views[name][key] = data
+        v = vd['views'][name] ||= {}
+        v[key] = source
       end
     end
 
-    view_doc = {
-      '_id' => Dolly::Document.design_doc,
-      'language' => 'coffeescript',
-      'views' => views,
-      'filters' => filters
-    }
+    data.each do |design_doc_name, view_doc|
+      view_doc.merge!( '_id' => design_doc_name, 'language' => 'coffeescript')
 
-    begin
-      hash_doc = JSON::parse Dolly::Document.database.get(view_doc["_id"]).parsed_response
+      begin
+        hash_doc = JSON::parse Dolly::Document.database.get(view_doc["_id"]).parsed_response
 
-      rev = hash_doc.delete('_rev')
+        rev = hash_doc.delete('_rev')
 
-      if hash_doc == view_doc
-        puts 'everything up to date'
-      else
-        view_doc["_rev"] = rev
-        view_doc["views"].reverse_merge!(hash_doc['views'])
-        puts 'updating design document'
+        if hash_doc == view_doc
+          puts 'everything up to date'
+        else
+          view_doc["_rev"] = rev
+          puts "Updating #{design_doc_name}"
+          will_save = true
+        end
+
+      rescue Dolly::ResourceNotFound
+        puts "Creating design doc: #{design_doc_name}"
         will_save = true
       end
 
-    rescue Dolly::ResourceNotFound
-      puts 'creating design document'
-      will_save = true
+      Dolly::Document.database.put design_doc_name, view_doc.to_json if will_save
     end
-
-    Dolly::Document.database.put Dolly::Document.design_doc, view_doc.to_json if will_save
   end
 
 end
