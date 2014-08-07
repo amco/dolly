@@ -61,6 +61,10 @@ module Dolly
         database.get doc, options
       end
 
+      def raw_view doc, view, opts = {}
+        JSON.parse database.get "_design/#{doc}/_view/#{view}", opts
+      end
+
       def timestamps!
         %i/created_at updated_at/.each do |method|
           define_method(method){ @doc[method.to_s] ||= DateTime.now }
