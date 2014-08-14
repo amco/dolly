@@ -25,19 +25,19 @@ module Dolly
 
     def get resource, data = nil
       q = {query: values_to_json(data)} if data
-      request :get, resource, q
+      request :get, full_path(resource), q
     end
 
     def put resource, data
-      request :put, resource, {body: data}
+      request :put, full_path(resource), {body: data}
     end
 
     def post resource, data
-      request :post, resource, {body: data}
+      request :post, full_path(resource), {body: data}
     end
 
     def delete resource
-      request :delete, resource, {}
+      request :delete, full_path(resource), {}
     end
 
     def protocol
@@ -50,7 +50,22 @@ module Dolly
 
     def all_docs data = {}
       data =  values_to_json data.merge( include_docs: true )
-      request :get, '_all_docs', {query: data}
+      request :get, full_path('_all_docs'), {query: data}
+    end
+
+    def request method, resource, data = nil
+      data ||= {}
+      data.merge!(basic_auth: auth_info) if auth_info.present?
+      headers = { 'Content-Type' => 'application/json' }
+      headers.merge! data[:headers] if data[:headers]
+      response = self.class.send method, resource, data.merge(headers: headers)
+      if response.code == 404
+        raise Dolly::ResourceNotFound
+      elsif (500..600).include? response.code
+        raise Dolly::ServerError
+      else
+        response
+      end
     end
 
     private
@@ -72,20 +87,6 @@ module Dolly
 
     def full_path resource
       "/#{database_name}/#{resource}"
-    end
-
-    def request method, resource, data = nil
-      data ||= {}
-      data.merge!(basic_auth: auth_info) if auth_info.present?
-      headers = { 'Content-Type' => 'application/json' }
-      response = self.class.send method, full_path(resource), data.merge(headers: headers)
-      if response.code == 404
-        raise Dolly::ResourceNotFound
-      elsif (500..600).include? response.code
-        raise Dolly::ServerError
-      else
-        response
-      end
     end
   end
 
