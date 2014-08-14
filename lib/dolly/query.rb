@@ -29,7 +29,7 @@ module Dolly
       end
 
       def default_query_args
-        {startkey: "#{name_paramitized}/", endkey: "#{name_paramitized}/{}"}
+        {startkey: "#{name_paramitized}/", endkey: "#{name_paramitized}/\ufff0"}
       end
 
       def all
