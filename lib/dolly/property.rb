@@ -41,6 +41,10 @@ module Dolly
       @value.to_f
     end
 
+    def date_value
+      @value.to_date
+    end
+
     def true_class_value
       truthy_value?
     end

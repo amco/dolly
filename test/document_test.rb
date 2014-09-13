@@ -4,6 +4,7 @@ class FooBar < Dolly::Document
   property :foo, :bar
   property :with_default, default: 1
   property :boolean, class_name: TrueClass, default: true
+  property :date, class_name: Date
 
   timestamps!
 end
@@ -86,6 +87,12 @@ class DocumentTest < ActiveSupport::TestCase
     foo.boolean = false
     assert_equal false, foo['boolean']
     assert_equal false, foo.boolean?
+  end
+
+  test 'will have object with Date method' do
+    foo = FooBar.find 1
+    foo.date = '2010-10-13'
+    assert_equal true, foo.date.is_a?(Date)
   end
 
   test 'find will get a FooBar document' do
