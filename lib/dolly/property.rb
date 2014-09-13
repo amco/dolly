@@ -7,7 +7,7 @@ module Dolly
       @class_name = opts.delete(:class_name) if opts.present?
       @name = opts.delete(:name).to_s
       @default = opts.delete(:default)
-      warn 'There are some unprocesed options' if opts.present?
+      warn 'There are some unprocessed options!' if opts.present?
     end
 
     def value
@@ -43,6 +43,14 @@ module Dolly
 
     def date_value
       @value.to_date
+    end
+
+    def time_value
+      @value.to_time
+    end
+
+    def date_time_value
+      @value.to_datetime
     end
 
     def true_class_value
