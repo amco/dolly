@@ -4,6 +4,9 @@ class FooBar < Dolly::Document
   property :foo, :bar
   property :with_default, default: 1
   property :boolean, class_name: TrueClass, default: true
+  property :date, class_name: Date
+  property :time, class_name: Time
+  property :datetime, class_name: DateTime
 
   timestamps!
 end
@@ -26,11 +29,11 @@ class DocumentTest < ActiveSupport::TestCase
     build_request [["foo_bar","1"],["foo_bar","2"]], @multi_resp
 
     #TODO: Mock Dolly::Request to return helper with expected response. request builder can be tested by itself.
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%7B%7D%22&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%7B%7D%22&limit=1&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%7B%7D%22&limit=1&descending=true&include_docs=true", body: view_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&limit=1&include_docs=true", body: view_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%EF%BF%B0%22&limit=1&descending=true&include_docs=true", body: view_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%22%2C%7B%7D&limit=2&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%7B%7D%22&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%EF%BF%B0%22&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%5D&include_docs=true", body: view_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%5D&include_docs=true", body: not_found_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"]
@@ -86,6 +89,24 @@ class DocumentTest < ActiveSupport::TestCase
     foo.boolean = false
     assert_equal false, foo['boolean']
     assert_equal false, foo.boolean?
+  end
+
+  test 'will have object with Date method' do
+    foo = FooBar.find 1
+    foo.date = Date.today
+    assert_equal true, foo.date.is_a?(Date)
+  end
+
+  test 'will have object with Time method' do
+    foo = FooBar.find 1
+    foo.time = Time.now
+    assert_equal true, foo.time.is_a?(Time)
+  end
+
+  test 'will have object with DateTime method' do
+    foo = FooBar.find 1
+    foo.datetime = DateTime.now
+    assert_equal true, foo.datetime.is_a?(DateTime)
   end
 
   test 'find will get a FooBar document' do
