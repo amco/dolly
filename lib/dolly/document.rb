@@ -14,6 +14,18 @@ module Dolly
       init_properties options
     end
 
+    def update_properties options = {}
+      raise InvalidProperty unless valid_properties(options)
+      options.each do |property, value|
+        send(:"#{property}=", value)
+      end
+    end
+
+    def update_properties! options = {}
+      update_properties(options)
+      save
+    end
+
     def id
       doc['_id'] ||= self.class.next_id
     end
@@ -130,6 +142,10 @@ module Dolly
       #TODO: define what will be the preference _id or id
       normalized_id = options[:_id] || options[:id]
       self.doc['_id'] = self.class.namespace( normalized_id ) if normalized_id
+    end
+
+    def valid_properties(options)
+      options.keys.any?{ |option| _properties.map(&:name).include?(option.to_s) }
     end
 
   end

@@ -131,6 +131,7 @@ class DocumentTest < ActiveSupport::TestCase
     foo = FooBar.find 1
     assert_equal 'Foo', foo.foo
   end
+  
 
   test 'with default will return default value on nil' do
     foo = FooBar.find "1"
@@ -257,6 +258,26 @@ class DocumentTest < ActiveSupport::TestCase
       \Z
     }x
     assert foo.id.match(uuid)
+  end
+
+  test 'update document properties' do
+    foo = FooBar.new 'id' => 'a', foo: 'ab', bar: 'ba'
+    assert_equal 'ab', foo.foo
+    foo.update_properties foo: 'c'
+    assert_equal 'c', foo.foo
+  end
+
+  test 'update document propertys with bang' do
+    foo = FooBar.new 'id' => 'a', foo: 'ab', bar: 'ba'
+    foo.expects(:save).once
+    foo.update_properties! foo: 'c'
+  end
+
+  test 'trying to update invalid property' do
+    foo = FooBar.new 'id' => 'a', foo: 'ab', bar: 'ba'
+    assert_raise Dolly::InvalidProperty do
+       foo.update_properties key_to_success: false
+    end
   end
 
   private
