@@ -7,7 +7,7 @@ module Dolly
     include Dolly::Query
 
     attr_accessor :rows, :doc, :key
-    class_attribute :properties
+    class_attribute :properties, :property_defaults
 
     def initialize options = {}
       options = options.with_indifferent_access
@@ -85,17 +85,18 @@ module Dolly
       options           = ary.pop if ary.last.kind_of? Hash
       options         ||= {}
       self.properties ||= []
+      self.property_defaults ||= {}
 
       default_value = options[:default]
 
       self.properties += ary.map do |name|
         options.merge!({name: name})
         property = Property.new(options)
-        class_variable_set(:"@@default_#{name}", default_value)
+        self.property_defaults.merge!{name => default_value}
 
         define_method(name) do
           key = name.to_s
-          property.value = @doc.has_key?(key) ? @doc[key] : class_variable_get(:"@@default_#{name}")
+          property.value = @doc.has_key?(key) ? @doc[key] : self.property_defaults[name]
           property.value
         end
 
