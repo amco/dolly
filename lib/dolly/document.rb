@@ -86,7 +86,7 @@ module Dolly
       options         ||= {}
       self.properties ||= []
 
-      default_value = options[:default]
+      default_value = ->{options[:default]}
 
       self.properties += ary.map do |name|
         options.merge!({name: name})
@@ -94,7 +94,7 @@ module Dolly
 
         define_method(name) do
           key = name.to_s
-          property.value = @doc.has_key?(key) ? @doc[key] : default_value
+          property.value = @doc.has_key?(key) ? @doc[key] : default_value.call
           property.value
         end
 
