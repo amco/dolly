@@ -122,7 +122,7 @@ module Dolly
       #TODO: right now not listed properties will be ignored
       options.each do |k, v|
         next unless respond_to? :"#{k}="
-        value = v ||= property_defaults[k]
+        value = v || property_defaults[k]
         send(:"#{k}=", value)
       end
       init_doc options
