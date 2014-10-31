@@ -91,11 +91,11 @@ module Dolly
       self.properties += ary.map do |name|
         options.merge!({name: name})
         property = Property.new(options)
-        instance_variable_set(:"@default_#{name}", default_value)
+        class_variable_set(:"@@default_#{name}", default_value)
 
         define_method(name) do
           key = name.to_s
-          property.value = @doc.has_key?(key) ? @doc[key] : instance_variable_get(:"@default_#{name}")
+          property.value = @doc.has_key?(key) ? @doc[key] : class_variable_get(:"@@default_#{name}")
           property.value
         end
 
