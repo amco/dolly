@@ -96,7 +96,7 @@ module Dolly
 
         define_method(name) do
           key = name.to_s
-          property.value = @doc.has_key?(key) ? @doc[key] : self.property_defaults[name]
+          property.value = @doc.has_key?(key) ? @doc[key] : default_value
           property.value
         end
 
