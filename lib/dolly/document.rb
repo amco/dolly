@@ -122,8 +122,13 @@ module Dolly
       #TODO: right now not listed properties will be ignored
       options.each do |k, v|
         next unless respond_to? :"#{k}="
-        value = v || property_defaults[k]
-        send(:"#{k}=", value)
+        send(:"#{k}=", v)
+      end
+
+      self.properties.reject do |p| 
+        options.keys.include?(p) || self.property_defaults.keys.exclude?(p)
+      end.each do |property|
+        send(:"#{property}=", self.property_defaults)
       end
       init_doc options
     end
