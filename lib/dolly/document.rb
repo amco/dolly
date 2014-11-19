@@ -92,7 +92,7 @@ module Dolly
       self.properties += ary.map do |name|
         options.merge!({name: name})
         property = Property.new(options)
-        self.property_defaults.merge!({name => default_value})
+        self.property_defaults.merge!({name => ( ->{default_value} ) })
 
         define_method(name) do
           key = name.to_s
@@ -128,7 +128,7 @@ module Dolly
       self.properties.reject do |p| 
         options.keys.include?(p) || self.property_defaults.keys.exclude?(p)
       end.each do |property|
-        send(:"#{property}=", self.property_defaults)
+        send(:"#{property}=", self.property_defaults[property].call)
       end
       init_doc options
     end
