@@ -259,6 +259,14 @@ class DocumentTest < ActiveSupport::TestCase
     assert foo.id.match(uuid)
   end
 
+  test 'reader :bar is not calling the writer :bar=' do
+    foo = FooBar.new
+    foo.bar = 'bar'
+    foo.save!
+    foo.expects(:bar=).times(0)
+    assert_equal 'bar', foo.bar
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
