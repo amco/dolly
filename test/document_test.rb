@@ -11,6 +11,10 @@ class FooBar < Dolly::Document
   timestamps!
 end
 
+class FooBaz < Dolly::Document
+  property :datetime, class_name: DateTime, default: DateTime.now
+end
+
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -265,6 +269,12 @@ class DocumentTest < ActiveSupport::TestCase
     foo.save!
     foo.expects(:bar=).times(0)
     assert_equal 'bar', foo.bar
+  end
+
+  test 'timestamps work' do
+    sleep 2
+    foo = FooBaz.new
+    assert_equal DateTime.now, foo.datetime
   end
 
   private
