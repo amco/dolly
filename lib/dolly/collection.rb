@@ -26,8 +26,7 @@ module Dolly
     end
 
     def flat_map &block
-      load if empty?
-      @set.flat_map &block
+      map( &block ).flatten
     end
 
     def each &block
