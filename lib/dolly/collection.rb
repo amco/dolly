@@ -25,6 +25,11 @@ module Dolly
       @set.collect &block
     end
 
+    def flat_map &block
+      load if empty?
+      @set.flat_map &block
+    end
+
     def each &block
       load if empty?
       @set.each &block
