@@ -1,0 +1,14 @@
+bundler_args: --without development --deployment
+cache: bundler
+sudo: false
+language: ruby
+rvm:
+  - 2.1.2
+branches:
+  only:
+    - master
+services:
+  - couchdb
+notifications:
+  slack: 
+    secure: "P183YVplNfH9dtky1ULvdttY+oa3h4GyzwDVa02DuMj1MIfYH5d/ykGAOVJAyyhSqxgV/E3hmDb14ozgWRgqjdLpGbS8pLo1Kv9XmK2efZJ/s8H90iGkwRJ485F8Xa4b/x5POrc2jZmpvD6/70ySmTlDlJSVhIeRWChrI+1/JII="
