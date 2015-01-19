@@ -48,7 +48,8 @@ module Dolly
         properties = r['doc']
         id = properties.delete '_id'
         rev = properties.delete '_rev' if properties['_rev']
-        document = docs_class.new properties
+        doc_class = doc_class id
+        document = doc_class.new properties
         document.doc = properties.merge({'_id' => id, '_rev' => rev})
         @set << document
       end
@@ -68,6 +69,11 @@ module Dolly
     private
     def docs_class
       @docs_class
+    end
+
+    def doc_class id
+      doc_class = id[/^[a-z_]+/].camelize.constantize
+      docs_class == doc_class ? docs_class : doc_class
     end
 
     def json
