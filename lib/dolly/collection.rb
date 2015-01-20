@@ -72,6 +72,10 @@ module Dolly
     end
 
     def doc_class id
+      # TODO: We need to improve and document the way we return
+      # multiple types when querying from a class, as it might
+      # be confusing. We *could* also get dolly to parse the result
+      # before sending it back to the client.
       doc_class = id[/^[a-z_]+/].camelize.constantize
       docs_class == doc_class ? docs_class : doc_class
     end
