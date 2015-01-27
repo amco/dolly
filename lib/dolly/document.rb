@@ -19,6 +19,7 @@ module Dolly
       options.each do |property, value|
         send(:"#{property}=", value)
       end
+      updated_at = DateTime.now if has_updated_at?
     end
 
     def update_properties! options = {}
@@ -145,7 +146,15 @@ module Dolly
     end
 
     def valid_properties?(options)
-      options.keys.any?{ |option| _properties.map(&:name).include?(option.to_s) }
+      options.keys.any?{ |option| properties_include?(option.to_s) }
+    end
+
+    def has_updated_at?
+      properties_include? :updated_at
+    end
+
+    def properties_include? property
+      _properties.map(&:name).include? property
     end
 
   end
