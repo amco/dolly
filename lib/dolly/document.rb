@@ -15,7 +15,7 @@ module Dolly
     end
 
     def update_properties options = {}
-      raise InvalidProperty unless valid_properties(options)
+      raise InvalidProperty unless valid_properties?(options)
       options.each do |property, value|
         send(:"#{property}=", value)
       end
@@ -144,7 +144,7 @@ module Dolly
       self.doc['_id'] = self.class.namespace( normalized_id ) if normalized_id
     end
 
-    def valid_properties(options)
+    def valid_properties?(options)
       options.keys.any?{ |option| _properties.map(&:name).include?(option.to_s) }
     end
 
