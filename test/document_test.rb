@@ -7,6 +7,7 @@ class FooBar < Dolly::Document
   property :date, class_name: Date
   property :time, class_name: Time
   property :datetime, class_name: DateTime
+  property :updated_at, class_name: DateTime
 
   timestamps!
 end
@@ -288,6 +289,12 @@ class DocumentTest < ActiveSupport::TestCase
     assert_raise Dolly::InvalidProperty do
        foo.update_properties key_to_success: false
     end
+  end
+
+  test 'set updated at' do
+    foo = FooBar.new 'id' => 'a', foo: 'ab'
+    foo.update_properties! foo: 'c'
+    assert_equal DateTime.now.to_s, foo.updated_at.to_s
   end
 
   test 'reader :bar is not calling the writer :bar=' do
