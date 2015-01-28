@@ -296,6 +296,15 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal DateTime.now.to_s, foo.updated_at.to_s
   end
 
+  test 'created at is set' do
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_bar%2F.+/, body: resp.to_json
+    properties = {foo: 1, bar: 2, boolean: false}
+    foo = FooBar.new properties
+    foo.save
+    assert_equal DateTime.now.to_s, foo.created_at.to_s
+  end
+
   test 'reader :bar is not calling the writer :bar=' do
     foo = FooBar.new
     foo.bar = 'bar'
