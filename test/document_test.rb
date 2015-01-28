@@ -7,7 +7,6 @@ class FooBar < Dolly::Document
   property :date, class_name: Date
   property :time, class_name: Time
   property :datetime, class_name: DateTime
-  property :updated_at, class_name: DateTime
 
   timestamps!
 end
