@@ -1,9 +1,13 @@
 require "dolly/query"
 require "dolly/property"
+require 'dolly/timestamps'
+require 'active_model'
 
 module Dolly
   class Document
     extend Dolly::Connection
+    extend ActiveModel::Callbacks
+    define_model_callbacks :save
     include Dolly::Query
 
     attr_accessor :rows, :doc, :key
@@ -19,7 +23,6 @@ module Dolly
       options.each do |property, value|
         send(:"#{property}=", value)
       end
-      updated_at = DateTime.now if has_updated_at?
     end
 
     def update_properties! options = {}
@@ -45,6 +48,7 @@ module Dolly
     end
 
     def save
+      return false if run_callbacks(:save) == false
       self.doc['_id'] = self.id if self.id.present?
       self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
       response = database.put(id_as_resource, self.doc.to_json)
@@ -123,6 +127,8 @@ module Dolly
       end
     end
 
+    include Dolly::Timestamps
+
     private
     def _properties
       self.properties
@@ -147,10 +153,6 @@ module Dolly
 
     def valid_properties?(options)
       options.keys.any?{ |option| properties_include?(option.to_s) }
-    end
-
-    def has_updated_at?
-      properties_include? :updated_at
     end
 
     def properties_include? property
