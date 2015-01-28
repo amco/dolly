@@ -1,7 +1,7 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
-require 'active_model'
+require 'active_model/callbacks'
 
 module Dolly
   class Document
