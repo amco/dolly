@@ -5,7 +5,7 @@ module Dolly
   module Timestamps
     extend ActiveSupport::Concern
 
-    def add_timestamps!
+    def timestamps!
       Dolly::Document.class_eval do
         extend ActiveModel::Callbacks
 

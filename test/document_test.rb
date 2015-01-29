@@ -8,7 +8,7 @@ class FooBar < Dolly::Document
   property :time, class_name: Time
   property :datetime, class_name: DateTime
 
-  add_timestamps!
+  timestamps!
 end
 
 class Baz < Dolly::Document; end
