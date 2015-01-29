@@ -52,7 +52,8 @@ module Dolly
         properties = r['doc']
         id = properties.delete '_id'
         rev = properties.delete '_rev' if properties['_rev']
-        document = docs_class.new properties
+        doc_class = doc_class id
+        document = doc_class.new properties
         document.doc = properties.merge({'_id' => id, '_rev' => rev})
         @set << document
       end
@@ -72,6 +73,15 @@ module Dolly
     private
     def docs_class
       @docs_class
+    end
+
+    def doc_class id
+      # TODO: We need to improve and document the way we return
+      # multiple types when querying from a class, as it might
+      # be confusing. We *could* also get dolly to parse the result
+      # before sending it back to the client.
+      doc_class = id[/^[a-z_]+/].camelize.constantize
+      docs_class == doc_class ? docs_class : doc_class
     end
 
     def json

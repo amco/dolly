@@ -24,4 +24,9 @@ module Dolly
       "Invalid config file at #{filename}"
     end
   end
+  class InvalidProperty < RuntimeError
+    def to_s
+      "Trying to set an undefined property."
+    end
+  end
 end
