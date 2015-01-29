@@ -10,7 +10,7 @@ GIT
 PATH
   remote: .
   specs:
-    dolly (0.7.5)
+    dolly (0.7.6)
       httparty
       railties
 
