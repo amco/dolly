@@ -44,21 +44,6 @@ class DocumentTest < ActiveSupport::TestCase
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json
   end
 
-  test 'with timestamps!' do
-    later = DateTime.new 1963, 1, 1
-    now = DateTime.now
-    DateTime.stubs(:now).returns(now)
-    foo = FooBar.find "1"
-    assert_equal now, foo.created_at
-    assert_equal now, foo['created_at']
-    assert_equal now, foo.updated_at
-    assert foo.updated_at = later
-    assert_equal later, foo.updated_at
-    assert foo['created_at'] = later
-    assert_equal later, foo['created_at']
-    assert_equal foo['created_at'], foo.created_at
-  end
-
   test 'new in memory document' do
     #TODO: clean up all the fake request creation
     resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
@@ -288,6 +273,21 @@ class DocumentTest < ActiveSupport::TestCase
     assert_raise Dolly::InvalidProperty do
        foo.update_properties key_to_success: false
     end
+  end
+
+  test 'set updated at' do
+    foo = FooBar.new 'id' => 'a', foo: 'ab'
+    foo.update_properties! foo: 'c'
+    assert_equal DateTime.now.to_s, foo.updated_at.to_s
+  end
+
+  test 'created at is set' do
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_bar%2F.+/, body: resp.to_json
+    properties = {foo: 1, bar: 2, boolean: false}
+    foo = FooBar.new properties
+    foo.save
+    assert_equal DateTime.now.to_s, foo.created_at.to_s
   end
 
   test 'reader :bar is not calling the writer :bar=' do
