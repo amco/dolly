@@ -1,8 +1,5 @@
-require 'active_support/concern'
-
 module Dolly
   module Timestamps
-    extend ActiveSupport::Concern
 
     def timestamps!
       Dolly::Document.class_eval do

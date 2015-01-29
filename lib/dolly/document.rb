@@ -48,12 +48,12 @@ module Dolly
     def save
       self.doc['_id'] = self.id if self.id.present?
       self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
+      set_created_at if respond_to? :set_created_at
+      set_updated_at if respond_to? :set_updated_at
       response = database.put(id_as_resource, self.doc.to_json)
       obj = JSON::parse response.parsed_response
       doc['_rev'] = obj['rev'] if obj['rev']
       obj['ok']
-      set_created_at if respond_to? :set_created_at
-      set_updated_at if respond_to? :set_updated_at
     end
 
     def save!
