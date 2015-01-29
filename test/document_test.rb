@@ -8,7 +8,7 @@ class FooBar < Dolly::Document
   property :time, class_name: Time
   property :datetime, class_name: DateTime
 
-  timestamps!
+  add_timestamps!
 end
 
 class Baz < Dolly::Document; end
@@ -42,21 +42,6 @@ class DocumentTest < ActiveSupport::TestCase
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"]
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json
-  end
-
-  test 'with timestamps!' do
-    later = DateTime.new 1963, 1, 1
-    now = DateTime.now
-    DateTime.stubs(:now).returns(now)
-    foo = FooBar.find "1"
-    assert_equal now, foo.created_at
-    assert_equal now, foo['created_at']
-    assert_equal now, foo.updated_at
-    assert foo.updated_at = later
-    assert_equal later, foo.updated_at
-    assert foo['created_at'] = later
-    assert_equal later, foo['created_at']
-    assert_equal foo['created_at'], foo.created_at
   end
 
   test 'new in memory document' do

@@ -1,14 +1,12 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
-require 'active_model/callbacks'
 
 module Dolly
   class Document
     extend Dolly::Connection
-    extend ActiveModel::Callbacks
-    define_model_callbacks :save
     include Dolly::Query
+    extend Dolly::Timestamps
 
     attr_accessor :rows, :doc, :key
     class_attribute :properties
@@ -126,8 +124,6 @@ module Dolly
         property
       end
     end
-
-    include Dolly::Timestamps
 
     private
     def _properties

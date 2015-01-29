@@ -1,23 +1,28 @@
 require 'active_support/concern'
+require 'active_model/callbacks'
 
 module Dolly
   module Timestamps
     extend ActiveSupport::Concern
 
-    included do
-      property :created_at, :updated_at, class_name: DateTime
+    def add_timestamps!
+      Dolly::Document.class_eval do
+        extend ActiveModel::Callbacks
 
-      before_save :set_created_at, :set_updated_at
-    end
+        define_model_callbacks :save
 
-    private
+        property :created_at, :updated_at, class_name: DateTime
 
-    def set_created_at
-      self.created_at ||= DateTime.now
-    end
+        before_save :set_created_at, :set_updated_at
 
-    def set_updated_at
-      self.updated_at = DateTime.now
+        def set_created_at
+          self.created_at ||= DateTime.now
+        end
+
+        def set_updated_at
+          self.updated_at = DateTime.now
+        end
+      end
     end
   end
 end
