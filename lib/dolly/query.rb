@@ -65,14 +65,6 @@ module Dolly
         JSON.parse database.get "_design/#{doc}/_view/#{view}", opts
       end
 
-      def timestamps!
-        %i/created_at updated_at/.each do |method|
-          define_method(method){ @doc[method.to_s] ||= DateTime.now }
-          define_method(:"[]"){|m| self.send(m.to_sym) }
-          define_method(:"[]="){|m, v| self.send(:"#{m}=", v) }
-          define_method(:"#{method}="){|val| @doc[method.to_s] = val }
-        end
-      end
     end
 
     def self.included(base)

@@ -1,10 +1,12 @@
 require "dolly/query"
 require "dolly/property"
+require 'dolly/timestamps'
 
 module Dolly
   class Document
     extend Dolly::Connection
     include Dolly::Query
+    extend Dolly::Timestamps
 
     attr_accessor :rows, :doc, :key
     class_attribute :properties
@@ -12,6 +14,18 @@ module Dolly
     def initialize options = {}
       options = options.with_indifferent_access
       init_properties options
+    end
+
+    def update_properties options = {}
+      raise InvalidProperty unless valid_properties?(options)
+      options.each do |property, value|
+        send(:"#{property}=", value)
+      end
+    end
+
+    def update_properties! options = {}
+      update_properties(options)
+      save
     end
 
     def id
@@ -34,6 +48,8 @@ module Dolly
     def save
       self.doc['_id'] = self.id if self.id.present?
       self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
+      set_created_at if respond_to? :set_created_at
+      set_updated_at if respond_to? :set_updated_at
       response = database.put(id_as_resource, self.doc.to_json)
       obj = JSON::parse response.parsed_response
       doc['_rev'] = obj['rev'] if obj['rev']
@@ -132,5 +148,12 @@ module Dolly
       self.doc['_id'] = self.class.namespace( normalized_id ) if normalized_id
     end
 
+    def valid_properties?(options)
+      options.keys.any?{ |option| properties_include?(option.to_s) }
+    end
+
+    def properties_include? property
+      _properties.map(&:name).include? property
+    end
   end
 end

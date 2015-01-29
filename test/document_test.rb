@@ -11,6 +11,8 @@ class FooBar < Dolly::Document
   timestamps!
 end
 
+class Baz < Dolly::Document; end
+
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -23,6 +25,7 @@ class DocumentTest < ActiveSupport::TestCase
     empty_resp  =  build_view_response []
     not_found_resp = generic_response [{ key: "foo_bar/2", error: "not_found" }]
     @multi_resp = build_view_response all_docs
+    @multi_type_resp = build_view_collation_response all_docs
 
     build_request [["foo_bar","1"]], view_resp
     build_request [["foo_bar","2"]], empty_resp
@@ -39,21 +42,6 @@ class DocumentTest < ActiveSupport::TestCase
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"]
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json
-  end
-
-  test 'with timestamps!' do
-    later = DateTime.new 1963, 1, 1
-    now = DateTime.now
-    DateTime.stubs(:now).returns(now)
-    foo = FooBar.find "1"
-    assert_equal now, foo.created_at
-    assert_equal now, foo['created_at']
-    assert_equal now, foo.updated_at
-    assert foo.updated_at = later
-    assert_equal later, foo.updated_at
-    assert foo['created_at'] = later
-    assert_equal later, foo['created_at']
-    assert_equal foo['created_at'], foo.created_at
   end
 
   test 'new in memory document' do
@@ -223,6 +211,14 @@ class DocumentTest < ActiveSupport::TestCase
     f.each{ |d| assert d.kind_of?(FooBar) }
   end
 
+  test 'query custom view collation' do
+    FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/custom_view?startkey=%5B1%5D&endkey=%5B1%2C%7B%7D%5D&include_docs=true", body: @multi_type_resp.to_json
+    f = FooBar.find_with "test", "custom_view", { startkey: [1], endkey: [1, {}]}
+    assert_equal 2, f.count
+    assert f.first.kind_of?(FooBar)
+    assert f.last.kind_of?(Baz)
+  end
+
   test 'new document have id' do
     foo = FooBar.new
     assert_equal 0, (foo.id =~ /^foo_bar\/[abcdef0-9]+/i)
@@ -259,6 +255,41 @@ class DocumentTest < ActiveSupport::TestCase
     assert foo.id.match(uuid)
   end
 
+  test 'update document properties' do
+    foo = FooBar.new 'id' => 'a', foo: 'ab', bar: 'ba'
+    assert_equal 'ab', foo.foo
+    foo.update_properties foo: 'c'
+    assert_equal 'c', foo.foo
+  end
+
+  test 'update document propertys with bang' do
+    foo = FooBar.new 'id' => 'a', foo: 'ab', bar: 'ba'
+    foo.expects(:save).once
+    foo.update_properties! foo: 'c'
+  end
+
+  test 'trying to update invalid property' do
+    foo = FooBar.new 'id' => 'a', foo: 'ab', bar: 'ba'
+    assert_raise Dolly::InvalidProperty do
+       foo.update_properties key_to_success: false
+    end
+  end
+
+  test 'set updated at' do
+    foo = FooBar.new 'id' => 'a', foo: 'ab'
+    foo.update_properties! foo: 'c'
+    assert_equal DateTime.now.to_s, foo.updated_at.to_s
+  end
+
+  test 'created at is set' do
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_bar%2F.+/, body: resp.to_json
+    properties = {foo: 1, bar: 2, boolean: false}
+    foo = FooBar.new properties
+    foo.save
+    assert_equal DateTime.now.to_s, foo.created_at.to_s
+  end
+
   test 'reader :bar is not calling the writer :bar=' do
     foo = FooBar.new
     foo.bar = 'bar'
@@ -283,6 +314,20 @@ class DocumentTest < ActiveSupport::TestCase
     end
     generic_response rows, properties.count
   end
+
+  def build_view_collation_response properties
+    rows = properties.map.with_index do |v, i|
+      id = i.zero? ? "foo_bar/#{i}" : "baz/#{i}"
+      {
+        id: id,
+        key: "foo_bar",
+        value: 1,
+        doc: {_id: id, _rev: SecureRandom.hex}.merge!(v)
+      }
+    end
+    generic_response rows, properties.count
+  end
+
 
   def build_request keys, body, view_name = 'foo_bar'
     query = "keys=#{CGI::escape keys.to_s.gsub(' ','')}&" unless keys.blank?
