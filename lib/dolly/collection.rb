@@ -48,8 +48,7 @@ module Dolly
         properties = r['doc']
         id = properties.delete '_id'
         rev = properties.delete '_rev' if properties['_rev']
-        doc_class = doc_class id
-        document = doc_class.new properties
+        document = (docs_class || doc_class(id)).new properties
         document.doc = properties.merge({'_id' => id, '_rev' => rev})
         @set << document
       end

@@ -2,10 +2,9 @@ module Dolly
   module Timestamps
 
     def timestamps!
+      property :created_at, :updated_at, class_name: DateTime
+
       Dolly::Document.class_eval do
-
-        property :created_at, :updated_at, class_name: DateTime
-
         def set_created_at
           self.created_at ||= DateTime.now
         end
