@@ -110,7 +110,7 @@ module Dolly
     end
 
     private
-    #TODO: create a PropertiesSet ervice bject, to do all this
+    #TODO: create a PropertiesSet service object, to do all this
     def self.write_methods name
       property = properties[name]
       define_method(name) { read_property name }
