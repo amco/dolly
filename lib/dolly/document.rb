@@ -1,6 +1,7 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
+require 'active_support/hash_with_indifferent_access'
 
 module Dolly
   class Document
@@ -12,7 +13,7 @@ module Dolly
     class_attribute :properties
 
     def initialize options = {}
-      @doc ||= {}
+      @doc ||= ActiveSupport::HashWithIndifferentAccess.new
       options = options.with_indifferent_access
       init_properties options
     end
@@ -34,7 +35,7 @@ module Dolly
     end
 
     def id= base_value
-      doc ||= {}
+      doc ||= ActiveSupport::HashWithIndifferentAccess.new
       doc['_id'] = self.class.namespace(base_value)
     end
 
@@ -142,7 +143,7 @@ module Dolly
     end
 
     def init_doc options
-      self.doc ||= {}
+      self.doc ||= ActiveSupport::HashWithIndifferentAccess.new
       #TODO: define what will be the preference _id or id
       normalized_id = options[:_id] || options[:id]
       self.doc['_id'] = self.class.namespace( normalized_id ) if normalized_id
