@@ -23,8 +23,16 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal 2, @collection.count
   end
 
-  test 'to_json should return a string of json' do
+  test 'to_json returns a string of json' do
     assert_equal true, @collection.to_json.is_a?(String)
+  end
+
+  test 'map returns an enumerator' do
+    assert_equal true, @collection.map.is_a?(Enumerator)
+  end
+
+  test 'map accepts a block and returns the correct values' do
+    assert_equal ["Foo A", "Foo A"], @collection.map(&:foo)
   end
 
 end
