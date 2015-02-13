@@ -1,0 +1,13 @@
+cache: bundler
+sudo: false
+language: ruby
+rvm:
+  - 2.1.2
+branches:
+  only:
+    - master
+services:
+  - couchdb
+notifications:
+  slack: 
+    secure: "JUh6chYuG2N2rOixrLkI62hX8bmmF0hQZiHn+v7omgGpM/Mfij9lwtIw6AAJLk1awkEHFvxo2JFoj/lNonPpRiEUhIimhbruS4VXD8Q3nFrIWWFamJLApOlyhU9+V9ucv+T0mhrLi3+LT18nlLcKKwq0EjwxKW5SBtaq0Vu8qfE="

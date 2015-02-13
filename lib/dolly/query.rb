@@ -48,12 +48,22 @@ module Dolly
 
       def build_collection q
         res = database.all_docs(q)
-        Collection.new res.parsed_response, name.constantize
+        Collection.new res.parsed_response, name_for_class
       end
 
       def find_with doc, view_name, opts = {}
         res = view "_design/#{doc}/_view/#{view_name}", opts
-        Collection.new res.parsed_response, name.constantize
+        Collection.new res.parsed_response, name_for_class
+      end
+
+      #TODO: new implementation for collection returning
+      # multiple types is failling when the class has a namespace
+      # as the namespace does not exists on the doc id
+      # we need to reimplement this through a references class method.
+      def name_for_class
+        if name.include? '::'
+          name.constantize
+        end
       end
 
       def view doc, options = {}

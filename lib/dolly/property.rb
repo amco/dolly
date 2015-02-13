@@ -8,10 +8,12 @@ module Dolly
       @class_name = opts.delete(:class_name) if opts.present?
       @name = opts.delete(:name).to_s
       @default = opts.delete(:default)
+      @value = @default if @default
       warn 'There are some unprocessed options!' if opts.present?
     end
 
     def value
+      #TODO: tets if this actually sets `doc[ "name" ]`
       return @default if @value.nil?
       return @value unless self_klass
 

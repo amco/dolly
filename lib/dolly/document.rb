@@ -12,8 +12,13 @@ module Dolly
     class_attribute :properties
 
     def initialize options = {}
+      @doc ||= {}
       options = options.with_indifferent_access
       init_properties options
+    end
+
+    def persisted?
+      !doc['_rev'].blank?
     end
 
     def update_properties options = {}
@@ -98,37 +103,36 @@ module Dolly
     end
 
     def self.property *ary
+      self.properties ||= {}
       options           = ary.pop if ary.last.kind_of? Hash
       options         ||= {}
-      self.properties ||= []
 
-      default_value = options[:default]
-
-      self.properties += ary.map do |name|
-        options.merge!({name: name})
-        property = Property.new(options)
-
-        define_method(name) do
-          key = name.to_s
-          property.value = @doc.has_key?(key) ? @doc[key] : default_value
-          property.value
-        end
-
-        define_method("#{name}=") do |val|
-          @doc ||={}
-          @doc[name.to_s] = val
-        end
-
-        define_method(:"#{name}?") { send name } if property.boolean?
-        define_method("[]") {|n| send n.to_sym}
-
-        property
+      ary.each do |name|
+        self.properties[name] = Property.new options.merge(name: name)
+        self.write_methods name
       end
     end
 
     private
+    #TODO: create a PropertiesSet service object, to do all this
+    def self.write_methods name
+      property = properties[name]
+      define_method(name) { read_property name }
+      define_method("#{name}=") { |value| write_property name, value }
+      define_method(:"#{name}?") { send name } if property.boolean?
+      define_method("[]") {|n| send n.to_sym }
+    end
+
+    def write_property name, value
+      @doc[name.to_s] = self.properties[name].value = value
+    end
+
+    def read_property name
+      self.properties[name].value
+    end
+
     def _properties
-      self.properties
+      self.properties.values
     end
 
     def init_properties options = {}
