@@ -18,6 +18,10 @@ module Dolly
       init_properties options
     end
 
+    def persisted?
+      !doc['_rev'].blank?
+    end
+
     def update_properties options = {}
       raise InvalidProperty unless valid_properties?(options)
       options.each do |property, value|

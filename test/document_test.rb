@@ -304,6 +304,16 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 'bar', foo.bar
   end
 
+  test 'persisted? returns true if _rev is present' do
+    foo = FooBar.find "1"
+    assert_equal foo.persisted?, true
+  end
+
+  test 'persisted? returns false if _rev is not present' do
+    foo = FooBar.new
+    assert_equal foo.persisted?, false
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
