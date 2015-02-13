@@ -12,7 +12,19 @@ class CollectionTest < ActiveSupport::TestCase
   end
 
   test 'each returns nil' do
-    assert_equal @collection.each { |foo| puts foo }, nil
+    assert_equal @collection.each { |foo| foo }, nil
+  end
+
+  test 'to_a returns an array' do
+    assert_equal true, @collection.to_a.is_a?(Array)
+  end
+
+  test 'count returns the number of objects in collection' do
+    assert_equal 2, @collection.count
+  end
+
+  test 'to_json should return a string of json' do
+    assert_equal true, @collection.to_json.is_a?(String)
   end
 
 end
