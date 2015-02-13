@@ -25,6 +25,12 @@ module Dolly
       @set.collect &block
     end
 
+    alias_method :collect, :map
+
+    def flat_map &block
+      map( &block ).flatten
+    end
+
     def each &block
       load if empty?
       @set.each &block
