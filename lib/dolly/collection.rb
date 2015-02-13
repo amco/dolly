@@ -25,6 +25,8 @@ module Dolly
       @set.collect &block
     end
 
+    alias_method :collect, :map
+
     def flat_map &block
       map( &block ).flatten
     end
