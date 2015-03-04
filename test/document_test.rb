@@ -326,7 +326,7 @@ class DocumentTest < ActiveSupport::TestCase
     assert foobaz.save!
   end
 
-  test 'property writes work correctly' do
+  test 'property writes work correctly with pipe equals' do
     resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
     FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_baz%2F.+/, body: resp.to_json
     foobaz = FooBaz.new foo: {'foo' => 'bar'}
