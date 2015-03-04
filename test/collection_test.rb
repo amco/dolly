@@ -32,7 +32,7 @@ class CollectionTest < ActiveSupport::TestCase
   end
 
   test 'map accepts a block and returns the correct values' do
-    assert_equal ["Foo A", "Foo A"], @collection.map(&:foo)
+    assert_equal ["Foo B", "Foo A"], @collection.map(&:foo)
   end
 
 end

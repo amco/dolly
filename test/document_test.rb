@@ -13,6 +13,15 @@ end
 
 class Baz < Dolly::Document; end
 
+class FooBaz < Dolly::Document
+  property :foo, class_name: Hash, default: {}
+
+  def add_to_foo key, value
+    foo[key] ||= value
+    save!
+  end
+end
+
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -306,6 +315,23 @@ class DocumentTest < ActiveSupport::TestCase
   test 'persisted? returns false if _rev is not present' do
     foo = FooBar.new
     assert_equal foo.persisted?, false
+    assert foo.save
+    assert_equal foo.persisted?, true
+  end
+
+  test 'can save without timestamps' do
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_baz%2F.+/, body: resp.to_json
+    foobaz = FooBaz.new foo: {foo: :bar}
+    assert foobaz.save!
+  end
+
+  test 'property writes work correctly with pipe equals' do
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_baz%2F.+/, body: resp.to_json
+    foobaz = FooBaz.new foo: {'foo' => 'bar'}
+    foobaz.add_to_foo 'bar', 'bar'
+    assert_equal foobaz.foo, {'foo' => 'bar', 'bar' => 'bar'}
   end
 
   private
