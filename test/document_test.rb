@@ -13,6 +13,10 @@ end
 
 class Baz < Dolly::Document; end
 
+class FooBaz < Dolly::Document
+  property :foo, class_name: Hash, default: {}
+end
+
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -306,6 +310,14 @@ class DocumentTest < ActiveSupport::TestCase
   test 'persisted? returns false if _rev is not present' do
     foo = FooBar.new
     assert_equal foo.persisted?, false
+    assert foo.save
+    assert_equal foo.persisted?, true
+  end
+
+  test 'property writes work correctly' do
+    foobaz = FooBaz.new foo: {foo: :bar}
+    puts foobaz.respond_to?(:created_at)
+    assert foobaz.save!
   end
 
   private
