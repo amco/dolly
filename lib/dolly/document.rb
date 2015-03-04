@@ -128,8 +128,7 @@ module Dolly
     end
 
     def read_property name
-      return self.properties[name].value unless doc[name.to_s]
-      doc[name.to_s]
+      doc[name.to_s] || self.properties[name].value
     end
 
     def _properties
