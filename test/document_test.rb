@@ -340,7 +340,7 @@ class DocumentTest < ActiveSupport::TestCase
 
   test 'default should populate before save' do
     test_foo = TestFoo.new
-    assert_equal 'FOO', test_foo.instance_variable_get(:@default_test_propery)
+    assert_equal 'FOO', test_foo.doc['default_test_propery']
   end
 
   private
