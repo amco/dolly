@@ -23,7 +23,7 @@ class FooBaz < Dolly::Document
 end
 
 class TestFoo < Dolly::Document
-  property :default_test_propery, class_name: String, default: 'FOO'
+  property :default_test_property, class_name: String, default: 'FOO'
 end
 
 class DocumentTest < ActiveSupport::TestCase
@@ -340,7 +340,7 @@ class DocumentTest < ActiveSupport::TestCase
 
   test 'default should populate before save' do
     test_foo = TestFoo.new
-    assert_equal 'FOO', test_foo.doc['default_test_propery']
+    assert_equal 'FOO', test_foo.doc['default_test_property']
   end
 
   private
