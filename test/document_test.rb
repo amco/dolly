@@ -343,6 +343,11 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 'FOO', test_foo.doc['default_test_property']
   end
 
+  test 'default should be overridden by params' do
+    test_foo = TestFoo.new(default_test_property: 'bar')
+    assert_equal 'bar', test_foo.doc['default_test_property']
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
