@@ -141,9 +141,12 @@ module Dolly
         next unless respond_to? :"#{k}="
         send(:"#{k}=", v)
       end
-      properties_to_add_default = _properties.reject { |property| options.keys.include? property.name } if self.properties.present?
-      properties_to_add_default.each { |property| self.doc[property.name] ||= property.default} if self.properties.present?
+      initialize_default_properties if self.properties.present?
       init_doc options
+    end
+
+    def initialize_default_properties
+      _properties.reject { |property| options.keys.include? property.name }.each { |property| self.doc[property.name] ||= property.default }
     end
 
     def init_doc options
