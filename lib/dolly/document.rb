@@ -137,12 +137,16 @@ module Dolly
 
     def init_properties options = {}
       raise Dolly::ResourceNotFound if options['error'] == 'not_found'
-      #TODO: right now not listed properties will be ignored
       options.each do |k, v|
         next unless respond_to? :"#{k}="
         send(:"#{k}=", v)
       end
+      initialize_default_properties options if self.properties.present?
       init_doc options
+    end
+
+    def initialize_default_properties options
+      _properties.reject { |property| options.keys.include? property.name }.each { |property| self.doc[property.name] ||= property.default }
     end
 
     def init_doc options

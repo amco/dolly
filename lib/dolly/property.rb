@@ -2,7 +2,7 @@ module Dolly
   class Property
     attr_writer :value
     attr_accessor :name
-    attr_reader :class_name
+    attr_reader :class_name, :default
 
     def initialize opts = {}
       @class_name = opts.delete(:class_name) if opts.present?

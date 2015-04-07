@@ -22,6 +22,10 @@ class FooBaz < Dolly::Document
   end
 end
 
+class TestFoo < Dolly::Document
+  property :default_test_property, class_name: String, default: 'FOO'
+end
+
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -332,6 +336,16 @@ class DocumentTest < ActiveSupport::TestCase
     foobaz = FooBaz.new foo: {'foo' => 'bar'}
     foobaz.add_to_foo 'bar', 'bar'
     assert_equal foobaz.foo, {'foo' => 'bar', 'bar' => 'bar'}
+  end
+
+  test 'default should populate before save' do
+    test_foo = TestFoo.new
+    assert_equal 'FOO', test_foo.doc['default_test_property']
+  end
+
+  test 'default should be overridden by params' do
+    test_foo = TestFoo.new(default_test_property: 'bar')
+    assert_equal 'bar', test_foo.doc['default_test_property']
   end
 
   private
