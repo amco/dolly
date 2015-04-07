@@ -141,11 +141,11 @@ module Dolly
         next unless respond_to? :"#{k}="
         send(:"#{k}=", v)
       end
-      initialize_default_properties if self.properties.present?
+      initialize_default_properties options if self.properties.present?
       init_doc options
     end
 
-    def initialize_default_properties
+    def initialize_default_properties options
       _properties.reject { |property| options.keys.include? property.name }.each { |property| self.doc[property.name] ||= property.default }
     end
 
