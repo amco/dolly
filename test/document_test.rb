@@ -1,14 +1,18 @@
 require 'test_helper'
 
-class FooBar < Dolly::Document
+class BaseDolly < Dolly::Document; end
+
+class BarFoo < BaseDolly
+  property :a, :b, :c, :d, :e, :f, :g, :h, :i, :j, :k, :l, :m, :n, :persist
+end
+
+class FooBar < BaseDolly
   property :foo, :bar
   property :with_default, default: 1
   property :boolean, class_name: TrueClass, default: true
   property :date, class_name: Date
   property :time, class_name: Time
   property :datetime, class_name: DateTime
-
-  timestamps!
 end
 
 class Baz < Dolly::Document; end
@@ -20,6 +24,10 @@ class FooBaz < Dolly::Document
     foo[key] ||= value
     save!
   end
+end
+
+class WithTime < Dolly::Document
+  property :created_at
 end
 
 class TestFoo < Dolly::Document
@@ -55,6 +63,7 @@ class DocumentTest < ActiveSupport::TestCase
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"]
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Fbig_doc%22%5D&include_docs=true", body: build_view_response([data.merge(other_property: 'other')]).to_json
   end
 
   test 'new in memory document' do
@@ -316,6 +325,11 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal foo.persisted?, true
   end
 
+  test 'document with no declared properties will fail' do
+    bar = BarFoo.new persist: "persisted", a:1, b:2, c:3, d:4, f:5, g:6
+    foo = FooBar.find "big_doc"
+  end
+
   test 'persisted? returns false if _rev is not present' do
     foo = FooBar.new
     assert_equal foo.persisted?, false
@@ -346,6 +360,15 @@ class DocumentTest < ActiveSupport::TestCase
   test 'default should be overridden by params' do
     test_foo = TestFoo.new(default_test_property: 'bar')
     assert_equal 'bar', test_foo.doc['default_test_property']
+  end
+
+  test 'created at is current time' do
+    resp = {ok: true, id: "with_time/timed", rev: "FF0000"}
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/with_time%2F.+/, body: resp.to_json
+    test = WithTime.new id: "timed"
+    assert test.respond_to?(:created_at)
+    assert test.save
+    assert test.created_at
   end
 
   private

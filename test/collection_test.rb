@@ -1,6 +1,8 @@
 require 'test_helper'
 
-class FooBar < Dolly::Document
+class BaseDolly < Dolly::Document; end
+
+class FooBar < BaseDolly
   property :foo, :bar
 end
 
