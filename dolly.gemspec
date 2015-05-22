@@ -30,5 +30,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "fakeweb", "~> 1.3.0"
   spec.add_development_dependency "factory_girl_rails", "~> 4.2"
   spec.add_development_dependency "mocha", "~> 0.4"
+  spec.add_development_dependency "timecop"
 
 end
