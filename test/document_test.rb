@@ -138,6 +138,18 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal foo[:bar], foo['bar']
   end
 
+  test 'will have key properties with indifferent access with methods' do
+    foo = FooBar.find "1"
+    assert_equal foo.foo, foo[:foo]
+    assert_equal foo.bar, foo[:bar]
+  end
+
+  test 'will have key properties with indifferent access to the doc' do
+    foo = FooBar.find "1"
+    assert_equal foo.doc[:foo], foo.doc['foo']
+    assert_equal foo.doc[:bar], foo.doc['bar']
+  end
+
   test 'will have only set properties' do
     foo = FooBar.find "1"
     assert_equal 'Foo', foo.foo

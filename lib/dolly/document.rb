@@ -1,20 +1,21 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
-require 'active_support/hash_with_indifferent_access'
+require 'dolly/refinement_hash'
 
 module Dolly
   class Document
     extend Dolly::Connection
     include Dolly::Query
     extend Dolly::Timestamps
+    using RefinementHash
 
     attr_accessor :rows, :doc, :key
     class_attribute :properties
     cattr_accessor :timestamps
 
     def initialize options = {}
-      @doc ||= ActiveSupport::HashWithIndifferentAccess.new
+      @doc ||= {}
       options = options.with_indifferent_access
       init_properties options
     end
@@ -40,7 +41,7 @@ module Dolly
     end
 
     def id= base_value
-      doc ||= ActiveSupport::HashWithIndifferentAccess.new
+      doc ||= {}
       doc['_id'] = self.class.namespace(base_value)
     end
 
@@ -152,7 +153,7 @@ module Dolly
     end
 
     def init_doc options
-      self.doc ||= ActiveSupport::HashWithIndifferentAccess.new
+      self.doc ||= {}
       #TODO: define what will be the preference _id or id
       normalized_id = options[:_id] || options[:id]
       self.doc['_id'] = self.class.namespace( normalized_id ) if normalized_id
