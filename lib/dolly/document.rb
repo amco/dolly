@@ -130,7 +130,7 @@ module Dolly
     end
 
     def read_property name
-      doc[name.to_s] || self.properties[name].value
+      instance_variable_get(:"@#{name}") || doc[name.to_s] || self.properties[name].value
     end
 
     def _properties
