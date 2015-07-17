@@ -125,6 +125,7 @@ module Dolly
     end
 
     def write_property name, value
+      instance_variable_set(:"@#{name}", value)
       @doc[name.to_s] = self.properties[name].value = value
     end
 
