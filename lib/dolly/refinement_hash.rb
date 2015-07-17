@@ -5,7 +5,7 @@ module RefinementHash
     end
 
     def []=(key, value)
-      super key.to_s ,value
+      super key.to_s, value
     end
   end
 end
