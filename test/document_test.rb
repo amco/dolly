@@ -295,7 +295,7 @@ class DocumentTest < ActiveSupport::TestCase
   test 'trying to update invalid property' do
     foo = FooBar.new 'id' => 'a', foo: 'ab', bar: 'ba'
     assert_raise Dolly::InvalidProperty do
-       foo.update_properties key_to_success: false
+      foo.update_properties key_to_success: false
     end
   end
 
@@ -325,11 +325,6 @@ class DocumentTest < ActiveSupport::TestCase
   test 'persisted? returns true if _rev is present' do
     foo = FooBar.find "1"
     assert_equal foo.persisted?, true
-  end
-
-  test 'document with no declared properties will fail' do
-    bar = BarFoo.new persist: "persisted", a:1, b:2, c:3, d:4, f:5, g:6
-    foo = FooBar.find "big_doc"
   end
 
   test 'persisted? returns false if _rev is not present' do
