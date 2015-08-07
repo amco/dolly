@@ -110,6 +110,13 @@ module Dolly
       end
     end
 
+    def method_missing method_name, *args
+      raise NoMethodError unless doc["#{method_name}"].present?
+      raise ArgumentError unless args.count.zero?
+
+      doc["#{method_name}"]
+    end
+
     private
     def _properties
       self.properties

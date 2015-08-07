@@ -278,6 +278,28 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 'bar', foo.bar
   end
 
+  test 'raise NoMethodError if not present in the doc' do
+    foo = FooBar.new
+    assert_raise NoMethodError do
+      foo.not_present_attribute
+    end
+  end
+
+  test 'raise ArguementError if any args' do
+    foo = Baz.new
+    foo.doc = { 'present_attribute' => 'Works' }
+    assert_raise ArgumentError do
+      foo.present_attribute "arg1"
+    end
+  end
+
+  test 'returns the value of a property in the doc even if not declared in the class' do
+    foo = Baz.new
+    doc_hash = { 'present_attribute' => 'Works' }
+    foo.doc = doc_hash
+    assert_equal doc_hash['present_attribute'], foo.present_attribute
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
