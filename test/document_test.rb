@@ -300,6 +300,12 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal doc_hash['present_attribute'], foo.present_attribute
   end
 
+  test 'method missing setter' do
+    foo = Baz.new
+    foo.not_present_attribute = 'present'
+    assert_equal 'present', foo.doc['not_present_attribute']
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
