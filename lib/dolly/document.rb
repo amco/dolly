@@ -112,7 +112,8 @@ module Dolly
 
     def method_missing method_name, *args
       if method_name.to_s.chars.last == '='
-        raise ArgumentError unless args.count == 1
+        raise ArgumentError unless args.first == args.last
+        puts args.first
         doc["#{method_name.to_s.chop}"] = args.first
       else
         raise NoMethodError unless doc["#{method_name}"].present?

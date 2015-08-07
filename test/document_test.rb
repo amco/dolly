@@ -285,7 +285,7 @@ class DocumentTest < ActiveSupport::TestCase
     end
   end
 
-  test 'raise ArguementError if any args' do
+  test 'raise ArgumentError if any args' do
     foo = Baz.new
     foo.doc = { 'present_attribute' => 'Works' }
     assert_raise ArgumentError do
@@ -304,6 +304,13 @@ class DocumentTest < ActiveSupport::TestCase
     foo = Baz.new
     foo.not_present_attribute = 'present'
     assert_equal 'present', foo.doc['not_present_attribute']
+  end
+
+  test 'raise ArgumentError if more than one args' do
+    foo = Baz.new
+    assert_raise ArgumentError do
+      foo.not_present_attribute = 'foo', 'bar'
+    end
   end
 
   private
