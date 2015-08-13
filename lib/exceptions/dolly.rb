@@ -5,8 +5,12 @@ module Dolly
     end
   end
   class ServerError < RuntimeError
+    def initialize msg
+      @msg = msg
+    end
+
     def to_s
-      'There has been an error on the couchdb server. Please review your couch logs.'
+      "There has been an error on the couchdb server: #{@msg.inspect}"
     end
   end
   class MissingDesignError < RuntimeError

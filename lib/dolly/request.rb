@@ -61,8 +61,8 @@ module Dolly
       response = self.class.send method, resource, data.merge(headers: headers)
       if response.code == 404
         raise Dolly::ResourceNotFound
-      elsif (500..600).include? response.code
-        raise Dolly::ServerError
+      elsif (400..600).include? response.code
+        raise Dolly::ServerError.new( response )
       else
         response
       end
