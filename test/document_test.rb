@@ -313,6 +313,20 @@ class DocumentTest < ActiveSupport::TestCase
     end
   end
 
+  test 'sets an hash with method missing' do
+    foo = Baz.new
+    value_hash = {'foo' => 'bar', 'bar' => 'foo'}
+    foo.not_present_attribute = value_hash
+    assert_equal value_hash, foo.not_present_attribute
+  end
+
+  test 'sets an array with method missing' do
+    foo = Baz.new
+    value_array = ['foo', 'bar']
+    foo.not_present_attribute = value_array
+    assert_equal value_array, foo.not_present_attribute
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
