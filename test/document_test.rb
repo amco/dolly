@@ -388,6 +388,13 @@ class DocumentTest < ActiveSupport::TestCase
     end
   end
 
+  test 'setting on instance value does set it for other instances' do
+    foo = FooBar.new
+    foo.bar = 'I belong to the foo, not the bar'
+    bar = FooBar.new
+    assert_not_equal foo.bar, bar.bar
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
