@@ -130,7 +130,8 @@ module Dolly
     end
 
     def read_property name
-      instance_variable_get(:"@#{name}") || doc[name.to_s] || self.properties[name].value
+      instance_variable_set(:"@#{name}", (doc[name.to_s] || self.properties[name].value)) unless instance_variable_get(:"@#{name}")
+      instance_variable_get(:"@#{name}")
     end
 
     def _properties
