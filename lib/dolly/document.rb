@@ -126,11 +126,11 @@ module Dolly
 
     def write_property name, value
       instance_variable_set(:"@#{name}", value)
-      @doc[name.to_s] = self.properties[name].value = value
+      @doc[name.to_s] = value
     end
 
     def read_property name
-      unless instance_variable_get(:"@#{name}")
+      if instance_variable_get(:"@#{name}").nil?
         instance_variable_set(:"@#{name}", (doc[name.to_s] || self.properties[name].value))
       end
       instance_variable_get(:"@#{name}")
