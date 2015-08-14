@@ -13,6 +13,7 @@ class FooBar < BaseDolly
   property :date, class_name: Date
   property :time, class_name: Time
   property :datetime, class_name: DateTime
+  property :is_nil, class_name: NilClass, default: nil
 
   timestamps!
 end
@@ -359,6 +360,14 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 'bar', test_foo.doc['default_test_property']
   end
 
+  test 'doc and method and instance var are the same' do
+    test_foo = FooBar.new
+    test_foo.foo = 'test_value'
+    assert_equal 'test_value', test_foo.foo
+    assert_equal 'test_value', test_foo.doc['foo']
+    assert_equal 'test_value', test_foo.instance_variable_get(:@foo)
+  end
+
   test 'created at is current time' do
     resp = {ok: true, id: "with_time/timed", rev: "FF0000"}
     FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/with_time%2F.+/, body: resp.to_json
@@ -366,6 +375,24 @@ class DocumentTest < ActiveSupport::TestCase
     assert test.respond_to?(:created_at)
     assert test.save
     assert test.created_at
+  end
+
+  test 'nil default' do
+    properties = {foo: nil, is_nil: nil}
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_bar%2F.+/, body: resp.to_json
+    foo = FooBar.new properties
+    foo.save
+    properties.each do |k, v|
+      assert_equal v, foo[k]
+    end
+  end
+
+  test 'setting on instance value does set it for other instances' do
+    foo = FooBar.new
+    foo.bar = 'I belong to the foo, not the bar'
+    bar = FooBar.new
+    assert_not_equal foo.bar, bar.bar
   end
 
   private
