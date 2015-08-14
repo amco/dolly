@@ -13,6 +13,7 @@ class FooBar < BaseDolly
   property :date, class_name: Date
   property :time, class_name: Time
   property :datetime, class_name: DateTime
+  property :is_nil, class_name: NilClass, default: nil
 
   timestamps!
 end
@@ -374,6 +375,17 @@ class DocumentTest < ActiveSupport::TestCase
     assert test.respond_to?(:created_at)
     assert test.save
     assert test.created_at
+  end
+
+  test 'nil default' do
+    properties = {foo: nil, is_nil: nil}
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/foo_bar%2F.+/, body: resp.to_json
+    foo = FooBar.new properties
+    foo.save
+    properties.each do |k, v|
+      assert_equal v, foo[k]
+    end
   end
 
   private
