@@ -35,7 +35,7 @@ class TestFoo < Dolly::Document
   property :default_test_property, class_name: String, default: 'FOO'
 end
 
-class ObjectWithValid < Dolly::Document
+class DocumentWithValidMethod < Dolly::Document
   property :foo
 
   def valid?

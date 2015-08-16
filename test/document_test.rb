@@ -360,7 +360,7 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test 'subclass raises DocumentInvalidError if valid? fails' do
-    foo = ObjectWithValid.new
+    foo = DocumentWithValidMethod.new
     assert_raise Dolly::DocumentInvalidError do
       foo.save!
     end
