@@ -37,6 +37,14 @@ class TestFoo < Dolly::Document
   property :default_test_property, class_name: String, default: 'FOO'
 end
 
+class DocumentWithValidMethod < Dolly::Document
+  property :foo
+
+  def valid?
+    foo.present?
+  end
+end
+
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -393,6 +401,13 @@ class DocumentTest < ActiveSupport::TestCase
     foo.bar = 'I belong to the foo, not the bar'
     bar = FooBar.new
     assert_not_equal foo.bar, bar.bar
+  end
+
+  test 'subclass raises DocumentInvalidError if valid? fails' do
+    foo = DocumentWithValidMethod.new
+    assert_raise Dolly::DocumentInvalidError do
+      foo.save!
+    end
   end
 
   private

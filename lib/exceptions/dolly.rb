@@ -33,4 +33,5 @@ module Dolly
       "Trying to set an undefined property."
     end
   end
+  class DocumentInvalidError < RuntimeError; end
 end

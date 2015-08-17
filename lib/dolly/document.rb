@@ -63,7 +63,7 @@ module Dolly
     end
 
     def save!
-      #TODO: decide how to handle validations...
+      raise DocumentInvalidError unless valid?
       save
     end
 
@@ -168,5 +168,7 @@ module Dolly
     def properties_include? property
       _properties.map(&:name).include? property
     end
+
+    def valid?; true; end
   end
 end
