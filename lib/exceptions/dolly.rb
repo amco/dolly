@@ -77,7 +77,7 @@ module Dolly
   end
   class InternalServerError500 < RuntimeError
     def to_s
-      "When sending documents in bulk, the bulk load operation failed."
+      "The request was invalid, either because the supplied JSON was invalid, or invalid information was supplied as part of the request."
     end
   end
 end
