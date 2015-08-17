@@ -45,7 +45,7 @@ namespace :db do
           will_save = true
         end
 
-      rescue Dolly::ResourceNotFound
+      rescue Dolly::NotFound404
         puts "Creating design doc: #{design_doc_name}"
         will_save = true
       end

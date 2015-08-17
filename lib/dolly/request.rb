@@ -7,6 +7,7 @@ module Dolly
     include HTTParty
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = '5984'
+    ERROR_LEVEL = 400
 
     attr_accessor :database_name, :host, :port, :bulk_document
 
@@ -59,13 +60,8 @@ module Dolly
       headers = { 'Content-Type' => 'application/json' }
       headers.merge! data[:headers] if data[:headers]
       response = self.class.send method, resource, data.merge(headers: headers)
-      if response.code == 404
-        raise Dolly::ResourceNotFound
-      elsif (400..600).include? response.code
-        raise Dolly::ServerError.new( response )
-      else
-        response
-      end
+      raise errors[response.code] if response.code >= ERROR_LEVEL
+      response
     end
 
     private
@@ -88,6 +84,33 @@ module Dolly
     def full_path resource
       "/#{database_name}/#{resource}"
     end
-  end
 
+    def errors
+      h = {
+          400 => Dolly::BadRequest400.new,
+          401 => Dolly::Unauthorized401.new,
+          403 => Dolly::Forbidden403.new,
+          404 => Dolly::NotFound404.new(response),
+          405 => Dolly::ResourceNotAllowed405.new,
+          406 => Dolly::Unacceptable406.new,
+          409 => Dolly::Conflict409.new,
+          412 => Dolly::PreconditionFailed412.new,
+          415 => Dolly::BadContentType415.new,
+          416 => Dolly::RequestedRangeNotSatisfiable416.new,
+          417 => Dolly::ExpectationFailed417.new,
+          500 => Dolly::InternalServerError5.new
+        }
+      h.default = "false"
+    end
+  end
 end
+
+
+
+
+
+
+
+
+
+

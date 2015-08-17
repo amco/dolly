@@ -75,7 +75,7 @@ module Dolly
     end
 
     def rows= col
-      raise Dolly::ResourceNotFound if col.empty?
+      raise Dolly::NotFound404 if col.empty?
       col.each{ |r| @doc = r['doc'] }
       _properties.each do |p|
         self.send "#{p.name}=", doc[p.name]
@@ -141,7 +141,7 @@ module Dolly
     end
 
     def init_properties options = {}
-      raise Dolly::ResourceNotFound if options['error'] == 'not_found'
+      raise Dolly::NotFound404 if options['error'] == 'not_found'
       options.each do |k, v|
         next unless respond_to? :"#{k}="
         send(:"#{k}=", v)

@@ -22,7 +22,7 @@ module Dolly
         end
       rescue NoMethodError => err
         if err.message == "undefined method `[]' for nil:NilClass"
-          raise Dolly::ResourceNotFound
+          raise Dolly::NotFound404
         else
           raise
         end

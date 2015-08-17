@@ -83,7 +83,7 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test 'empty find should raise error' do
-    assert_raise Dolly::ResourceNotFound do
+    assert_raise Dolly::NotFound404 do
       FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%5D&include_docs=true", :status => ["404", "Not Found"]
       foo = FooBar.find
     end
@@ -150,7 +150,7 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 1, foo.with_default
   end
 
-  test 'default will be avoerwriten' do
+  test 'default will be overwritten' do
     foo = FooBar.find "1"
     assert_equal 1, foo.with_default
     assert foo.with_default = 30
@@ -158,7 +158,7 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test 'getting not found document' do
-    assert_raise Dolly::ResourceNotFound do
+    assert_raise Dolly::NotFound404 do
       missing = FooBar.find "2"
     end
   end
