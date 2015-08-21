@@ -1,6 +1,6 @@
 # Dolly
 
-TODO: Write a gem description
+Dolly is a Object Oriented CouchDB interface to interact with the JSON documents through CouchDB's RESTful API.
 
 ## Installation
 
