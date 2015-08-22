@@ -410,6 +410,18 @@ class DocumentTest < ActiveSupport::TestCase
     end
   end
 
+  test 'save returns false for invalid document on save' do
+    foo = DocumentWithValidMethod.new
+    assert_not foo.save
+  end
+
+  test 'save succeeds for invalid document if skipping validations' do
+    resp = {ok: true, id: "document_with_valid_method/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/document_with_valid_method%2F.+/, body: resp.to_json
+    foo = DocumentWithValidMethod.new
+    assert foo.save(validate: false)
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
