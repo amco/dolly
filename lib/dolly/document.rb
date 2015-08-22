@@ -51,7 +51,8 @@ module Dolly
       doc['_rev'] = value
     end
 
-    def save
+    def save options = {}
+      return false unless options[:validate] == false || valid?
       self.doc['_id'] = self.id if self.id.present?
       self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
       set_created_at if timestamps
