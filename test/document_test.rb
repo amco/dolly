@@ -428,6 +428,7 @@ class DocumentTest < ActiveSupport::TestCase
 
   test 'default objects are not the same in memory' do
     doc_with_same_default = DocWithSameDefaults.new
+    assert_not doc_with_same_default.foo.equal? doc_with_same_default.bar
     doc_with_same_default.foo.push 'foo'
     assert doc_with_same_default.bar == []
   end
