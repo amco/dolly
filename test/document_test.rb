@@ -45,6 +45,10 @@ class DocumentWithValidMethod < Dolly::Document
   end
 end
 
+class DocWithSameDefaults < Dolly::Document
+  property :foo, :bar, class_name: Array, default: []
+end
+
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -420,6 +424,12 @@ class DocumentTest < ActiveSupport::TestCase
     FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/document_with_valid_method%2F.+/, body: resp.to_json
     foo = DocumentWithValidMethod.new
     assert foo.save(validate: false)
+  end
+
+  test 'default objects are not the same in memory' do
+    doc_with_same_default = DocWithSameDefaults.new
+    doc_with_same_default.foo.push 'foo'
+    assert doc_with_same_default.bar == []
   end
 
   private
