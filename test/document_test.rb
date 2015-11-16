@@ -433,6 +433,16 @@ class DocumentTest < ActiveSupport::TestCase
     assert doc_with_same_default.bar == []
   end
 
+  test 'default properties do not update the class default properties' do
+    doc = DocWithSameDefaults.new
+    assert_equal [], DocWithSameDefaults.properties[:foo].default
+    assert doc.foo.push 'foo'
+    assert_equal ['foo'], doc.foo
+    assert_equal [], DocWithSameDefaults.properties[:foo].default
+    assert second_doc = DocWithSameDefaults.new
+    assert second_doc.foo.empty?
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
