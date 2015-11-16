@@ -440,7 +440,7 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal ['foo'], doc.foo
     assert_equal [], DocWithSameDefaults.properties[:foo].default
     assert second_doc = DocWithSameDefaults.new
-    assert second_doc.foo.empty?
+    assert_equal [], second_doc.foo
   end
 
   private
