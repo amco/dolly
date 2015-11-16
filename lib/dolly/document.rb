@@ -132,7 +132,9 @@ module Dolly
 
     def read_property name
       if instance_variable_get(:"@#{name}").nil?
-        write_property name, (doc[name.to_s] || self.properties[name].value)
+        property_value = self.properties[name].value.clone unless Dolly::Property::CANT_CLONE.any? { |klass| self.properties[name].value.is_a? klass }
+        property_value ||= self.properties[name].value
+        write_property name, (doc[name.to_s] || property_value )
       end
       instance_variable_get(:"@#{name}")
     end

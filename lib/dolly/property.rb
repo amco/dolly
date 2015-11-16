@@ -4,13 +4,13 @@ module Dolly
     attr_accessor :name
     attr_reader :class_name, :default
 
-    CANT_CLONE = [NilClass, TrueClass, FalseClass, Fixnum]
+    CANT_CLONE = [NilClass, TrueClass, FalseClass, Fixnum].freeze
 
     def initialize opts = {}
       @class_name = opts.delete(:class_name) if opts.present?
       @name = opts.delete(:name).to_s
       @default = opts.delete(:default)
-      @default = @default.clone if @default unless CANT_CLONE.any? { |klass| @default.is_a? klass }
+      @default = @default.clone if @default && CANT_CLONE.none? { |klass| @default.is_a? klass }
       @value = @default if @default
       warn 'There are some unprocessed options!' if opts.present?
     end
