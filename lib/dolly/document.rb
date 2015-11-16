@@ -132,9 +132,7 @@ module Dolly
 
     def read_property name
       if instance_variable_get(:"@#{name}").nil?
-        property_value = self.properties[name].value.dup unless Dolly::Property::CANT_CLONE.any? { |klass| self.properties[name].value.is_a? klass }
-        property_value ||= self.properties[name].value
-        write_property name, (doc[name.to_s] || property_value )
+        write_property name, (doc[name.to_s] || self.properties[name].value)
       end
       instance_variable_get(:"@#{name}")
     end
@@ -154,7 +152,11 @@ module Dolly
     end
 
     def initialize_default_properties options
-      _properties.reject { |property| options.keys.include? property.name }.each { |property| self.doc[property.name] ||= property.default }
+      _properties.reject { |property| options.keys.include? property.name }.each do |property|
+        property_value = property.default.clone unless Dolly::Property::CANT_CLONE.any? { |klass| property.default.is_a? klass }
+        property_value ||= property.default
+        self.doc[property.name] ||= property_value
+      end
     end
 
     def init_doc options
