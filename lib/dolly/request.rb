@@ -41,6 +41,7 @@ module Dolly
     end
 
     def attach resource, attachment_name, data, headers = {}
+      data = StringIO.new(data) if data.is_a?(String)
       request :put, attachment_path(resource, attachment_name), {body: data, headers: headers}
     end
 
