@@ -40,6 +40,10 @@ module Dolly
       request :delete, full_path(resource), {}
     end
 
+    def attach resource, attachment_name, data, headers = {}
+      request :put, attachment_path(resource, attachment_name), {body: data, headers: headers}
+    end
+
     def protocol
       @protocol || 'http'
     end
@@ -87,6 +91,10 @@ module Dolly
 
     def full_path resource
       "/#{database_name}/#{resource}"
+    end
+
+    def attachment_path resource, attachment_name
+      "#{full_path(resource)}/#{attachment_name}"
     end
   end
 

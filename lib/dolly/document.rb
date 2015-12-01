@@ -98,6 +98,10 @@ module Dolly
       CGI::escape id
     end
 
+    def attach_file file_name, mime_type, body
+      database.attach id_as_resource, file_name, body, { 'Content-Type' => mime_type }
+    end
+
     def self.create options = {}
       obj = new options
       obj.save
