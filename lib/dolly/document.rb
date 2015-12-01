@@ -99,7 +99,7 @@ module Dolly
     end
 
     def attach_file file_name, mime_type, body
-      database.attach id_as_resource, file_name, body, { 'Content-Type' => mime_type }
+      database.attach id_as_resource, CGI.escape(file_name), body, { 'Content-Type' => mime_type }
     end
 
     def self.create options = {}
