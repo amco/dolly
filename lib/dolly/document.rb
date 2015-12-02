@@ -1,7 +1,6 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
-require 'base64'
 
 module Dolly
   class Document
