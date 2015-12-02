@@ -451,7 +451,7 @@ class DocumentTest < ActiveSupport::TestCase
     assert resp = {ok: true, id: '79178957-96ff-40d9-9ecb-217fa35bdea7', rev: '2'}
     assert FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/base_dolly\/79178957-96ff-40d9-9ecb-217fa35bdea7\/test.txt/, body: resp.to_json
     assert data = File.open("#{FileUtils.pwd}/test/support/test.txt").read
-    assert doc.attach_file 'test.txt', 'text/plain', data
+    assert doc.attach_file! 'test.txt', 'text/plain', data
   end
 
   private
