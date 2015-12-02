@@ -98,7 +98,7 @@ module Dolly
       CGI::escape id
     end
 
-    def attach_file file_name, mime_type, body
+    def attach_file! file_name, mime_type, body
       database.attach id_as_resource, CGI.escape(file_name), body, { 'Content-Type' => mime_type }
     end
 
