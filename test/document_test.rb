@@ -444,12 +444,12 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test 'attachments work properly' do
-    save_response = {ok: true, id: "base_dolly/79178957-96ff-40d9-9ecb-217fa35bdea7", rev: "1"}
-    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/base_dolly%2F.+/, body: save_response.to_json
+    assert save_response = {ok: true, id: "base_dolly/79178957-96ff-40d9-9ecb-217fa35bdea7", rev: "1"}
+    assert FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/base_dolly%2F.+/, body: save_response.to_json
     assert doc = BaseDolly.new
     assert doc.save
-    resp = {ok: true, id: '79178957-96ff-40d9-9ecb-217fa35bdea7', rev: '2'}
-    FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/base_dolly\/79178957-96ff-40d9-9ecb-217fa35bdea7\/test.txt/, body: resp.to_json
+    asssert resp = {ok: true, id: '79178957-96ff-40d9-9ecb-217fa35bdea7', rev: '2'}
+    assert FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/base_dolly\/79178957-96ff-40d9-9ecb-217fa35bdea7\/test.txt/, body: resp.to_json
     assert data = File.open("#{FileUtils.pwd}/test/support/test.txt").read
     assert doc.attach_file 'test.txt', 'text/plain', data
   end
