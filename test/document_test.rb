@@ -49,6 +49,10 @@ class DocWithSameDefaults < Dolly::Document
   property :foo, :bar, class_name: Array, default: []
 end
 
+class Bar < FooBar
+  property :a, :b
+end
+
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -465,6 +469,10 @@ class DocumentTest < ActiveSupport::TestCase
     assert doc.attach_file! 'test.txt', 'text/plain', data, inline: true
     assert doc.doc['_attachments']['test.txt'].present?
     assert_equal Base64.encode64(data), doc.doc['_attachments']['test.txt']['data']
+  end
+
+  test "new object from inhereted document" do
+    assert Bar.new(a: 1)
   end
 
   private
