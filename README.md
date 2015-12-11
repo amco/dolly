@@ -60,7 +60,6 @@ This will not replace de default find view.
 ```ruby
 class User < Dolly::Document
   database_name 'db'
-  set_design_doc 'dolly' #defaults to 'dolly'
 
   property :name, :surname, :address
   property :date_of_birth, class_name: Date, default: Date.today
