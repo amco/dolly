@@ -60,7 +60,6 @@ This will not replace de default find view.
 ```ruby
 class User < Dolly::Document
   database_name 'db'
-  set_design_doc 'dolly' #defaults to 'dolly'
 
   property :name, :surname, :address
   property :date_of_birth, class_name: Date, default: Date.today
@@ -71,8 +70,9 @@ User.all #Dolly::Collection #<#User...>, <#User...>
 user = User.find "a1b2d3e" #<#User...>
 user.name
 
-#Return a User object based on the custom view.
-user = User.view 'view_name', {key: ["a", "b", "c"], reduce: true}
+#Return a User object based on the custom view. `include_docs` is always true for this method.
+response = User.view '_design/<design_document_name>/_view/<view_name>', {key: <key>, reduce: true}
+user = User.new.from_json response
 
 
 # Save doc
