@@ -472,7 +472,8 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test "new object from inhereted document" do
-    assert Bar.new(a: 1)
+    assert bar = Bar.new(a: 1)
+    assert_equal 1, bar.a
   end
 
   private

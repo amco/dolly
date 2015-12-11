@@ -79,6 +79,10 @@ module Dolly
       raise Dolly::ResourceNotFound if col.empty?
       col.each{ |r| @doc = r['doc'] }
       _properties.each do |p|
+        #TODO: Refactor properties so it is not required
+        #to be a class property. But something that doesn't
+        #persist all the inheretence chain
+        next unless self.respond_to? :"#{p.name}="
         self.send "#{p.name}=", doc[p.name]
       end
       @rows = col
