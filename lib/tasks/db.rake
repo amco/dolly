@@ -19,10 +19,12 @@ namespace :db do
       key ||= 'map'
       source = File.read filename
 
-      vd = data[design_doc_name] ||= { 'views' => {}, 'filters' => {} }
+      vd = data[design_doc_name] ||= { 'views' => {}, 'filters' => {}, 'lists' => {} }
 
       if key == 'filter'
         vd['filters'][name] = source
+      elsif key == 'lists'
+        vd['lists'][name] = source
       else
         v = vd['views'][name] ||= {}
         v[key] = source
