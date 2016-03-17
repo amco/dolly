@@ -25,6 +25,9 @@ namespace :db do
         vd['filters'][name] = source
       elsif key == 'lists'
         vd['lists'][name] = source
+      elsif key == 'lib'
+        v = vd['views']['lib'] ||= {}
+        v[name] = source
       else
         v = vd['views'][name] ||= {}
         v[key] = source
