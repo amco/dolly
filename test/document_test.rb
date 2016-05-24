@@ -30,7 +30,7 @@ class FooBaz < Dolly::Document
 end
 
 class WithTime < Dolly::Document
-  property :created_at
+  property :created_at, default: -> {DateTime.now}
 end
 
 class TestFoo < Dolly::Document

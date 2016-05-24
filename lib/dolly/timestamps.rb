@@ -4,9 +4,9 @@ module Dolly
     def timestamps!
       property :created_at, :updated_at, class_name: DateTime
 
-      self.class_variable_set :@@timestamps, true
+      self.timestamps[self.name] = true
 
-      Dolly::Document.class_eval do
+      self.class_eval do
 
         def set_created_at
           doc['created_at'] ||= DateTime.now

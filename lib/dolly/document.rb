@@ -11,6 +11,7 @@ module Dolly
     attr_accessor :rows, :doc, :key
     class_attribute :properties
     cattr_accessor :timestamps
+    @@timestamps = {}
 
     def initialize options = {}
       @doc ||= {}
@@ -55,8 +56,8 @@ module Dolly
       return false unless options[:validate] == false || valid?
       self.doc['_id'] = self.id if self.id.present?
       self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
-      set_created_at if timestamps
-      set_updated_at if timestamps
+      set_created_at if timestamps[self.class.name]
+      set_updated_at if timestamps[self.class.name]
       response = database.put(id_as_resource, self.doc.to_json)
       obj = JSON::parse response.parsed_response
       doc['_rev'] = obj['rev'] if obj['rev']
