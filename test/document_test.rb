@@ -30,7 +30,7 @@ class FooBaz < Dolly::Document
 end
 
 class WithTime < Dolly::Document
-  property :created_at, default: -> {DateTime.now}
+  property :created_at, default: -> {Time.now}
 end
 
 class TestFoo < Dolly::Document
@@ -319,7 +319,7 @@ class DocumentTest < ActiveSupport::TestCase
   test 'set updated at' do
     foo = FooBar.new 'id' => 'a', foo: 'ab'
     foo.update_properties! foo: 'c'
-    assert_equal DateTime.now.to_s, foo.updated_at.to_s
+    assert_equal Time.now.to_s, foo.updated_at.to_s
   end
 
   test 'created at is set' do
@@ -328,7 +328,7 @@ class DocumentTest < ActiveSupport::TestCase
     properties = {foo: 1, bar: 2, boolean: false}
     foo = FooBar.new properties
     foo.save
-    assert_equal DateTime.now.to_s, foo.created_at.to_s
+    assert_equal Time.now.to_s, foo.created_at.to_s
   end
 
   test 'reader :bar is not calling the writer :bar=' do
