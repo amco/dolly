@@ -10,8 +10,9 @@ module Dolly
 
     attr_accessor :rows, :doc, :key
     class_attribute :properties
-    cattr_accessor :timestamps
-    @@timestamps = {}
+    cattr_accessor :timestamps do
+      {}
+    end
 
     def initialize options = {}
       @doc ||= {}
