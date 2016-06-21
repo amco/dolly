@@ -10,7 +10,9 @@ module Dolly
 
     attr_accessor :rows, :doc, :key
     class_attribute :properties
-    cattr_accessor :timestamps
+    cattr_accessor :timestamps do
+      {}
+    end
 
     def initialize options = {}
       @doc ||= {}
@@ -55,8 +57,8 @@ module Dolly
       return false unless options[:validate] == false || valid?
       self.doc['_id'] = self.id if self.id.present?
       self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
-      set_created_at if timestamps
-      set_updated_at if timestamps
+      set_created_at if timestamps[self.class.name]
+      set_updated_at if timestamps[self.class.name]
       response = database.put(id_as_resource, self.doc.to_json)
       obj = JSON::parse response.parsed_response
       doc['_rev'] = obj['rev'] if obj['rev']
@@ -109,6 +111,17 @@ module Dolly
         doc['_attachments'] ||= {}
         doc['_attachments'].merge! attachment_data
         save
+      else
+        database.attach id_as_resource, CGI.escape(file_name), body, { 'Content-Type' => mime_type }
+      end
+    end
+
+    def attach_file file_name, mime_type, body, opts={}
+      if opts[:inline]
+        attachment_data = { file_name.to_s => { 'content_type' => mime_type,
+                                                'data'         => Base64.encode64(body)} }
+        doc['_attachments'] ||= {}
+        doc['_attachments'].merge! attachment_data
       else
         database.attach id_as_resource, CGI.escape(file_name), body, { 'Content-Type' => mime_type }
       end
