@@ -105,7 +105,7 @@ module Dolly
     end
 
     def attach_file! file_name, mime_type, body, opts={}
-      attach_file file_name, mime_type, body, opts={}
+      attach_file file_name, mime_type, body, opts
       save if opts[:inline]
     end
 
