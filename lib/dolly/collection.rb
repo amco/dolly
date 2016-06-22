@@ -20,6 +20,26 @@ module Dolly
       to_a.last
     end
 
+    def update_properties! properties ={}
+      properties.each do |key, value|
+
+        regex = %r{
+          \"#{key}\":  # find key definition in json string
+          (            # start value group
+            \"[^\"]*\" # find anything (even empty) between \" and \"
+            |          # logical OR
+            null       #literal null value
+          )            # end value group
+        }x
+
+        raise Dolly::MissingPropertyError unless json.match regex
+        json.gsub! regex, "\"#{key}\":\"#{value}\""
+      end
+
+      BulkDocument.new(Dolly::Document.database, to_a).save
+      self
+    end
+
     def map &block
       load if empty?
       @set.collect &block
