@@ -20,6 +20,15 @@ module Dolly
       to_a.last
     end
 
+    def update_properties! properties ={}
+      properties.each do |key, value|
+        json.gsub! %r{\"#{key}\":\"[^\"]+\"}, "\"#{key}\":\"#{value}\""
+      end
+
+      BulkDocument.new(Dolly::Document.database, to_a).save
+      self
+    end
+
     def map &block
       load if empty?
       @set.collect &block

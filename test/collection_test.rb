@@ -37,4 +37,9 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal ["Foo B", "Foo A"], @collection.map(&:foo)
   end
 
+  test 'update attributes will change expected attributes' do
+    @collection.update_properties! foo: 'Foo 4 All'
+    assert_equal ['Foo 4 All', 'Foo 4 All'], @collection.map(&:foo)
+  end
+
 end
