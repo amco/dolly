@@ -34,4 +34,5 @@ module Dolly
     end
   end
   class DocumentInvalidError < RuntimeError; end
+  class MissingPropertyError < RuntimeError; end
 end
