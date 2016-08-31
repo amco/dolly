@@ -1,6 +1,7 @@
 module Dolly
   class Collection
     extend Forwardable
+    include Enumerable
     attr_accessor :rows
     attr_writer :json, :docs_class
 
@@ -10,10 +11,6 @@ module Dolly
       @set = Set.new
       @docs_class = docs_class
       @json = str
-    end
-
-    def first
-      to_a.first
     end
 
     def last
@@ -40,32 +37,11 @@ module Dolly
       self
     end
 
-    def map &block
-      load if empty?
-      @set.collect &block
-    end
-
-    alias_method :collect, :map
-
-    def flat_map &block
-      map( &block ).flatten
-    end
-
     def each &block
       load if empty?
       @set.each &block
       #TODO: returning nil to avoid extra time serializing set.
       nil
-    end
-
-    def to_a
-      load if empty?
-      @set.to_a
-    end
-
-    def count
-      load if empty?
-      length
     end
 
     def rows= ary
