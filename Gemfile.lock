@@ -10,7 +10,7 @@ GIT
 PATH
   remote: .
   specs:
-    dolly (1.0.1)
+    dolly (1.1.2)
       httparty
       railties
 
@@ -52,7 +52,7 @@ GEM
       railties (>= 3.0.0)
     fakeweb (1.3.0)
     hike (1.2.3)
-    httparty (0.13.3)
+    httparty (0.13.7)
       json (~> 1.8)
       multi_xml (>= 0.5.2)
     i18n (0.6.9)
@@ -116,3 +116,6 @@ DEPENDENCIES
   rake
   timecop
   turn!
+
+BUNDLED WITH
+   1.10.6
