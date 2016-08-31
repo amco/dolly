@@ -51,7 +51,7 @@ class CollectionTest < ActiveSupport::TestCase
     assert_equal ['stuff', 'stuff'], collection.map(&:bar)
   end
 
-  test 'ypdate attributes will raise exception if property is missing' do
+  test 'update attributes will raise exception if property is missing' do
     assert_raise Dolly::MissingPropertyError do
       @collection.update_properties! missing: 'Ha! Ha!'
     end
