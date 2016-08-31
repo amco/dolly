@@ -37,7 +37,7 @@ module Dolly
     end
 
     def reload
-      self.doc = self.class.find(id).doc
+      doc = self.class.find(id).doc
     end
 
     def id
