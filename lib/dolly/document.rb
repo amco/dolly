@@ -36,6 +36,10 @@ module Dolly
       save
     end
 
+    def reload
+      self.doc = self.class.find(id).doc
+    end
+
     def id
       doc['_id'] ||= self.class.next_id
     end
