@@ -180,13 +180,25 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test 'reload reloads the doc attribute from database' do
-    foo = FooBar.find '1'
+    assert foo = FooBar.find('1')
     expected_doc = foo.doc.dup
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json
-    foo.foo = 1
+    assert foo.foo = 1
     assert_not_equal expected_doc, foo.doc
-    foo.reload
+    assert foo.reload
     assert_equal expected_doc, foo.doc
+  end
+
+  test 'accessors work as expected after reload' do
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, "http://localhost:5984/test/foo_bar%2F0", body: resp.to_json
+    assert foo = FooBar.find('1')
+    assert foo.foo = 1
+    assert foo.save
+    assert expected_doc = foo.doc
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json
+    assert foo.reload
+    assert_equal 1, foo.foo
   end
 
   test 'find with multiple ids will return Collection' do
