@@ -1,16 +1,14 @@
 module Dolly
-  class Collection
-    extend Forwardable
-    include Enumerable
+  class Collection < DelegateClass(Set)
     attr_accessor :rows
     attr_writer :json, :docs_class
 
-    def_delegators :@set, :clear, :empty?, :length, :+, :-
-
     def initialize str, docs_class
-      @set = Set.new
       @docs_class = docs_class
       @json = str
+      initial = []
+      super(initial)
+      load
     end
 
     def last
@@ -34,12 +32,14 @@ module Dolly
       end
 
       BulkDocument.new(Dolly::Document.database, to_a).save
+      clear
+      load
       self
     end
 
     def each &block
       load if empty?
-      @set.each &block
+      super &block
       #TODO: returning nil to avoid extra time serializing set.
       nil
     end
@@ -52,9 +52,8 @@ module Dolly
         rev = properties.delete '_rev' if properties['_rev']
         document = (docs_class || doc_class(id)).new properties
         document.doc = properties.merge({'_id' => id, '_rev' => rev})
-        @set << document
+        self << document
       end
-      @rows = ary
     end
 
     def load
