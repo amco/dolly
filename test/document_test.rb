@@ -21,7 +21,9 @@ end
 class Baz < Dolly::Document; end
 
 class FooBaz < Dolly::Document
-  property :foo, class_name: Hash, default: {}
+  property :foo, class_name: Hash, default: {} do |property|
+    property.subproperty :bar, class_name: Array, default: []
+  end
 
   def add_to_foo key, value
     foo[key] ||= value
@@ -30,7 +32,7 @@ class FooBaz < Dolly::Document
 end
 
 class WithTime < Dolly::Document
-  property :created_at
+  property :created_at, default: -> {Time.now}
 end
 
 class TestFoo < Dolly::Document
@@ -179,6 +181,28 @@ class DocumentTest < ActiveSupport::TestCase
     end
   end
 
+  test 'reload reloads the doc attribute from database' do
+    assert foo = FooBar.find('1')
+    expected_doc = foo.doc.dup
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json
+    assert foo.foo = 1
+    assert_not_equal expected_doc, foo.doc
+    assert foo.reload
+    assert_equal expected_doc, foo.doc
+  end
+
+  test 'accessors work as expected after reload' do
+    resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
+    FakeWeb.register_uri :put, "http://localhost:5984/test/foo_bar%2F0", body: resp.to_json
+    assert foo = FooBar.find('1')
+    assert foo.foo = 1
+    assert foo.save
+    assert expected_doc = foo.doc
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json
+    assert foo.reload
+    assert_equal 1, foo.foo
+  end
+
   test 'find with multiple ids will return Collection' do
     many = FooBar.find "1", "2"
     assert_equal true, many.kind_of?(Dolly::Collection)
@@ -319,7 +343,7 @@ class DocumentTest < ActiveSupport::TestCase
   test 'set updated at' do
     foo = FooBar.new 'id' => 'a', foo: 'ab'
     foo.update_properties! foo: 'c'
-    assert_equal DateTime.now.to_s, foo.updated_at.to_s
+    assert_equal Time.now.to_s, foo.updated_at.to_s
   end
 
   test 'created at is set' do
@@ -328,7 +352,7 @@ class DocumentTest < ActiveSupport::TestCase
     properties = {foo: 1, bar: 2, boolean: false}
     foo = FooBar.new properties
     foo.save
-    assert_equal DateTime.now.to_s, foo.created_at.to_s
+    assert_equal Time.now.to_s, foo.created_at.to_s
   end
 
   test 'reader :bar is not calling the writer :bar=' do
@@ -474,6 +498,12 @@ class DocumentTest < ActiveSupport::TestCase
   test "new object from inhereted document" do
     assert bar = Bar.new(a: 1)
     assert_equal 1, bar.a
+  end
+
+  test 'subproperty is populated on initialize' do
+    instance = FooBaz.new
+    expected = {'bar' => []}
+    assert_equal expected, instance.foo
   end
 
   private

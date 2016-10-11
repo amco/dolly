@@ -2,7 +2,7 @@ module Dolly
   class Property
     attr_writer :value
     attr_accessor :name
-    attr_reader :class_name, :default
+    attr_reader :class_name, :default, :subproperties
 
     CANT_CLONE = [NilClass, TrueClass, FalseClass, Fixnum].freeze
 
@@ -12,19 +12,42 @@ module Dolly
       @default = opts.delete(:default)
       @default = @default.clone if @default && CANT_CLONE.none? { |klass| @default.is_a? klass }
       @value = @default if @default
+      @subproperties ||= {}
       warn 'There are some unprocessed options!' if opts.present?
     end
 
     def value
-      #TODO: tets if this actually sets `doc[ "name" ]`
-      return @default if @value.nil?
-      return @value unless self_klass
+      if subproperties.any?
+        @value ||= self_klass.new
+        subproperties.each do |name, subproperty|
+          @value[name.to_s] = subproperty.value
+        end
+        @value
+      else
+        return @default if @value.nil?
+        return @value unless self_klass
 
-      klass_sym = :"#{self_klass.name.underscore}_#{__method__}"
+        klass_sym = :"#{self_klass.name.underscore}_#{__method__}"
 
-      return self_klass.new @value unless self.respond_to?(klass_sym)
+        return self_klass.new @value unless self.respond_to?(klass_sym)
 
-      self.send klass_sym
+        self.send klass_sym
+      end
+    end
+
+    def subproperty *ary
+      options = ary.pop if ary.last.kind_of? Hash
+      options ||= {}
+
+      if ary.count==1 && options[:class_name] == Hash && block_given?
+        name = ary.first
+        @subproperties[name] = SubProperty.new options.merge(name: name)
+        yield self.properties[name]
+      else
+        ary.each do |name|
+          @subproperties[name] = SubProperty.new options.merge(name: name)
+        end
+      end
     end
 
     def array_value
@@ -82,4 +105,6 @@ module Dolly
     end
 
   end
+
+  class SubProperty < Property; end
 end

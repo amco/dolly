@@ -10,7 +10,9 @@ module Dolly
 
     attr_accessor :rows, :doc, :key
     class_attribute :properties
-    cattr_accessor :timestamps
+    cattr_accessor :timestamps do
+      {}
+    end
 
     def initialize options = {}
       @doc ||= {}
@@ -34,6 +36,10 @@ module Dolly
       save
     end
 
+    def reload
+      self.doc = self.class.find(id).doc
+    end
+
     def id
       doc['_id'] ||= self.class.next_id
     end
@@ -55,8 +61,8 @@ module Dolly
       return false unless options[:validate] == false || valid?
       self.doc['_id'] = self.id if self.id.present?
       self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
-      set_created_at if timestamps
-      set_updated_at if timestamps
+      set_created_at if timestamps[self.class.name]
+      set_updated_at if timestamps[self.class.name]
       response = database.put(id_as_resource, self.doc.to_json)
       obj = JSON::parse response.parsed_response
       doc['_rev'] = obj['rev'] if obj['rev']
@@ -103,15 +109,27 @@ module Dolly
     end
 
     def attach_file! file_name, mime_type, body, opts={}
+      attach_file file_name, mime_type, body, opts
+      save
+    end
+
+    def attach_file file_name, mime_type, body, opts={}
       if opts[:inline]
-        attachment_data = { file_name.to_s => { 'content_type' => mime_type,
-                                                'data'         => Base64.encode64(body)} }
-        doc['_attachments'] ||= {}
-        doc['_attachments'].merge! attachment_data
-        save
+        attach_inline_file file_name, mime_type, body
       else
-        database.attach id_as_resource, CGI.escape(file_name), body, { 'Content-Type' => mime_type }
+        attach_standalone_file file_name, mime_type, body
       end
+    end
+
+    def attach_inline_file file_name, mime_type, body
+      attachment_data = { file_name.to_s => { 'content_type' => mime_type,
+                                              'data'         => Base64.encode64(body)} }
+      doc['_attachments'] ||= {}
+      doc['_attachments'].merge! attachment_data
+    end
+
+    def attach_standalone_file file_name, mime_type, body
+      database.attach id_as_resource, CGI.escape(file_name), body, { 'Content-Type' => mime_type }
     end
 
     def self.create options = {}
@@ -125,9 +143,16 @@ module Dolly
       options           = ary.pop if ary.last.kind_of? Hash
       options         ||= {}
 
-      ary.each do |name|
+      if ary.count==1 && options[:class_name] == Hash && block_given?
+        name = ary.first
         self.properties[name] = Property.new options.merge(name: name)
         self.write_methods name
+        yield self.properties[name]
+      else
+        ary.each do |name|
+          self.properties[name] = Property.new options.merge(name: name)
+          self.write_methods name
+        end
       end
     end
 
@@ -169,8 +194,7 @@ module Dolly
 
     def initialize_default_properties options
       _properties.reject { |property| options.keys.include? property.name }.each do |property|
-        property_value = property.default.clone unless Dolly::Property::CANT_CLONE.any? { |klass| property.default.is_a? klass }
-        property_value ||= property.default
+        property_value = property.value.clone unless Dolly::Property::CANT_CLONE.any? { |klass| property.default.is_a? klass }
         self.doc[property.name] ||= property_value
       end
     end
