@@ -195,6 +195,7 @@ module Dolly
     def initialize_default_properties options
       _properties.reject { |property| options.keys.include? property.name }.each do |property|
         property_value = property.value.clone unless Dolly::Property::CANT_CLONE.any? { |klass| property.default.is_a? klass }
+        property_value ||= property.default
         self.doc[property.name] ||= property_value
       end
     end
