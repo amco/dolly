@@ -500,6 +500,12 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 1, bar.a
   end
 
+  test 'subproperty is populated on initialize' do
+    instance = FooBaz.new
+    expected = {'bar' => []}
+    assert_equal expected, instance.foo
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
