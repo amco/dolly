@@ -143,9 +143,16 @@ module Dolly
       options           = ary.pop if ary.last.kind_of? Hash
       options         ||= {}
 
-      ary.each do |name|
+      if ary.count==1 && options[:class_name] == Hash && block_given?
+        name = ary.first
         self.properties[name] = Property.new options.merge(name: name)
         self.write_methods name
+        yield self.properties[name]
+      else
+        ary.each do |name|
+          self.properties[name] = Property.new options.merge(name: name)
+          self.write_methods name
+        end
       end
     end
 

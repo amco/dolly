@@ -21,7 +21,9 @@ end
 class Baz < Dolly::Document; end
 
 class FooBaz < Dolly::Document
-  property :foo, class_name: Hash, default: {}
+  property :foo, class_name: Hash, default: {} do |property|
+    property.subproperty :bar, class_name: Array, default: []
+  end
 
   def add_to_foo key, value
     foo[key] ||= value

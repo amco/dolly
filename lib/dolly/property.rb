@@ -16,7 +16,6 @@ module Dolly
     end
 
     def value
-      #TODO: tets if this actually sets `doc[ "name" ]`
       return @default if @value.nil?
       return @value unless self_klass
 
@@ -25,6 +24,22 @@ module Dolly
       return self_klass.new @value unless self.respond_to?(klass_sym)
 
       self.send klass_sym
+    end
+
+    def subproperty *ary
+      @sub_properties ||= {}
+      options           = ary.pop if ary.last.kind_of? Hash
+      options         ||= {}
+
+      if ary.count==1 && options[:class_name] == Hash && block_given?
+        name = ary.first
+        @sub_properties[name] = SubProperty.new options.merge(name: name)
+        yield self.properties[:name]
+      else
+        ary.each do |name|
+          @sub_properties[name] = SubProperty.new options.merge(name: name)
+        end
+      end
     end
 
     def array_value
@@ -82,4 +97,6 @@ module Dolly
     end
 
   end
+
+  class SubProperty < Property; end
 end
