@@ -12,7 +12,7 @@ module Dolly
       @default = opts.delete(:default)
       @default = @default.clone if @default && CANT_CLONE.none? { |klass| @default.is_a? klass }
       @value = @default if @default
-      @subproperties ||= {}
+      @subproperties = {}
       warn 'There are some unprocessed options!' if opts.present?
     end
 
@@ -42,7 +42,7 @@ module Dolly
       if ary.count==1 && options[:class_name] == Hash && block_given?
         name = ary.first
         @subproperties[name] = SubProperty.new options.merge(name: name)
-        yield self.properties[name]
+        yield self.subproperties[name]
       else
         ary.each do |name|
           @subproperties[name] = SubProperty.new options.merge(name: name)

@@ -23,6 +23,7 @@ class Baz < Dolly::Document; end
 class FooBaz < Dolly::Document
   property :foo, class_name: Hash, default: {} do |property|
     property.subproperty :bar, class_name: Array, default: []
+    property.subproperty :baz, class_name: Hash, default: Hash.new
   end
 
   def add_to_foo key, value
@@ -502,7 +503,7 @@ class DocumentTest < ActiveSupport::TestCase
 
   test 'subproperty is populated on initialize' do
     instance = FooBaz.new
-    expected = {'bar' => []}
+    expected = {"bar"=>[], "baz"=>{}}
     assert_equal expected, instance.foo
   end
 
