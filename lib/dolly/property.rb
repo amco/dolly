@@ -11,38 +11,24 @@ module Dolly
       @name = opts.delete(:name).to_s
       @default = opts.delete(:default)
       @default = @default.clone if @default && CANT_CLONE.none? { |klass| @default.is_a? klass }
-      @value = @default if @default
       @subproperties = {}
       warn 'There are some unprocessed options!' if opts.present?
     end
 
     def value
-      if subproperties.any?
-        @value ||= self_klass.new
-        subproperties.each do |name, subproperty|
-          @value[name.to_s] = subproperty.value
-        end
-        @value
-      else
-        return @default if @value.nil?
-        return @value unless self_klass
-
-        klass_sym = :"#{self_klass.name.underscore}_#{__method__}"
-
-        return self_klass.new @value unless self.respond_to?(klass_sym)
-
-        self.send klass_sym
-      end
+      return value_if_subproperties if subproperties.any?
+      standard_value
     end
 
     def subproperty *ary
       options = ary.pop if ary.last.kind_of? Hash
       options ||= {}
 
-      if ary.count==1 && options[:class_name] == Hash && block_given?
-        name = ary.first
-        @subproperties[name] = SubProperty.new options.merge(name: name)
-        yield self.subproperties[name]
+      if options[:class_name] == Hash && block_given?
+        ary.each do |name|
+          @subproperties[name] = SubProperty.new options.merge(name: name)
+          yield self.subproperties[name]
+        end
       else
         ary.each do |name|
           @subproperties[name] = SubProperty.new options.merge(name: name)
@@ -102,6 +88,19 @@ module Dolly
     def self_klass
       return unless @class_name
       @class_name.is_a?(Class)? @class_name : @class_name.constantize
+    end
+
+    def value_if_subproperties
+      @value ||= self_klass.new.tap do |v|
+        subproperties.each { |name, subproperty| v[name.to_s] = subproperty.value }
+      end
+    end
+
+    def standard_value
+      return @default if @value.nil?
+      klass_sym = :"#{self_klass.name.underscore}_#{__method__}"
+      return self_klass.new @value unless self.respond_to?(klass_sym)
+      self.send klass_sym
     end
 
   end

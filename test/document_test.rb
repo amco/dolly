@@ -58,6 +58,12 @@ class Bar < FooBar
   property :a, :b
 end
 
+class SubPropertyDocument < Dolly::Document
+  property :foo, :bar, class_name: Hash, default: {} do |property|
+    property.subproperty :baz, class_name: Hash, default: Hash.new
+  end
+end
+
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -503,10 +509,17 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 1, bar.a
   end
 
-  test 'subproperties and children subprops are populated on initialize un' do
+  test 'subproperties and children subprops are populated on initialize' do
     instance = FooBaz.new
     expected = {"bar"=>[], "baz"=>{"far"=>{}}}
     assert_equal expected, instance.foo
+  end
+
+  test 'subproperties may be defined for multiple properties at once' do
+    instance = SubPropertyDocument.new
+    expected = {"baz"=>{}}
+    assert_equal expected, instance.foo
+    assert_equal expected, instance.bar
   end
 
   private

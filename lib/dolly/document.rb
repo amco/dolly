@@ -143,16 +143,13 @@ module Dolly
       options           = ary.pop if ary.last.kind_of? Hash
       options         ||= {}
 
-      if ary.count==1 && options[:class_name] == Hash && block_given?
-        name = ary.first
-        self.properties[name] = Property.new options.merge(name: name)
-        self.write_methods name
-        yield self.properties[name]
-      else
+      if options[:class_name] == Hash && block_given?
         ary.each do |name|
-          self.properties[name] = Property.new options.merge(name: name)
-          self.write_methods name
+          init_property name, options
+          yield self.properties[name]
         end
+      else
+        ary.each { |name| init_property name, options }
       end
     end
 
@@ -190,6 +187,11 @@ module Dolly
       end
       initialize_default_properties options if self.properties.present?
       init_doc options
+    end
+
+    def self.init_property name, opts={}
+      self.properties[name] = Property.new opts.merge(name: name)
+      self.write_methods name
     end
 
     def initialize_default_properties options
