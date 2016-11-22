@@ -65,7 +65,7 @@ module Dolly
     def request method, resource, data = nil
       data ||= {}
       data.merge!(basic_auth: auth_info) if auth_info.present?
-      headers = { 'Content-Type' => 'application/json' }
+      headers = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
       headers.merge! data[:headers] if data[:headers]
       response = self.class.send method, resource, data.merge(headers: headers)
       if response.code == 404

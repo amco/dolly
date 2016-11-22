@@ -100,6 +100,11 @@ module Dolly
       self
     end
 
+    def from_response response
+      self.rows = response['rows']
+      self
+    end
+
     def database
       self.class.database
     end
