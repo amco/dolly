@@ -78,7 +78,7 @@ module Dolly
       data = {}
       q = "?#{CGI.unescape(opts.to_query)}" unless opts.blank?
       data.merge!(basic_auth: auth_info) if auth_info.present?
-      JSON::parse self.class.get("/#{path}#{q}", data)
+      self.class.get("/#{path}#{q}", data).parsed_response
     end
 
     def auth_info
