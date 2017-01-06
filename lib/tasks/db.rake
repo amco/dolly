@@ -8,21 +8,36 @@ namespace :db do
   desc "Will update design document with what is on db/designs/*.coffee"
   task design: :environment do
     design_dir = Rails.root.join 'db', 'designs'
-    files = Dir.glob File.join design_dir, '**', '*.coffee'
+    coffee_files = Dir.glob File.join design_dir, '**', '*.coffee'
+    js_files = Dir.glob File.join design_dir, '**', '*.js'
+
     data = {}
+
+    files = coffee_files | js_files
 
     files.each do |filename|
       parts = filename[design_dir.to_s.length+1..-1].split '/'
       design_doc_name = parts.count == 1 ? Dolly::Document.design_doc : "_design/#{parts.first}"
 
-      name, key  = File.basename(filename).sub(/.coffee/i, '').split(/\./)
+      name, key  = File.basename(filename).sub(/.coffee|.js/i, '').split(/\./)
+
+      language = File.basename(filename) =~ /.js/ ? 'javascript' : 'coffeescript'
+
       key ||= 'map'
       source = File.read filename
 
-      vd = data[design_doc_name] ||= { 'views' => {}, 'filters' => {}, 'lists' => {}, 'lib' => {} }
+      vd = data[design_doc_name] ||= { 'views' => {}, 'filters' => {}, 'lists' => {}, 'lib' => {}, 'indexes' => {}}
+
+      vd['language'] ||= language
+
+      if data[design_doc_name]['language'] != language
+        raise 'Design document can only have one view language'
+      end
 
       if key == 'filter'
         vd['filters'][name] = source
+      elsif key == 'indexes'
+        vd['indexes'][name] = {'index' => source}
       elsif key == 'lists'
         vd['lists'][name] = source
       elsif key == 'lib'
@@ -35,10 +50,10 @@ namespace :db do
     end
 
     data.each do |design_doc_name, view_doc|
-      view_doc.merge!( '_id' => design_doc_name, 'language' => 'coffeescript')
+      view_doc.merge!( '_id' => design_doc_name)
 
       begin
-        hash_doc = JSON::parse Dolly::Document.database.get(view_doc["_id"]).parsed_response
+        hash_doc = Dolly::Document.database.get(view_doc["_id"]).parsed_response
 
         rev = hash_doc.delete('_rev')
 
