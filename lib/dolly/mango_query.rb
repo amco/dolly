@@ -20,9 +20,9 @@ module Dolly
       }.freeze
     end
 
-    def initialize
+    def initialize proxy_class
+      @proxy_class = proxy_class
       @query = Hash.new
-      instance_eval { yield }
     end
 
     def select name, operator, value
