@@ -1,6 +1,7 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
+require "dolly/mango_query"
 
 module Dolly
   class Document
@@ -149,8 +150,16 @@ module Dolly
       end
     end
 
-    def self.scope name, scope
-      name = name.to_sym
+    def self.scope scope_name, scope
+      name = scope_name.to_sym
+      singleton_class.send(:define_method, name) do |*args|
+        if binding.receiver.is_a? self.class
+          query = Dolly::MangoQuery.new { scope.call *args }
+
+        else binding.receiver.is?(Dolly::MangoQuery)
+          binding.receiver.instance_exec { scope.call *args}
+        end
+      end
     end
 
     private
