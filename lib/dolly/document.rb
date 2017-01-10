@@ -9,7 +9,7 @@ module Dolly
     extend Dolly::Timestamps
 
     attr_accessor :rows, :doc, :key
-    class_attribute :properties
+    class_attribute :properties, :scopes
     cattr_accessor :timestamps do
       {}
     end
@@ -147,6 +147,10 @@ module Dolly
         self.properties[name] = Property.new options.merge(name: name)
         self.write_methods name
       end
+    end
+
+    def self.scope name, scope
+      name = name.to_sym
     end
 
     private
