@@ -19,7 +19,7 @@ class MangoDocumentTest < ActiveSupport::TestCase
 
   test 'the scopes are chainable' do
     query = MangoDoc.by_title('A').by_year(2000).query
-    expected = {}
+    {"selector"=>{"year"=>2000, "title"=>"A"}}
     assert_equal expected, query
   end
 end
