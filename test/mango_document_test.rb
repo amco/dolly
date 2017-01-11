@@ -15,19 +15,19 @@ class MangoDocumentTest < ActiveSupport::TestCase
   end
 
   test 'calling the scope builds the select query' do
-    expected = {"selector"=>{"year"=>2000}}
+    expected = Object.new #currently using tests to see the scope composition.
     assert_equal expected, MangoDoc.by_year(2000)
   end
 
   test 'the scopes are chainable' do
     query = MangoDoc.by_title('A').by_year(2000)
-    expected = {"selector"=>{"year"=>2000, "title"=>"A"}}
+    expected = Object.new #currently using tests to see the scope composition.
     assert_equal expected, query
   end
 
   test 'the scopes are chainable2' do
     query = MangoDoc.by_title('A').by_year(2000).by_char('B')
-    expected = {"selector"=>{"year"=>2000, "title"=>"A"}}
+    expected = Object.new #currently using tests to see the scope composition.
     assert_equal expected, query
   end
 end
