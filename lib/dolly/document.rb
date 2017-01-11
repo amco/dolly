@@ -2,6 +2,7 @@ require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
 require "dolly/mango_query"
+require 'dolly/scope'
 
 module Dolly
   class Document
@@ -152,17 +153,14 @@ module Dolly
 
     class << self
       def scope scope_name, scope
+        self.scopes ||= {}
         name = scope_name.to_sym
-        singleton_class.send(:define_method, name) do |*args|
-          scope.call *args
-        end
-      end
+        self.scopes[name] = lambda { |proxy_scope| Dolly::Scope.new(proxy_scope, scope)}
 
-      def select name, operator, value
-        if binding.receiver.is_a? self.class
-          Dolly::MangoQuery.new(self).select name, operator, value
-        else
-          binding.receiver.select name, operator, value
+        (class << self; self end).instance_eval do
+          define_method name do |*args|
+            self.scopes[name].call(self)
+          end
         end
       end
     end
