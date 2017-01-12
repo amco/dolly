@@ -3,9 +3,9 @@ require 'test_helper'
 class MangoDoc < Dolly::Document
   property :year, :title, :char
 
-  scope :by_year, ->(year) { select('year', :eq, year) }
-  scope :by_title, ->(title) { select('title', :eq, title) }
-  scope :by_char, ->(char) { select('char', :eq, char) }
+  scope :by_year, ->(year) { selector('year', :eq, year) }
+  scope :by_title, ->(title) { selector('title', :eq, title) }
+  scope :by_char, ->(char) { selector('char', :eq, char) }
 end
 
 class MangoDocumentTest < ActiveSupport::TestCase
@@ -20,7 +20,8 @@ class MangoDocumentTest < ActiveSupport::TestCase
   end
 
   test 'the scopes are chainable' do
-    query = MangoDoc.by_title('A').by_year(2000)
+    query = MangoDoc.by_title('A')
+                    .by_year(2000)
     expected = Object.new #currently using tests to see the scope composition.
     assert_equal expected, query
   end

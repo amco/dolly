@@ -24,7 +24,7 @@ module Dolly
       @query = Hash.new
     end
 
-    def select name, operator, value
+    def selector name, operator, value
       @query.deep_merge! select_operator_map[operator].call(name, value)
       return self
     end
@@ -42,7 +42,7 @@ module Dolly
 
     def fields *fields
       @query[FIELDS_KEY] ||= []
-      fields.each { |field| @query[FIELDS_KEY] << field }
+      @query[FIELDS_KEY].push *fields
       return self
     end
 
