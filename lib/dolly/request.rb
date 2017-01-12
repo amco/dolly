@@ -7,6 +7,7 @@ module Dolly
     include HTTParty
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = '5984'
+    MANGO_QUERY = '_find'.freeze
 
     attr_accessor :database_name, :host, :port, :bulk_document
 
@@ -42,6 +43,10 @@ module Dolly
 
     def delete resource
       request :delete, full_path(resource), {}
+    end
+
+    def mango data
+      request :post, full_path(MANGO_QUERY), {body: data}
     end
 
     def attach resource, attachment_name, data, headers = {}

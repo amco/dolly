@@ -9,6 +9,8 @@ module Dolly
     SORT_KEY = 'sort'.freeze
     LIMIT_KEY = 'limit'.freeze
 
+    attr_reader :proxy_class
+
     def select_operator_map
       {
         eq:    ->(name, value) { build_equal_selector name, value },
@@ -18,7 +20,8 @@ module Dolly
       }.freeze
     end
 
-    def initialize
+    def initialize proxy_class
+      @proxy_class = proxy_class
       @query = Hash.new
     end
 
