@@ -2,6 +2,8 @@ module Dolly
   class Scope
     attr_reader :proxy_scope, :query_object, :scope, :args
 
+    delegate :query, to: :query_object
+
     def initialize proxy_scope, query_object, scope, args
       @proxy_scope, @query_object, @scope = proxy_scope, query_object, scope
       @args = args
