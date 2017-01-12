@@ -62,7 +62,7 @@ class DocumentTest < ActiveSupport::TestCase
     all_docs = [ {foo: 'Foo B', bar: 'Bar B', type: 'foo_bar'},  {foo: 'Foo A', bar: 'Bar A', type: 'foo_bar'}]
 
     view_resp   = build_view_response [data]
-    uuid_resp   = {"uuids":["ec68ef07faf8157e568b0913e74b0e1a"]}
+    uuid_resp   = {"uuids" => ["ec68ef07faf8157e568b0913e74b0e1a"]}
 
     empty_resp  =  build_view_response []
     not_found_resp = generic_response [{ key: "foo_bar/2", error: "not_found" }]
