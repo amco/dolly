@@ -6,16 +6,12 @@ module Dolly
       @proxy_scope, @query_object, @scope = proxy_scope, query_object, scope
       @args = args
 
-      scope.binding.local_variable_set('self', @query_object)
-
-      puts scope.binding.eval('self')
+      query_object.instance_exec(*args, &scope)
     end
 
     def method_missing(method, *args, &block)
       if proxy_scope.scopes.include?(method)
-        proxy_scope.scopes[method].call(self, query_object, args).tap do |s|
-          query_object.instance_exec { s.scope.call *args }
-        end
+        proxy_scope.scopes[method].call(self, query_object, args)
       else
         proxy_scope.send(method, *args)
       end
