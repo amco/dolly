@@ -62,6 +62,7 @@ class DocumentTest < ActiveSupport::TestCase
     all_docs = [ {foo: 'Foo B', bar: 'Bar B', type: 'foo_bar'},  {foo: 'Foo A', bar: 'Bar A', type: 'foo_bar'}]
 
     view_resp   = build_view_response [data]
+    uuid_resp   = {"uuids":["ec68ef07faf8157e568b0913e74b0e1a"]}
 
     empty_resp  =  build_view_response []
     not_found_resp = generic_response [{ key: "foo_bar/2", error: "not_found" }]
@@ -84,6 +85,7 @@ class DocumentTest < ActiveSupport::TestCase
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json, content_type: "application/json"
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json, content_type: "application/json"
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Fbig_doc%22%5D&include_docs=true", body: build_view_response([data.merge(other_property: 'other')]).to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "http://localhost:5984/_uuids", body: uuid_resp.to_json
   end
 
   test 'new in memory document' do
@@ -304,19 +306,6 @@ class DocumentTest < ActiveSupport::TestCase
     bar = FooBar.new '_id' => 'b'
     assert_equal "foo_bar/a", foo.id
     assert_equal "foo_bar/b", bar.id
-  end
-
-  test 'new document with no id' do
-    foo = FooBar.new
-    uuid = %r{
-      \A
-      foo_bar /
-      \h{8}    # 8 hex chars
-      (?: - \h{4} ){3}  # 3 groups of 4 hex chars (hyphen sep)
-      - \h{12}  # 12 hex chars (hyphen sep again)
-      \Z
-    }x
-    assert foo.id.match(uuid)
   end
 
   test 'update document properties' do

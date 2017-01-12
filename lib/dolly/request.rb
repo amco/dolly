@@ -54,8 +54,7 @@ module Dolly
     end
 
     def uuids opts = {}
-      puts tools("_uuids", opts)["uuids"]
-      tools("_uuids", opts)["uuids"]
+      JSON.parse(tools("_uuids", opts))['uuids']
     end
 
     def all_docs data = {}
