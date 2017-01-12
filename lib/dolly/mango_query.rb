@@ -20,8 +20,7 @@ module Dolly
       }.freeze
     end
 
-    def initialize proxy_class
-      @proxy_class = proxy_class
+    def initialize
       @query = Hash.new
     end
 

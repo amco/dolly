@@ -155,11 +155,11 @@ module Dolly
       def scope scope_name, scope
         self.scopes ||= {}
         name = scope_name.to_sym
-        self.scopes[name] = lambda { |proxy_scope| Dolly::Scope.new(proxy_scope, scope)}
+        self.scopes[name] = lambda { |proxy_scope, query_object| Dolly::Scope.new(proxy_scope, query_object, scope)}
 
         (class << self; self end).instance_eval do
           define_method name do |*args|
-            self.scopes[name].call(self)
+            self.scopes[name].call(self, Dolly::MangoQuery.new)
           end
         end
       end

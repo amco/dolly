@@ -1,7 +1,7 @@
 require 'test_helper'
 
 class MangoDoc < Dolly::Document
-  property :year, :title
+  property :year, :title, :char
 
   scope :by_year, ->(year) { select('year', :eq, year) }
   scope :by_title, ->(title) { select('title', :eq, title) }
