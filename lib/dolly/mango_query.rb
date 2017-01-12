@@ -1,8 +1,6 @@
 module Dolly
   class MangoQuery
 
-    attr_reader :query
-
     SELECTOR = 'selector'.freeze
     IN_OPERATOR = '$in'.freeze
     GT_OPERATOR = '$gt'.freeze
@@ -26,24 +24,24 @@ module Dolly
 
     def selector name, operator, value
       @query.deep_merge! select_operator_map[operator].call(name, value)
-      return self
     end
 
     def limit value
       @query[LIMIT_KEY] = value
-      return self
     end
 
     def sort name, operator
       @query[SORT_KEY] ||= []
       @query[SORT_KEY] << {name => operator}
-      return self
     end
 
     def fields *fields
       @query[FIELDS_KEY] ||= []
       @query[FIELDS_KEY].push *fields
-      return self
+    end
+
+    def query
+      @query
     end
 
     private
