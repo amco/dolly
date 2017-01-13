@@ -9,7 +9,7 @@ module Dolly
     SORT_KEY = 'sort'.freeze
     LIMIT_KEY = 'limit'.freeze
 
-    attr_reader :proxy_class
+    attr_reader :proxy_class, :query
 
     def select_operator_map
       {
@@ -41,10 +41,6 @@ module Dolly
     def fields *fields
       @query[FIELDS_KEY] ||= []
       @query[FIELDS_KEY].push *fields
-    end
-
-    def query
-      @query
     end
 
     private
