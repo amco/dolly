@@ -2,6 +2,7 @@ require 'test_helper'
 
 class MangoDoc < Dolly::Document
   property :year, :title, :char
+  property :visible_to, class_name: Hash, default: Hash.new
   timestamps!
 
   scope :by_year, ->(year) { selector('year', :eq, year) }
@@ -9,6 +10,7 @@ class MangoDoc < Dolly::Document
   scope :by_char, ->(char) { selector('char', :eq, char) }
   scope :recent, -> { selector('created_at', :gt, 1.year.ago.to_s )}
   scope :old, -> { selector('created_at', :lt, 1.year.ago.to_s )}
+  scope :by_visible_to_schools, -> (school_id) { selector('visible_to.schools', :eq, school_id) }
 end
 
 class MangoDocumentTest < ActiveSupport::TestCase
@@ -52,6 +54,12 @@ class MangoDocumentTest < ActiveSupport::TestCase
       query = MangoDoc.by_title('A').old.query
       expected = {"selector"=>{"title"=>"A", "created_at"=>{"$lt"=>1.year.ago.to_s}}}
 
+      assert_equal expected, query
+    end
+
+    test 'selector can handle nested json object querys' do
+      query = MangoDoc.by_visible_to_schools('some_id').query
+      expected = {"selector"=>{"visible_to.schools"=>"some_id"}}
       assert_equal expected, query
     end
   end
