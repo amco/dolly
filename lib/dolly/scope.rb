@@ -1,14 +1,14 @@
 module Dolly
   class Scope
-    attr_reader :proxy_scope, :query_object, :scope, :args
+    attr_reader :query_object, :scope, :scope_args
 
     delegate :query, :proxy_class, to: :query_object
 
-    def initialize query_object, scope, args
+    def initialize query_object, scope, scope_args
       @query_object, @scope = query_object, scope
-      @args = args
+      @scope_args = scope_args
 
-      query_object.instance_exec(*args, &scope)
+      query_object.instance_exec(*scope_args, &scope)
     end
 
     def method_missing(method, *args, &block)
