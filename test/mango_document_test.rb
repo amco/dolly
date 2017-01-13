@@ -15,8 +15,9 @@ class MangoDocumentTest < ActiveSupport::TestCase
 
   class QueryIsBuiltTest < MangoDocumentTest
     test 'responds to the scoped method' do
-      assert MangoDoc.respond_to? :by_year
-      assert MangoDoc.respond_to? :by_title
+      MangoDoc.scopes.keys.each do |k|
+        assert MangoDoc.respond_to? k
+      end
     end
 
     test 'calling the scope builds the select query' do
