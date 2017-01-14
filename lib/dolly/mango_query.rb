@@ -52,7 +52,7 @@ module Dolly
     private
 
     def build_equal_selector name, value
-      @query[SELECTOR][name] = value
+      @query[SELECTOR][name][EQ_OPERATOR] = value
     end
 
     def build_element_match_selector name, value

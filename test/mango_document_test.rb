@@ -25,43 +25,50 @@ class MangoDocumentTest < ActiveSupport::TestCase
     end
 
     test 'calling the scope builds the select query' do
-      query = MangoDoc.by_year(2000).query.to_json
-      expected = {"selector"=>{"year"=>2000}}.to_json
+      value = 2000
+      query = MangoDoc.by_year(value).query.to_json
+      expected = {"selector"=>{"year"=>{"$eq"=>value}}}.to_json
 
       assert_equal expected, query
     end
 
     test 'the scopes are chainable' do
-      query = MangoDoc.by_title('A').by_year(2000).query.to_json
-      expected = {"selector"=>{"title"=>"A", "year"=>2000}}.to_json
+      title_value = 'A'
+      year_value = 2000
+      query = MangoDoc.by_title(title_value).by_year(year_value).query.to_json
+      expected = {"selector"=>{"title"=>{"$eq"=>title_value}, "year"=>{"$eq"=>year_value}}}.to_json
 
       assert_equal expected, query
     end
 
     test 'the scopes are chainable2' do
-      query = MangoDoc.by_title('A').by_year(2000).by_char('B').query.to_json
-      expected = {"selector"=>{"title"=>"A", "year"=>2000, "char"=>"B"}}.to_json
+      title_value = 'A'
+      year_value = 2000
+      char_value = 'B'
+      query = MangoDoc.by_title(title_value).by_year(year_value).by_char(char_value).query.to_json
+      expected = {"selector"=>{"title"=>{"$eq"=>title_value}, "year"=>{"$eq"=>year_value}, "char"=>{"$eq"=>char_value}}}.to_json
 
       assert_equal expected, query
     end
 
     test 'greater than selector builds query correctly' do
       query = MangoDoc.by_title('A').recent.query.to_json
-      expected = {"selector"=>{"title"=>"A", "created_at"=>{"$gt"=>1.year.ago.to_s}}}.to_json
+      expected = {"selector"=>{"title"=>{"$eq"=>"A"}, "created_at"=>{"$gt"=>1.year.ago.to_s}}}.to_json
 
       assert_equal expected, query
     end
 
     test 'less than selector builds query correctly' do
       query = MangoDoc.by_title('A').old.query.to_json
-      expected = {"selector"=>{"title"=>"A", "created_at"=>{"$lt"=>1.year.ago.to_s}}}.to_json
+      expected = {"selector"=>{"title"=>{"$eq"=>"A"}, "created_at"=>{"$lt"=>1.year.ago.to_s}}}.to_json
 
       assert_equal expected, query
     end
 
     test 'selector can handle nested json object querys' do
-      query = MangoDoc.by_visible_to_schools('some_id').query.to_json
-      expected = {"selector"=>{"visible_to.schools"=>"some_id"}}.to_json
+      value = "some_id"
+      query = MangoDoc.by_visible_to_schools(value).query.to_json
+      expected = {"selector"=>{"visible_to.schools"=>{"$eq"=>value}}}.to_json
       assert_equal expected, query
     end
 
