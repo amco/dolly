@@ -6,20 +6,20 @@ class MangoDoc < Dolly::Document
   property :default_collection, class_name: Array, default: Array.new
   timestamps!
 
-  scope :by_year, ->(year) { selector('year', :eq, year) }
-  scope :by_title, ->(title) { selector('title', :eq, title) }
-  scope :by_char, ->(char) { selector('char', :eq, char) }
-  scope :recent, -> { selector('created_at', :gt, 1.year.ago.to_s )}
-  scope :old, -> { selector('created_at', :lt, 1.year.ago.to_s )}
-  scope :by_visible_to_schools, -> (school_id) { selector('visible_to.schools', :eq, school_id) }
-  scope :collection_items_greater_than, -> (item) { selector('default_collection', :em, :gt, item)}
+  mango_scope :by_year, ->(year) { selector('year', :eq, year) }
+  mango_scope :by_title, ->(title) { selector('title', :eq, title) }
+  mango_scope :by_char, ->(char) { selector('char', :eq, char) }
+  mango_scope :recent, -> { selector('created_at', :gt, 1.year.ago.to_s )}
+  mango_scope :old, -> { selector('created_at', :lt, 1.year.ago.to_s )}
+  mango_scope :by_visible_to_schools, -> (school_id) { selector('visible_to.schools', :eq, school_id) }
+  mango_scope :collection_items_greater_than, -> (item) { selector('default_collection', :em, :gt, item)}
 end
 
 class MangoDocumentTest < ActiveSupport::TestCase
 
   class QueryIsBuiltTest < MangoDocumentTest
     test 'responds to the scoped method' do
-      MangoDoc.scopes.keys.each do |k|
+      MangoDoc.mango_scopes.keys.each do |k|
         assert_respond_to MangoDoc, k
       end
     end

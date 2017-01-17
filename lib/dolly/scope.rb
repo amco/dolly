@@ -11,8 +11,8 @@ module Dolly
     end
 
     def method_missing(method, *args, &block)
-      if proxy_class.scopes.include?(method)
-        proxy_class.scopes[method].call(query_object, args)
+      if proxy_class.mango_scopes.include?(method)
+        proxy_class.mango_scopes[method].call(query_object, args)
       else
         collection = proxy_class.database.mango query.to_json
         collection.send(method, *args, &block)

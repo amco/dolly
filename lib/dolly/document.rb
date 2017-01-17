@@ -11,7 +11,7 @@ module Dolly
     extend Dolly::Timestamps
 
     attr_accessor :rows, :doc, :key
-    class_attribute :properties, :scopes
+    class_attribute :properties, :mango_scopes
     cattr_accessor :timestamps do
       {}
     end
@@ -152,14 +152,14 @@ module Dolly
     end
 
     class << self
-      def scope scope_name, scope
-        self.scopes ||= {}
+      def mango_scope scope_name, scope
+        self.mango_scopes ||= {}
         name = scope_name.to_sym
-        self.scopes[name] = lambda { |query_object, args| Dolly::Scope.new(query_object, scope, args)}
+        self.mango_scopes[name] = lambda { |query_object, args| Dolly::Scope.new(query_object, scope, args)}
 
         (class << self; self end).instance_eval do
           define_method name do |*args|
-            self.scopes[name].call(Dolly::MangoQuery.new(self), *args)
+            self.mango_scopes[name].call(Dolly::MangoQuery.new(self), *args)
           end
         end
       end
