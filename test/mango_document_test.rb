@@ -19,15 +19,26 @@ class MangoDoc < Dolly::Document
   mango_scope :generic_elematch_or, ->(field, item) { selector(field, :em, :or, item) }
 end
 
-class MangoDocumentTest < ActiveSupport::TestCase
+class SecondMangoDoc < Dolly::Document
+  property :name
 
-  class QueryIsBuiltTest < MangoDocumentTest
+  mango_scope :by_name, ->(name) { selector('name', :eq, name) }
+end
+
+class MangoDocumentTest < ActiveSupport::TestCase
+  class ScopeInterfaceTest < MangoDocumentTest
+    test 'SecondMangoDoc does not have the scopes of MangoDoc' do
+      assert_not_same MangoDoc.mango_scopes.keys, SecondMangoDoc.mango_scopes.keys
+    end
+
     test 'responds to the scoped method' do
       MangoDoc.mango_scopes.keys.each do |k|
         assert_respond_to MangoDoc, k
       end
     end
+  end
 
+  class QueryIsBuiltTest < MangoDocumentTest
     test 'calling the scope builds the select query' do
       value = 2000
       query = MangoDoc.by_year(value).query.to_json

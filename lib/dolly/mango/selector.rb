@@ -10,6 +10,7 @@ module Dolly
       LT_OPERATOR  = '$lt'.freeze
       OR_OPERATOR  = '$or'.freeze
       NOT_SELECTOR = '$not'.freeze
+      NOR_SELECTOR = '$nor'.freeze
       AND_OPERATOR = '$and'.freeze
       GTE_OPERATOR = '$gte'.freeze
       LTE_OPERATOR = '$lte'.freeze
@@ -21,6 +22,7 @@ module Dolly
           ne:            ->(name, value) { build_not_equal_selector name, value },
           in:            ->(name, value) { build_inclusion_selector name, value },
           not:           ->(name, value) { build_not_selector name, value },
+          nor:           ->(name, value) { build_nor_selector name, value},
           gt:            ->(name, value) { build_gt_selector name, value },
           gte:           ->(name, value) { build_gte_selector name, value },
           lt:            ->(name, value) { build_lt_selector name, value },
@@ -47,6 +49,10 @@ module Dolly
 
       def build_not_selector name, value
         @query[SELECTOR][NOT_SELECTOR][name] = value
+      end
+
+      def build_nor_selector name, value
+        @query[SELECTOR][NOR_SELECTOR][name] = value
       end
 
       def build_element_match_selector name, value
