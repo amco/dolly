@@ -3,6 +3,10 @@ module Dolly
   class MangoQuery
     include Dolly::Mango::Selector
 
+    FIELDS_KEY   = 'fields'.freeze
+    SORT_KEY     = 'sort'.freeze
+    LIMIT_KEY    = 'limit'.freeze
+
     attr_reader :proxy_class, :query
 
     def initialize proxy_class
