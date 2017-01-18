@@ -108,7 +108,7 @@ class MangoDocumentTest < ActiveSupport::TestCase
           },
           "visible_to.grades" => {
             "$elemMatch" => {
-              "$or": ([] << "")
+              "$or" => ([] << "")
             }
           }
         }
