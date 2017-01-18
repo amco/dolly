@@ -13,9 +13,6 @@ module Dolly
       GTE_OPERATOR = '$gte'.freeze
       LTE_OPERATOR = '$lte'.freeze
       EM_OPERATOR  = '$elemMatch'.freeze
-      FIELDS_KEY   = 'fields'.freeze
-      SORT_KEY     = 'sort'.freeze
-      LIMIT_KEY    = 'limit'.freeze
 
       def select_operator_map
         {
