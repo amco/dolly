@@ -14,7 +14,7 @@ class MangoDoc < Dolly::Document
   mango_scope :by_visible_to_schools, -> (school_id) { selector('visible_to.schools', :eq, school_id) }
   mango_scope :collection_items_greater_than, -> (item) { selector('default_collection', :em, :gt, item)}
 
-  mango_scope :id_greater_than, ->(id) { selector('_id', :gt, id) }
+  mango_scope :id_greater_than, ->(id=nil) { selector('_id', :gt, id) }
   mango_scope :support_date_greater_than, ->(date) { selector('support_date', :gt, date)}
   mango_scope :generic_elematch_or, ->(field, item) { selector(field, :em, :or, item) }
 end
@@ -114,7 +114,7 @@ class MangoDocumentTest < ActiveSupport::TestCase
         }
       }.to_json
       query = MangoDoc
-                .id_greater_than("")
+                .id_greater_than(nil)
                 .support_date_greater_than(Date.today.to_s(:db))
                 .generic_elematch_or('visible_to.schools', [] << "")
                 .generic_elematch_or('visible_to.countries', [] << "")
