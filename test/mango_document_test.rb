@@ -13,6 +13,10 @@ class MangoDoc < Dolly::Document
   mango_scope :old, -> { selector('created_at', :lt, 1.year.ago.to_s )}
   mango_scope :by_visible_to_schools, -> (school_id) { selector('visible_to.schools', :eq, school_id) }
   mango_scope :collection_items_greater_than, -> (item) { selector('default_collection', :em, :gt, item)}
+
+  mango_scope :id_greater_than, ->(id) { selector('_id', :gt, id) }
+  mango_scope :support_date_greater_than, ->(date) { selector('support_date', :gt, date)}
+  mango_scope :generic_elematch_or, ->(field, item) { selector(field, :em, :or, item) }
 end
 
 class MangoDocumentTest < ActiveSupport::TestCase
@@ -76,6 +80,47 @@ class MangoDocumentTest < ActiveSupport::TestCase
       query = MangoDoc.collection_items_greater_than(1).query.to_json
       expected = {"selector"=>{"default_collection"=>{"$elemMatch"=>{"$gt"=>1}}}}.to_json
       assert_equal expected, query
+    end
+
+    test 'complex selector can be built' do
+      expected_query = {
+        "selector" => {
+          "_id" => {
+            "$gt" => nil
+          },
+          "support_type_date" => {
+            "$gt" => Date.today.to_s(:db)
+          },
+          "visible_to.schools" => {
+            "$elemMatch" => {
+              "$or" => ([] << "")
+            }
+          },
+          "visible_to.countries" => {
+            "$elemMatch" => {
+              "$or" => ([] << "")
+            }
+          },
+          "visible_to.programs" => {
+            "$elemMatch" => {
+              "$or" => ([] << "")
+            }
+          },
+          "visible_to.grades" => {
+            "$elemMatch" => {
+              "$or": ([] << "")
+            }
+          }
+        }
+      }.to_json
+      query = MangoDoc
+                .id_greater_than("")
+                .support_date_greater_than(Date.today.to_s(:db))
+                .generic_elematch_or('visible_to.schools', [] << "")
+                .generic_elematch_or('visible_to.countries', [] << "")
+                .generic_elematch_or('visible_to.programs', [] << "")
+                .generic_elematch_or('visible_to.grades', [] << "").query.to_json
+      assert expected_query, query
     end
   end
 end
