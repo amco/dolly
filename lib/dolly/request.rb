@@ -28,6 +28,10 @@ module Dolly
       request :get, full_path(resource), q
     end
 
+    def stats
+      request :get, "/#{database_name}"
+    end
+
     def put resource, data
       request :put, full_path(resource), {body: data}
     end
