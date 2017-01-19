@@ -33,7 +33,7 @@ module Dolly
           [:em, :lt] =>  ->(name, value) { build_element_match_lt_selector name, value },
           [:em, :lte] => ->(name, value) { build_element_match_lte_selector name, value },
           [:em, :or] =>  ->(name, value) { build_element_match_or_selector name, value },
-          [:em, :and] => ->(name, value) { build_element_match_and_selector}
+          [:em, :and] => ->(name, value) { build_element_match_and_selector name, value }
         }.freeze
       end
 
