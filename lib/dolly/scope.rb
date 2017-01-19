@@ -5,8 +5,7 @@ module Dolly
     delegate :proxy_class, :query, to: :query_object
 
     def initialize query_object, scope, scope_args
-      @query_object, @scope = query_object, scope
-      @scope_args = scope_args
+      @query_object, @scope, @scope_args = query_object, scope, scope_args
       evaluate_scope
     end
 
