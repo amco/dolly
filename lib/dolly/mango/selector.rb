@@ -12,18 +12,33 @@ module Dolly
       GTE_OPERATOR = '$gte'.freeze
       LTE_OPERATOR = '$lte'.freeze
 
+      EQUALITY_OPERATORS = [
+                             EQ_OPERATOR,
+                             NE_OPERATOR,
+                             GT_OPERATOR,
+                             LT_OPERATOR,
+                             GTE_OPERATOR,
+                             LTE_OPERATOR,
+                           ].freeze
+
       # Object Operators
       EXISTS_OPERATOR = '$exists'.freeze
       TYPE_OPERATOR   = '$type'.freeze
+
+      OBJECT_OPERATORS = [EXISTS_OPERATOR, TYPE_OPERATOR].freeze
 
       # Array Operators
       IN_OPERATOR  = '$in'.freeze
       NIN_OPERATOR = '$nin'.freeze
       SIZE_OPERATOR = '$size'.freeze
 
+      ARRAY_OPERATORS = [IN_OPERATOR, NIN_OPERATOR].freeze
+
       # Miscellaneous Operators
       MOD_OPERATOR   = '$mod'.freeze
-      REGEX_OPERATOR =
+      REGEX_OPERATOR = '$regex'.freeze
+
+      MISC_OPERATORS = [MOD_OPERATOR, REGEX_OPERATOR].freeze
 
       # Combination Operators
       OR_OPERATOR  = '$or'.freeze
@@ -32,6 +47,26 @@ module Dolly
       AND_OPERATOR = '$and'.freeze
       ALL_OPERATOR = '$all'.freeze
       EM_OPERATOR  = '$elemMatch'.freeze
+
+      COMBINATION_OPERATORS = [
+                                OR_OPERATOR,
+                                NOT_SELECTOR,
+                                NOR_SELECTOR,
+                                AND_OPERATOR,
+                                ALL_OPERATOR,
+                                EM_OPERATOR
+                              ]
+
+      POSSIBLE_TYPE_VALUES = %w/null boolean number string array object/.freeze
+
+      ALL_OPERATORS = [
+                        EQUALITY_OPERATORS,
+                        OBJECT_OPERATORS,
+                        ARRAY_OPERATORS,
+                        SIZE_OPERATOR,
+                        MISC_OPERATORS,
+                        COMBINATION_OPERATORS
+                      ].flatten.freeze
 
       def select_operator_map
         {
@@ -51,7 +86,6 @@ module Dolly
 
           mod:           ->(name, value) { build_equality_selector name, value, MOD_OPERATOR },
           regex:         ->(name, value) { build_equality_selector name, value, REGEX_OPERATOR },
-
 
           nor:           ->(name, value) { build_exclusive_selector name, value, NOR_SELECTOR} ,
           all:           ->(name, value) { build_exclusive_selector name, value, ALL_OPERATOR },
@@ -77,20 +111,32 @@ module Dolly
       private
 
       def build_equality_selector name, value, operator
-        @query[SELECTOR][name][operator] = value
+        operator_value_type_check(operator, value)
+        query[SELECTOR][name][operator] = value
       end
 
       def build_exclusive_selector name, value, operator
-        @query[SELECTOR][operator][name] = value
+        operator_value_type_check(operator, value)
+        query[SELECTOR][operator][name] = value
       end
 
       def build_composite_selector name, value, *operators
         first, second = operators
-        @query[SELECTOR][name][first][second] = value
+        operator_value_type_check(second, value)
+
+        query[SELECTOR][name][first][second] = value
       end
 
-      def operator_value_validation operator, value
-
+      def operator_value_type_check operator, value
+        raise Dolly::UnrecognizedOperator.new(operator) unless ALL_OPERATORS.include? operator
+        return if EQUALITY_OPERATORS.include? operator
+        raise Dolly::BadQueryArguement.new(operator, 'Boolean') if operator == EXISTS_OPERATOR && ![true, false].include?(value)
+        raise Dolly::BadQueryArguement.new(operator, POSSIBLE_TYPE_VALUES.join(', ')) if operator == TYPE_OPERATOR && !POSSIBLE_TYPE_VALUES.include?(value)
+        raise Dolly::BadQueryArguement.new(operator, Array) if ARRAY_OPERATORS.include?(operator) && !value.is_a?(Array)
+        raise Dolly::BadQueryArguement.new(operator, Integer) if operator == SIZE_OPERATOR && !value.is_a?(Integer)
+        raise Dolly::BadQueryArguement.new(operator, '[Divisor, Remainder] Array of Integers') if operator == MOD_OPERATOR && value.is_a?(Array) && value.count == 2 && value.all? {|el| el.is_a? Integer }
+        raise Dolly::BadQueryArguement.new(operator, String) if operator == REGEX_OPERATOR && !value.is_a?(String)
+        raise Dolly::BadQueryArguement.new(operator, Array) if COMBINATION_OPERATORS.include?(operator) && !value.is_a?(Array)
       end
     end
   end
