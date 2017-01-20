@@ -21,6 +21,10 @@ module Dolly
       NIN_OPERATOR = '$nin'.freeze
       SIZE_OPERATOR = '$size'.freeze
 
+      # Miscellaneous Operators
+      MOD_OPERATOR   = '$mod'.freeze
+      REGEX_OPERATOR =
+
       # Combination Operators
       OR_OPERATOR  = '$or'.freeze
       NOT_SELECTOR = '$not'.freeze
@@ -44,6 +48,10 @@ module Dolly
           in:            ->(name, value) { build_equality_selector name, value, IN_OPERATOR },
           nin:           ->(name, value) { build_equality_selector name, value, NIN_OPERATOR },
           size:          ->(name, value) { build_equality_selector name, value, SIZE_OPERATOR },
+
+          mod:           ->(name, value) { build_equality_selector name, value, MOD_OPERATOR },
+          regex:         ->(name, value) { build_equality_selector name, value, REGEX_OPERATOR },
+
 
           nor:           ->(name, value) { build_exclusive_selector name, value, NOR_SELECTOR} ,
           all:           ->(name, value) { build_exclusive_selector name, value, ALL_OPERATOR },
