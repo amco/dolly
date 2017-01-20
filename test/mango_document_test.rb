@@ -93,6 +93,14 @@ class MangoDocumentTest < ActiveSupport::TestCase
       assert_equal expected, query
     end
 
+    test 'selector can chain anonymous selectors' do
+      year = 2000
+      title = 'Bond'
+      query = MangoDoc.by_year(year).selector('title', :eq, title).query.to_json
+      expected = {"selector"=>{"year"=>{"$eq"=>2000}, "title"=>{"$eq"=>"Bond"}}}.to_json
+      assert_equal expected, query
+    end
+
     test 'complex selector can be built' do
       expected_query = {
         "selector" => {

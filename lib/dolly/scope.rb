@@ -12,35 +12,13 @@ module Dolly
     def method_missing(method, *args, &block)
       if proxy_class.mango_scopes.include?(method)
         proxy_class.mango_scopes[method].call(query_object, args)
+      elsif query_object.respond_to? :method
+        query_object.send(method, *args, &block)
+        return self
       else
         collection = proxy_class.database.mango query.to_json
         collection.send(method, *args, &block)
       end
-    end
-
-    def selector name, *operator, value
-      query_object.selector name, *operator, value
-      return self
-    end
-
-    def limit value
-      query_object.limit value
-      return self
-    end
-
-    def sort name, operator
-      query_object.sort name, operator
-      return self
-    end
-
-    def fields *fields
-      query_object.fields *fields
-      return self
-    end
-
-    def skip interger
-      query_object.skip interger
-      return self
     end
 
     private
