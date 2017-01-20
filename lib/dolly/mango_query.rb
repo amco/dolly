@@ -1,4 +1,4 @@
-require 'dolly/mango/selector'
+require 'dolly/mango'
 module Dolly
   class MangoQuery
     include Dolly::Mango::Selector
