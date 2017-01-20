@@ -4,8 +4,9 @@ module Dolly
     include Dolly::Mango::Selector
 
     FIELDS_KEY   = 'fields'.freeze
-    SORT_KEY     = 'sort'.freeze
     LIMIT_KEY    = 'limit'.freeze
+    SKIP_KEY     = 'skip'.freeze
+    SORT_KEY     = 'sort'.freeze
 
     attr_reader :proxy_class, :query
 
@@ -32,6 +33,10 @@ module Dolly
     def fields *fields
       @query[FIELDS_KEY] ||= []
       @query[FIELDS_KEY].push *fields
+    end
+
+    def skip integer
+      @query[SKIP_KEY] = integer.to_i
     end
   end
 end
