@@ -16,11 +16,6 @@ module Dolly
       query.compare_by_identity
     end
 
-    def selector name, *operator, value
-      operator = operator.count > 1 ? operator : operator.first
-      select_operator_map[operator].call(name, value)
-    end
-
     def limit value
       query[LIMIT_KEY] = value
     end

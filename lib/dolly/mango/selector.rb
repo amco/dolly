@@ -67,6 +67,12 @@ module Dolly
                         MISC_OPERATORS,
                         COMBINATION_OPERATORS
                       ].flatten.freeze
+      def selector name, *operator, value
+        operator = operator.count > 1 ? operator : operator.first
+        select_operator_map[operator].call(name, value)
+      end
+
+      private
 
       def select_operator_map
         {
@@ -107,8 +113,6 @@ module Dolly
           [:not, :and] => ->(name, value) { build_composite_selector name, value, NOT_OPERATOR, AND_OPERATOR }
         }.freeze
       end
-
-      private
 
       def build_equality_selector name, value, operator
         operator_value_type_check(operator, value)
