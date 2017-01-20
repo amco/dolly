@@ -18,89 +18,38 @@ module Dolly
 
       def select_operator_map
         {
-          eq:            ->(name, value) { build_equal_selector name, value },
-          ne:            ->(name, value) { build_not_equal_selector name, value },
-          in:            ->(name, value) { build_inclusion_selector name, value },
-          not:           ->(name, value) { build_not_selector name, value },
-          nor:           ->(name, value) { build_nor_selector name, value},
-          gt:            ->(name, value) { build_gt_selector name, value },
-          gte:           ->(name, value) { build_gte_selector name, value },
-          lt:            ->(name, value) { build_lt_selector name, value },
-          lte:           ->(name, value) { build_lte_selector name, value },
-          em:            ->(name, value) { build_element_match_selector name, value },
-          [:em, :gt] =>  ->(name, value) { build_element_match_gt_selector name, value },
-          [:em, :gte] => ->(name, value) { build_element_match_gte_selector name, value },
-          [:em, :lt] =>  ->(name, value) { build_element_match_lt_selector name, value },
-          [:em, :lte] => ->(name, value) { build_element_match_lte_selector name, value },
-          [:em, :or] =>  ->(name, value) { build_element_match_or_selector name, value },
-          [:em, :and] => ->(name, value) { build_element_match_and_selector name, value }
+          eq:            ->(name, value) { build_equality_selector name, value, EQ_OPERATOR },
+          ne:            ->(name, value) { build_equality_selector name, value, NE_OPERATOR },
+          in:            ->(name, value) { build_equality_selector name, value, IN_OPERATOR },
+          not:           ->(name, value) { build_exclusive_selector name, value, NOT_SELECTOR },
+          nor:           ->(name, value) { build_exclusive_selector name, value, NOR_SELECTOR},
+          gt:            ->(name, value) { build_equality_selector name, value, GT_OPERATOR },
+          gte:           ->(name, value) { build_equality_selector name, value, GTE_OPERATOR},
+          lt:            ->(name, value) { build_equality_selector name, value, LT_OPERATOR },
+          lte:           ->(name, value) { build_equality_selector name, value, LTE_OPERATOR },
+          em:            ->(name, value) { build_equality_selector name, value, EM_OPERATOR },
+          [:em, :gt] =>  ->(name, value) { build_composite_selector name, value, EM_OPERATOR, GT_OPERATOR },
+          [:em, :gte] => ->(name, value) { build_composite_selector name, value, EM_OPERATOR, GTE_OPERATOR },
+          [:em, :lt] =>  ->(name, value) { build_composite_selector name, value, EM_OPERATOR, LT_OPERATOR },
+          [:em, :lte] => ->(name, value) { build_composite_selector name, value, EM_OPERATOR, LTE_OPERATOR },
+          [:em, :or] =>  ->(name, value) { build_composite_selector name, value, EM_OPERATOR, OR_OPERATOR },
+          [:em, :and] => ->(name, value) { build_composite_selector name, value, EM_OPERATOR, AND_OPERATOR }
         }.freeze
       end
 
       private
 
-      def build_equal_selector name, value
-        @query[SELECTOR][name][EQ_OPERATOR] = value
+      def build_equality_selector name, value, operator
+        @query[SELECTOR][name][operator] = value
       end
 
-      def build_not_equal_selector name, value
-        @query[SELECTOR][name][NE_OPERATOR] = value
+      def build_exclusive_selector name, value, operator
+        @query[SELECTOR][operator][name] = value
       end
 
-      def build_not_selector name, value
-        @query[SELECTOR][NOT_SELECTOR][name] = value
-      end
-
-      def build_nor_selector name, value
-        @query[SELECTOR][NOR_SELECTOR][name] = value
-      end
-
-      def build_element_match_selector name, value
-        @query[SELECTOR][name][EM_OPERATOR] = value
-      end
-
-      def build_element_match_gt_selector name, value
-        @query[SELECTOR][name][EM_OPERATOR][GT_OPERATOR] = value
-      end
-
-      def build_element_match_gte_selector name, value
-        @query[SELECTOR][name][EM_OPERATOR][GTE_OPERATOR] = value
-      end
-
-      def build_element_match_lt_selector name, value
-        @query[SELECTOR][name][EM_OPERATOR][LT_OPERATOR] = value
-      end
-
-      def build_element_match_lte_selector name, value
-        @query[SELECTOR][name][EM_OPERATOR][LTE_OPERATOR] = value
-      end
-
-      def build_element_match_or_selector name, value
-        @query[SELECTOR][name][EM_OPERATOR][OR_OPERATOR] = value
-      end
-
-      def build_element_match_and_selector name, value
-        @query[SELECTOR][name][EM_OPERATOR][AND_OPERATOR] = value
-      end
-
-      def build_inclusion_selector name, value
-        @query[SELECTOR][name][IN_OPERATOR] = value
-      end
-
-      def build_gt_selector name, value
-        @query[SELECTOR][name][GT_OPERATOR] = value
-      end
-
-      def build_gte_selector name, value
-        @query[SELECTOR][name][GTE_OPERATOR] = value
-      end
-
-      def build_lt_selector name, value
-        @query[SELECTOR][name][LT_OPERATOR] = value
-      end
-
-      def build_lte_selector name, value
-        @query[SELECTOR][name][LTE_OPERATOR] = value
+      def build_composite_selector name, value, *operators
+        first, second = operators
+        @query[SELECTOR][name][first][second] = value
       end
     end
   end
