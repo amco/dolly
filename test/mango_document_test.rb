@@ -93,11 +93,26 @@ class MangoDocumentTest < ActiveSupport::TestCase
       assert_equal expected, query
     end
 
-    test 'selector can chain anonymous selectors' do
+    test 'an anonymous selector may be chained to a scope' do
       year = 2000
       title = 'Bond'
       query = MangoDoc.by_year(year).selector('title', :eq, title).query.to_json
       expected = {"selector"=>{"year"=>{"$eq"=>2000}, "title"=>{"$eq"=>"Bond"}}}.to_json
+      assert_equal expected, query
+    end
+
+    test 'an anonymous selector may be chained to the class' do
+      title = 'Bond'
+      query = MangoDoc.selector('title', :eq, title).query.to_json
+      expected = {"selector"=>{"title"=>{"$eq"=>"Bond"}}}.to_json
+      assert_equal expected, query
+    end
+
+    test 'an mango_scope can be chained to an anonymous selector' do
+      year = 2000
+      title = 'Bond'
+      query = MangoDoc.selector('title', :eq, title).by_year(year).query.to_json
+      expected = {"selector"=>{"title"=>{"$eq"=>"Bond"}, "year"=>{"$eq"=>2000}}}.to_json
       assert_equal expected, query
     end
 

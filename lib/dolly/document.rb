@@ -162,6 +162,13 @@ module Dolly
           end
         end
       end
+
+      def selector name, *operator, value
+        scope = -> { selector(name, *operator, value) }
+        query_object = Dolly::Mango::Query.new(self)
+        args = nil
+        Dolly::Mango::Scope.new query_object, scope, args
+      end
     end
 
     private
