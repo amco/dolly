@@ -164,10 +164,10 @@ module Dolly
       end
 
       def selector name, *operator, value
-        scope = -> { selector(name, *operator, value) }
+        anonymous_scope = -> { selector(name, *operator, value) }
         query_object = Dolly::Mango::Query.new(self)
         args = nil
-        Dolly::Mango::Scope.new query_object, scope, args
+        Dolly::Mango::Scope.new query_object, anonymous_scope, args
       end
     end
 
