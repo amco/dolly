@@ -112,7 +112,7 @@ module Dolly
       end
 
       def operator_value_type_check operator, value
-        Dolly::Mango::QueryValidator.new(operator, value).validate!
+        QueryValidator.new(operator, value).validate!
       end
     end
   end
