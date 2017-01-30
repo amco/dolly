@@ -44,5 +44,16 @@ class QueryValidatorTest < ActiveSupport::TestCase
         @query_object.selector('field', :size, 1)
       end
     end
+
+    test 'nothing is raised if a misc operator is invoked with the correct values' do
+      assert_nothing_raised do
+        @query_object.selector('field', :mod, [3,1])
+        @query_object.selector('field', :regex, /[a-zA-Z]{1}/.to_s)
+      end
+    end
+  end
+
+  class UnacceptedValuesTest < QueryValidatorTest
+
   end
 end

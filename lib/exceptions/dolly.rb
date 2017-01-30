@@ -35,7 +35,7 @@ module Dolly
   end
   class DocumentInvalidError < RuntimeError; end
   class MissingPropertyError < RuntimeError; end
-  class BadQueryArugement < RuntimeError
+  class BadQueryArguement < RuntimeError
     def initialize operator, expected_type
       @operator, @expected_type = operator, expected_type
     end
