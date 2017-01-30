@@ -7,7 +7,6 @@ module Dolly
       end
 
       def validate!
-        raise Dolly::UnrecognizedOperator.new(operator) unless Selector::ALL_OPERATORS.include? operator
         return if Selector::EQUALITY_OPERATORS.include? operator
         raise Dolly::BadQueryArguement.new(operator, 'Boolean') if operator == Selector::EXISTS_OPERATOR && ![true, false].include?(value)
         raise Dolly::BadQueryArguement.new(operator, Selector::POSSIBLE_TYPE_VALUES.join(', ')) if operator == Selector::TYPE_OPERATOR && !Selector::POSSIBLE_TYPE_VALUES.include?(value)

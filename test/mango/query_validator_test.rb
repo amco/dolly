@@ -7,6 +7,14 @@ class QueryValidatorTest < ActiveSupport::TestCase
     @query_object = Dolly::Mango::Query.new(QueryTestDoc)
   end
 
+  class UnrecognizedOperatorTest < QueryValidatorTest
+    test 'Dolly::UnrecognizedOperator is raised if the operator is unknown' do
+      assert_raise Dolly::UnrecognizedOperator do
+        @query_object.selector('field', :operator, "value")
+      end
+    end
+  end
+
   class AcceptedValuesTest < QueryValidatorTest
     test 'nothing is raised if an equality operator is invoked' do
       assert_nothing_raised do

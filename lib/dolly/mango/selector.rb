@@ -48,14 +48,16 @@ module Dolly
       ALL_OPERATORS = [ EQUALITY_OPERATORS, OBJECT_OPERATORS, ARRAY_OPERATORS, SIZE_OPERATOR, MISC_OPERATORS, COMBINATION_OPERATORS ].flatten.freeze
 
       def selector name, *operator, value
+        proxy_operator = operator.last
         operator = operator.count > 1 ? operator : operator.first
+        raise Dolly::UnrecognizedOperator.new(proxy_operator) unless select_operator_map.keys.include? proxy_operator
         select_operator_map[operator].call(name, value)
       end
 
       private
 
       def select_operator_map
-        {
+        @select_operator_map ||= {
           eq:            ->(name, value) { build_equality_selector name, value, EQ_OPERATOR },
           ne:            ->(name, value) { build_equality_selector name, value, NE_OPERATOR },
           gt:            ->(name, value) { build_equality_selector name, value, GT_OPERATOR },
