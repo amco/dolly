@@ -49,8 +49,8 @@ module Dolly
 
       def selector name, *operator, value
         proxy_operator = operator.last
+        operator_check! proxy_operator
         operator = operator.count > 1 ? operator : operator.first
-        raise Dolly::UnrecognizedOperator.new(proxy_operator) unless select_operator_map.keys.include? proxy_operator
         select_operator_map[operator].call(name, value)
       end
 
@@ -97,23 +97,27 @@ module Dolly
       end
 
       def build_equality_selector name, value, operator
-        operator_value_type_check(operator, value)
+        operator_value_type_check!(operator, value)
         query[SELECTOR][name][operator] = value
       end
 
       def build_exclusive_selector name, value, operator
-        operator_value_type_check(operator, value)
+        operator_value_type_check!(operator, value)
         query[SELECTOR][operator][name] = value
       end
 
       def build_composite_selector name, value, *operators
         first, second = operators
-        operator_value_type_check(second, value)
+        operator_value_type_check!(second, value)
 
         query[SELECTOR][name][first][second] = value
       end
 
-      def operator_value_type_check operator, value
+      def operator_check! operator
+        raise Dolly::UnrecognizedOperator.new(operator) unless select_operator_map.keys.include? operator
+      end
+
+      def operator_value_type_check! operator, value
         QueryValidator.new(operator, value).validate!
       end
     end
