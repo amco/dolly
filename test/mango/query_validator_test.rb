@@ -62,6 +62,16 @@ class QueryValidatorTest < ActiveSupport::TestCase
   end
 
   class UnacceptedValuesTest < QueryValidatorTest
-
+    test 'Dolly::BadQueryArguement is raised when an operatore is invoked with the wrong arguements' do
+      assert_raise Dolly::BadQueryArguement do
+        @query_object.selector('field', :exists, 1)
+        @query_object.selector('field', :type, 1)
+        @query_object.selector('field', :in, 1)
+        @query_object.selector('field', :nin, 1)
+        @query_object.selector('field', :size, 'value')
+        @query_object.selector('field', :mod, [3,"1"])
+        @query_object.selector('field', :regex, [""])
+      end
+    end
   end
 end
