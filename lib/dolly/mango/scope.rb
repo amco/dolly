@@ -17,8 +17,8 @@ module Dolly
           query_object.send(method, *args, &block)
           return self
         else
-          collection = proxy_class.database.mango query.to_json
-          puts collection.inspect
+          resp = proxy_class.database.mango query.to_json
+          collection = Dolly::Collection.new(resp, proxy_class)
           collection.send(method, *args, &block)
         end
       end
