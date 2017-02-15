@@ -154,7 +154,7 @@ module Dolly
       def mango_scope scope_name, scope
         self.mango_scopes ||= {}
         name = scope_name.to_sym
-        self.mango_scopes[name] = ->(query_object, args) { Mango::Scope.new(query_object, scope, args) }
+        self.mango_scopes[name] = ->(query_object, args=nil) { Mango::Scope.new(query_object, scope, args) }
 
         (class << self; self end).instance_eval do
           define_method name do |*args|
