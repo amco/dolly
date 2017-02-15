@@ -13,7 +13,7 @@ module Dolly
       def method_missing(method, *args, &block)
         if proxy_class.mango_scopes.include?(method)
           proxy_class.mango_scopes[method].call(query_object, args)
-        elsif query_object.respond_to? :method
+        elsif query_object.respond_to? method
           query_object.send(method, *args, &block)
           return self
         else
