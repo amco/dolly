@@ -56,7 +56,7 @@ module Dolly
 
       def find_with doc, view_name, opts = {}
         res = view "_design/#{doc}/_view/#{view_name}", opts
-        Collection.new res.response.body, name_for_class
+        Collection.new res.parsed_response, name_for_class
       end
 
       #TODO: new implementation for collection returning
