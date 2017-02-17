@@ -62,6 +62,8 @@ class DocumentTest < ActiveSupport::TestCase
     all_docs = [ {foo: 'Foo B', bar: 'Bar B', type: 'foo_bar'},  {foo: 'Foo A', bar: 'Bar A', type: 'foo_bar'}]
 
     view_resp   = build_view_response [data]
+    uuid_resp   = {"uuids" => ["ec68ef07faf8157e568b0913e74b0e1a"]}
+
     empty_resp  =  build_view_response []
     not_found_resp = generic_response [{ key: "foo_bar/2", error: "not_found" }]
     @multi_resp = build_view_response all_docs
@@ -72,17 +74,18 @@ class DocumentTest < ActiveSupport::TestCase
     build_request [["foo_bar","1"],["foo_bar","2"]], @multi_resp
 
     #TODO: Mock Dolly::Request to return helper with expected response. request builder can be tested by itself.
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&limit=1&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%EF%BF%B0%22&limit=1&descending=true&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%22%2C%7B%7D&limit=2&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%EF%BF%B0%22&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%5D&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%5D&include_docs=true", body: not_found_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"]
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Fbig_doc%22%5D&include_docs=true", body: build_view_response([data.merge(other_property: 'other')]).to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&include_docs=true", body: @multi_resp.to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&limit=1&include_docs=true", body: view_resp.to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%EF%BF%B0%22&limit=1&descending=true&include_docs=true", body: view_resp.to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%22%2C%7B%7D&limit=2&include_docs=true", body: @multi_resp.to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%EF%BF%B0%22&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%5D&include_docs=true", body: view_resp.to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%5D&include_docs=true", body: not_found_resp.to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"], content_type: "application/json"
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Fbig_doc%22%5D&include_docs=true", body: build_view_response([data.merge(other_property: 'other')]).to_json, content_type: "application/json"
+    FakeWeb.register_uri :get, "http://localhost:5984/_uuids", body: uuid_resp.to_json, content_type: "application/json"
   end
 
   test 'new in memory document' do
@@ -182,7 +185,7 @@ class DocumentTest < ActiveSupport::TestCase
   test 'reload reloads the doc attribute from database' do
     assert foo = FooBar.find('1')
     expected_doc = foo.doc.dup
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json, content_type: "application/json"
     assert foo.foo = 1
     assert_not_equal expected_doc, foo.doc
     assert foo.reload
@@ -196,7 +199,7 @@ class DocumentTest < ActiveSupport::TestCase
     assert foo.foo = 1
     assert foo.save
     assert expected_doc = foo.doc
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json, content_type: "application/json"
     assert foo.reload
     assert_equal 1, foo.foo
   end
@@ -303,19 +306,6 @@ class DocumentTest < ActiveSupport::TestCase
     bar = FooBar.new '_id' => 'b'
     assert_equal "foo_bar/a", foo.id
     assert_equal "foo_bar/b", bar.id
-  end
-
-  test 'new document with no id' do
-    foo = FooBar.new
-    uuid = %r{
-      \A
-      foo_bar /
-      \h{8}    # 8 hex chars
-      (?: - \h{4} ){3}  # 3 groups of 4 hex chars (hyphen sep)
-      - \h{12}  # 12 hex chars (hyphen sep again)
-      \Z
-    }x
-    assert foo.id.match(uuid)
   end
 
   test 'update document properties' do

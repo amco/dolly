@@ -51,7 +51,7 @@ module Dolly
 
       def build_collection q
         res = database.all_docs(q)
-        Collection.new res.response.body, name_for_class
+        Collection.new res.parsed_response, name_for_class
       end
 
       def find_with doc, view_name, opts = {}

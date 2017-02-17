@@ -1,6 +1,7 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
+require "dolly/mango"
 
 module Dolly
   class Document
@@ -9,7 +10,7 @@ module Dolly
     extend Dolly::Timestamps
 
     attr_accessor :rows, :doc, :key
-    class_attribute :properties
+    class_attribute :properties, :mango_scopes
     cattr_accessor :timestamps do
       {}
     end
@@ -146,6 +147,27 @@ module Dolly
       ary.each do |name|
         self.properties[name] = Property.new options.merge(name: name)
         self.write_methods name
+      end
+    end
+
+    class << self
+      def mango_scope scope_name, scope
+        self.mango_scopes ||= {}
+        name = scope_name.to_sym
+        self.mango_scopes[name] = ->(query_object, args=nil) { Mango::Scope.new(query_object, scope, args) }
+
+        (class << self; self end).instance_eval do
+          define_method name do |*args|
+            self.mango_scopes[name].call(Mango::Query.new(self), *args)
+          end
+        end
+      end
+
+      def selector name, *operator, value
+        anonymous_scope = ->{ selector(name, *operator, value) }
+        query_object = Mango::Query.new(self)
+        args = nil
+        Mango::Scope.new query_object, anonymous_scope, args
       end
     end
 

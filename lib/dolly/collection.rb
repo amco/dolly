@@ -56,9 +56,20 @@ module Dolly
       end
     end
 
+    def doc_rows= ary
+      ary.each do |doc|
+        id = doc.delete '_id'
+        rev = doc.delete '_rev' if doc['_rev']
+        document = (docs_class || doc_class(id)).new doc
+        document.doc = doc.merge({'_id' => id, '_rev' => rev})
+        self << document
+      end
+    end
+
     def load
       parsed = JSON::parse json
-      self.rows = parsed['rows']
+      self.rows = parsed['rows'] if parsed['rows']
+      self.doc_rows = parsed['docs'] if parsed['docs']
     end
 
     def to_json options = {}
