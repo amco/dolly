@@ -63,7 +63,6 @@ module Dolly
     end
 
     def request method, resource, data = nil
-      Dolly.logger.info "Query: #{resource}"
       data ||= {}
       data.merge!(basic_auth: auth_info) if auth_info.present?
       headers = { 'Content-Type' => 'application/json' }
@@ -76,6 +75,8 @@ module Dolly
       else
         response
       end
+    ensure
+      Dolly.logger.info "Query: #{resource}, Response Code: #{response.code}"
     end
 
     private
