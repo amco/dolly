@@ -11,7 +11,7 @@ module Dolly
     end
 
     def logger
-      return Rails.logger if log == :rails
+      return Rails.logger if log.to_sym == :rails
       Dolly::Logger.new self
     end
   end
