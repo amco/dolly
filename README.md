@@ -55,6 +55,17 @@ And push them into the default design document with:
 
 This will not replace de default find view.
 
+####Initializer
+
+```ruby
+#config/initializers/dolly.rb
+Dolly.config do |config|
+  config.log_requests = true
+  config.log = :rails
+  config.log_path = 'path/to/log'
+end
+```
+
 ####Document Model
 
 ```ruby

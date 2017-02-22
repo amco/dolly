@@ -68,6 +68,7 @@ module Dolly
       headers = { 'Content-Type' => 'application/json' }
       headers.merge! data[:headers] if data[:headers]
       response = self.class.send method, resource, data.merge(headers: headers)
+      log_request(resource, response.code) if Dolly.log_requests?
       if response.code == 404
         raise Dolly::ResourceNotFound
       elsif (400..600).include? response.code
@@ -100,6 +101,16 @@ module Dolly
 
     def attachment_path resource, attachment_name
       "#{full_path(resource)}/#{attachment_name}"
+    end
+
+    def log_request resource, response_code
+      log_value = ->(resource, response_code) { "Query: #{resource}, Response Code: #{response_code}" }
+      case response_code
+      when 200..399
+        Dolly.logger.info log_value[resource, response_code]
+      when 400..600
+        Dolly.logger.warn log_value[resource, response_code]
+      end
     end
   end
 
