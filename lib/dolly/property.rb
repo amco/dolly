@@ -20,14 +20,14 @@ module Dolly
       standard_value
     end
 
-    def subproperty *ary
+    def subproperty *ary, &block
       options = ary.pop if ary.last.kind_of? Hash
       options ||= {}
 
       if options[:class_name] == Hash && block_given?
         ary.each do |name|
           @subproperties[name] = SubProperty.new options.merge(name: name)
-          yield self.subproperties[name]
+          self.subproperties[name].instance_exec self.subproperties[name], &block
         end
       else
         ary.each do |name|

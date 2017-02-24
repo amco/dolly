@@ -138,7 +138,7 @@ module Dolly
       obj
     end
 
-    def self.property *ary
+    def self.property *ary, &block
       self.properties ||= {}
       options           = ary.pop if ary.last.kind_of? Hash
       options         ||= {}
@@ -146,7 +146,8 @@ module Dolly
       if options[:class_name] == Hash && block_given?
         ary.each do |name|
           init_property name, options
-          yield self.properties[name]
+          property = self.properties[name]
+          property.instance_exec(property, &block)
         end
       else
         ary.each { |name| init_property name, options }

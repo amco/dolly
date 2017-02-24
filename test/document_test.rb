@@ -21,10 +21,10 @@ end
 class Baz < Dolly::Document; end
 
 class FooBaz < Dolly::Document
-  property :foo, class_name: Hash, default: {} do |property|
-    property.subproperty :bar, class_name: Array, default: []
-    property.subproperty :baz, class_name: Hash, default: Hash.new do |sp|
-      sp.subproperty :far, class_name: Hash, default: Hash.new
+  property :foo, class_name: Hash, default: {} do 
+    subproperty :bar, class_name: Array, default: []
+    subproperty :baz, class_name: Hash, default: Hash.new do 
+      subproperty :far, class_name: Hash, default: Hash.new
     end
   end
 
@@ -59,8 +59,8 @@ class Bar < FooBar
 end
 
 class SubPropertyDocument < Dolly::Document
-  property :foo, :bar, class_name: Hash, default: {} do |property|
-    property.subproperty :baz, class_name: Hash, default: Hash.new
+  property :foo, :bar, class_name: Hash, default: {} do
+    subproperty :baz, class_name: Hash, default: Hash.new
   end
 end
 
