@@ -1,6 +1,7 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
+require 'dolly/proxy_document'
 
 module Dolly
   class Document
@@ -15,7 +16,7 @@ module Dolly
     end
 
     def initialize options = {}
-      @doc ||= {}
+      @doc ||= ProxyDocument.new({})
       options = options.with_indifferent_access
       init_properties options
     end
@@ -45,7 +46,7 @@ module Dolly
     end
 
     def id= base_value
-      doc ||= {}
+      doc ||= ProxyDocument.new({})
       doc['_id'] = self.class.namespace(base_value)
     end
 
@@ -165,15 +166,14 @@ module Dolly
     end
 
     def write_property name, value
-      instance_variable_set(:"@#{name}", value)
       @doc[name.to_s] = value
     end
 
     def read_property name
-      if instance_variable_get(:"@#{name}").nil?
-        write_property name, (doc[name.to_s] || self.properties[name].value)
+      if doc[name.to_s].nil?
+        write_property name, self.properties[name].value
       end
-      instance_variable_get(:"@#{name}")
+      doc[name.to_s]
     end
 
     def _properties
@@ -204,7 +204,7 @@ module Dolly
     end
 
     def init_doc options
-      self.doc ||= {}
+      self.doc ||= ProxyDocument.new({})
       #TODO: define what will be the preference _id or id
       normalized_id = options[:_id] || options[:id]
       self.doc['_id'] = self.class.namespace( normalized_id ) if normalized_id

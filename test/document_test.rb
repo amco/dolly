@@ -21,9 +21,9 @@ end
 class Baz < Dolly::Document; end
 
 class FooBaz < Dolly::Document
-  property :foo, class_name: Hash, default: {} do 
+  property :foo, class_name: Hash, default: {} do
     subproperty :bar, class_name: Array, default: []
-    subproperty :baz, class_name: Hash, default: Hash.new do 
+    subproperty :baz, class_name: Hash, default: Hash.new do
       subproperty :far, class_name: Hash, default: Hash.new
     end
   end
@@ -414,7 +414,6 @@ class DocumentTest < ActiveSupport::TestCase
     test_foo.foo = 'test_value'
     assert_equal 'test_value', test_foo.foo
     assert_equal 'test_value', test_foo.doc['foo']
-    assert_equal 'test_value', test_foo.instance_variable_get(:@foo)
   end
 
   test 'created at is current time' do
@@ -515,11 +514,22 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal expected, instance.foo
   end
 
+  test 'subproperties can be chained' do
+    instance = FooBaz.new
+    assert_equal [], instance.foo.bar
+  end
+
   test 'subproperties may be defined for multiple properties at once' do
     instance = SubPropertyDocument.new
     expected = {"baz"=>{}}
     assert_equal expected, instance.foo
     assert_equal expected, instance.bar
+  end
+
+  test 'subproperties can be written to after being chained' do
+    instance = FooBaz.new
+    assert instance.foo.bar = 1
+    assert_equal 1, instance.foo.bar
   end
 
   private
