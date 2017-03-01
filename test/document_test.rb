@@ -403,7 +403,6 @@ class DocumentTest < ActiveSupport::TestCase
     test_foo.foo = 'test_value'
     assert_equal 'test_value', test_foo.foo
     assert_equal 'test_value', test_foo.doc['foo']
-    assert_equal 'test_value', test_foo.instance_variable_get(:@foo)
   end
 
   test 'created at is current time' do

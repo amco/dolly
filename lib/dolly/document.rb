@@ -1,6 +1,7 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
+require 'dolly/proxy_document'
 
 module Dolly
   class Document
@@ -160,15 +161,12 @@ module Dolly
     end
 
     def write_property name, value
-      instance_variable_set(:"@#{name}", value)
       @doc[name.to_s] = value
     end
 
     def read_property name
-      if instance_variable_get(:"@#{name}").nil?
-        write_property name, (doc[name.to_s] || self.properties[name].value)
-      end
-      instance_variable_get(:"@#{name}")
+      write_property(name, self.properties[name].value) if doc[name.to_s].nil?
+      doc[name.to_s]
     end
 
     def _properties
