@@ -36,8 +36,12 @@ namespace :db do
 
       if key == 'filter'
         vd['filters'][name] = source
+      elsif key == 'analizer'
+        vd['indexes'][name] ||= {}
+        vd['indexes'][name]['analizer'] = JSON.parse(source)
       elsif key == 'indexes'
-        vd['indexes'][name] = {'index' => source}
+        vd['indexes'][name] ||= {}
+        vd['indexes'][name]['index'] = source
       elsif key == 'lists'
         vd['lists'][name] = source
       elsif key == 'lib'
