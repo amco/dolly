@@ -1,12 +1,14 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
+require 'dolly/refinement_hash'
 
 module Dolly
   class Document
     extend Dolly::Connection
     include Dolly::Query
     extend Dolly::Timestamps
+    using RefinementHash
 
     attr_accessor :rows, :doc, :key
     class_attribute :properties
