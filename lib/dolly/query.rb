@@ -18,7 +18,10 @@ module Dolly
         if keys.count > 1
           build_collection( query_hash )
         else
-          self.new.from_json( database.all_docs(query_hash).parsed_response )
+          doc = self.new
+          response = database.all_docs(query_hash).parsed_response
+          doc.rows = response['rows']
+          doc
         end
       rescue NoMethodError => err
         if err.message == "undefined method `[]' for nil:NilClass"
@@ -48,7 +51,7 @@ module Dolly
 
       def build_collection q
         res = database.all_docs(q)
-        Collection.new res.parsed_response, name_for_class
+        Collection.new res.response.body, name_for_class
       end
 
       def find_with doc, view_name, opts = {}

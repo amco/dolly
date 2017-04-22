@@ -7,6 +7,7 @@ module Dolly
     include HTTParty
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = '5984'
+    MANGO_QUERY = '_find'.freeze
 
     attr_accessor :database_name, :host, :port, :bulk_document
 
@@ -44,6 +45,10 @@ module Dolly
       request :delete, full_path(resource), {}
     end
 
+    def mango data
+      request :post, full_path(MANGO_QUERY), {body: data}
+    end
+
     def attach resource, attachment_name, data, headers = {}
       data = StringIO.new(data) if data.is_a?(String)
       request :put, attachment_path(resource, attachment_name), {body: data, headers: headers}
@@ -65,7 +70,7 @@ module Dolly
     def request method, resource, data = nil
       data ||= {}
       data.merge!(basic_auth: auth_info) if auth_info.present?
-      headers = { 'Content-Type' => 'application/json' }
+      headers = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
       headers.merge! data[:headers] if data[:headers]
       response = self.class.send method, resource, data.merge(headers: headers)
       log_request(resource, response.code) if Dolly.log_requests?
@@ -83,7 +88,7 @@ module Dolly
       data = {}
       q = "?#{CGI.unescape(opts.to_query)}" unless opts.blank?
       data.merge!(basic_auth: auth_info) if auth_info.present?
-      JSON::parse self.class.get("/#{path}#{q}", data)
+      self.class.get("/#{path}#{q}", data).parsed_response
     end
 
     def auth_info

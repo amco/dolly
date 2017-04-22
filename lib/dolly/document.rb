@@ -1,6 +1,8 @@
 require "dolly/query"
 require "dolly/property"
 require 'dolly/timestamps'
+require "dolly/mango_query"
+require 'dolly/scope'
 
 module Dolly
   class Document
@@ -9,7 +11,7 @@ module Dolly
     extend Dolly::Timestamps
 
     attr_accessor :rows, :doc, :key
-    class_attribute :properties
+    class_attribute :properties, :mango_scopes
     cattr_accessor :timestamps do
       {}
     end
@@ -64,7 +66,7 @@ module Dolly
       set_created_at if timestamps[self.class.name]
       set_updated_at if timestamps[self.class.name]
       response = database.put(id_as_resource, self.doc.to_json)
-      obj = JSON::parse response.parsed_response
+      obj = response.parsed_response
       doc['_rev'] = obj['rev'] if obj['rev']
       obj['ok']
     end
@@ -150,6 +152,20 @@ module Dolly
       ary.each do |name|
         self.properties[name] = Property.new options.merge(name: name)
         self.write_methods name
+      end
+    end
+
+    class << self
+      def mango_scope scope_name, scope
+        self.mango_scopes ||= {}
+        name = scope_name.to_sym
+        self.mango_scopes[name] = lambda { |query_object, args| Dolly::Scope.new(query_object, scope, args)}
+
+        (class << self; self end).instance_eval do
+          define_method name do |*args|
+            self.mango_scopes[name].call(Dolly::MangoQuery.new(self), *args)
+          end
+        end
       end
     end
 
