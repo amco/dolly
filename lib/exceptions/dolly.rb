@@ -41,7 +41,7 @@ module Dolly
     end
 
     def to_s
-      "Missing reuired #{@key} setting for Dolly::Request"
+      "Missing required #{@key} setting for Dolly::Request"
     end
   end
 end
