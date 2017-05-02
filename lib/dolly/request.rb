@@ -5,13 +5,13 @@ module Dolly
 
   class Request
     include HTTParty
-    REQUIRED_KEYS = %w/host port name/
+    REQUIRED_KEYS = %w/host port name/.freeze
 
     attr_accessor :database_name, :host, :port, :bulk_document
 
     def initialize options = {}
       REQUIRED_KEYS.each do |key|
-        raise Dolly::MissingRequestConfigSettings unless options[key]
+        raise Dolly::MissingRequestConfigSettings.new(key) unless options[key]
       end
 
       @host          = options["host"]
