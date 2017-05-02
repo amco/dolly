@@ -5,7 +5,7 @@ module Dolly
 
   class Request
     include HTTParty
-    REQUIRED_KEYS = %/host port name/
+    REQUIRED_KEYS = %w/host port name/
 
     attr_accessor :database_name, :host, :port, :bulk_document
 
