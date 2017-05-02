@@ -5,15 +5,17 @@ module Dolly
 
   class Request
     include HTTParty
-    DEFAULT_HOST = 'localhost'
-    DEFAULT_PORT = '5984'
+    REQUIRED_KEYS = %/host port name/
 
     attr_accessor :database_name, :host, :port, :bulk_document
 
     def initialize options = {}
-      @host = options["host"] || DEFAULT_HOST
-      @port = options["port"] || DEFAULT_PORT
+      REQUIRED_KEYS.each do |key|
+        raise Dolly::MissingRequestConfigSettings unless options[key]
+      end
 
+      @host          = options["host"]
+      @port          = options["port"]
       @database_name = options["name"]
       @username      = options["username"]
       @password      = options["password"]
@@ -50,7 +52,7 @@ module Dolly
     end
 
     def protocol
-      @protocol || 'http'
+      @protocol ||= 'http'
     end
 
     def uuids opts = {}
