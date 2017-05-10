@@ -2,7 +2,7 @@ module Dolly
   class Property
     attr_writer :value
     attr_accessor :name
-    attr_reader :class_name, :default
+    attr_reader :class_name, :default, :subproperties
 
     CANT_CLONE = [NilClass, TrueClass, FalseClass, Fixnum].freeze
 
@@ -11,20 +11,29 @@ module Dolly
       @name = opts.delete(:name).to_s
       @default = opts.delete(:default)
       @default = @default.clone if @default && CANT_CLONE.none? { |klass| @default.is_a? klass }
-      @value = @default if @default
+      @subproperties = {}
       warn 'There are some unprocessed options!' if opts.present?
     end
 
     def value
-      #TODO: tets if this actually sets `doc[ "name" ]`
-      return @default if @value.nil?
-      return @value unless self_klass
+      return value_if_subproperties if subproperties.any?
+      standard_value
+    end
 
-      klass_sym = :"#{self_klass.name.underscore}_#{__method__}"
+    def subproperty *ary
+      options = ary.pop if ary.last.kind_of? Hash
+      options ||= {}
 
-      return self_klass.new @value unless self.respond_to?(klass_sym)
-
-      self.send klass_sym
+      if options[:class_name] == Hash && block_given?
+        ary.each do |name|
+          @subproperties[name] = SubProperty.new options.merge(name: name)
+          yield self.subproperties[name]
+        end
+      else
+        ary.each do |name|
+          @subproperties[name] = SubProperty.new options.merge(name: name)
+        end
+      end
     end
 
     def array_value
@@ -81,5 +90,20 @@ module Dolly
       @class_name.is_a?(Class)? @class_name : @class_name.constantize
     end
 
+    def value_if_subproperties
+      @value ||= self_klass.new.tap do |v|
+        subproperties.each { |name, subproperty| v[name.to_s] = subproperty.value }
+      end
+    end
+
+    def standard_value
+      return @default if @value.nil?
+      klass_sym = :"#{self_klass.name.underscore}_#{__method__}"
+      return self_klass.new @value unless self.respond_to?(klass_sym)
+      self.send klass_sym
+    end
+
   end
+
+  class SubProperty < Property; end
 end

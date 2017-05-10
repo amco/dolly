@@ -21,7 +21,12 @@ end
 class Baz < Dolly::Document; end
 
 class FooBaz < Dolly::Document
-  property :foo, class_name: Hash, default: {}
+  property :foo, class_name: Hash, default: {} do |property|
+    property.subproperty :bar, class_name: Array, default: []
+    property.subproperty :baz, class_name: Hash, default: Hash.new do |sp|
+      sp.subproperty :far, class_name: Hash, default: Hash.new
+    end
+  end
 
   def add_to_foo key, value
     foo[key] ||= value
@@ -51,6 +56,12 @@ end
 
 class Bar < FooBar
   property :a, :b
+end
+
+class SubPropertyDocument < Dolly::Document
+  property :foo, :bar, class_name: Hash, default: {} do |property|
+    property.subproperty :baz, class_name: Hash, default: Hash.new
+  end
 end
 
 class DocumentTest < ActiveSupport::TestCase
@@ -498,6 +509,19 @@ class DocumentTest < ActiveSupport::TestCase
   test "new object from inhereted document" do
     assert bar = Bar.new(a: 1)
     assert_equal 1, bar.a
+  end
+
+  test 'subproperties and children subprops are populated on initialize' do
+    instance = FooBaz.new
+    expected = {"bar"=>[], "baz"=>{"far"=>{}}}
+    assert_equal expected, instance.foo
+  end
+
+  test 'subproperties may be defined for multiple properties at once' do
+    instance = SubPropertyDocument.new
+    expected = {"baz"=>{}}
+    assert_equal expected, instance.foo
+    assert_equal expected, instance.bar
   end
 
   private
