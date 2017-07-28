@@ -508,6 +508,23 @@ class DocumentTest < ActiveSupport::TestCase
     assert_equal 'd', doc.foo['a']['b']['c']
   end
 
+  test "hash properties have their default proc reappliced after a query" do
+    assert _doc_id = "default_proc_doc/5623c56d-1c12-4f75-9202-93da5925177a"
+    assert save_response = {ok: true, id: _doc_id, rev: "1"}
+    assert FakeWeb.register_uri :put, /http:\/\/localhost:5984\/test\/default_proc_doc%2F.+/, body: save_response.to_json
+    assert doc = DefaultProcDoc.new
+    assert doc.doc['_id'] = _doc_id
+    assert doc.foo['a']['b']['c'] = 'd'
+    assert doc.save
+    expected_doc = doc.doc
+    assert FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22default_proc_doc%2F5623c56d-1c12-4f75-9202-93da5925177a%22%5D&include_docs=true",
+                                body: build_view_response([expected_doc]).to_json
+    assert doc.reload
+    assert_equal 'd', doc.foo['a']['b']['c']
+    assert doc.foo['a']['b']['d']['e'] = 'f'
+    assert_equal 'f', doc.foo['a']['b']['d']['e']
+  end
+
   private
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
