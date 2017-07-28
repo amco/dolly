@@ -74,11 +74,16 @@ module Dolly
       self_klass == TrueClass || self_klass == FalseClass
     end
 
+    def procable?
+      default_proc? && default.is_a?(Hash)
+    end
+
+    private
+
     def default_proc?
       @default_proc.present?
     end
 
-    private
     def truthy_value?
       @value =~ /true/ || @value === true
     end
