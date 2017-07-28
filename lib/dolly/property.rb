@@ -2,7 +2,7 @@ module Dolly
   class Property
     attr_writer :value
     attr_accessor :name
-    attr_reader :class_name, :default
+    attr_reader :class_name, :default, :default_proc
 
     CANT_CLONE = [NilClass, TrueClass, FalseClass, Fixnum].freeze
 
@@ -10,6 +10,7 @@ module Dolly
       @class_name = opts.delete(:class_name) if opts.present?
       @name = opts.delete(:name).to_s
       @default = opts.delete(:default)
+      @default_proc = opts.delete(:default_proc)
       @default = @default.clone if @default && CANT_CLONE.none? { |klass| @default.is_a? klass }
       @value = @default if @default
       warn 'There are some unprocessed options!' if opts.present?
@@ -32,7 +33,9 @@ module Dolly
     end
 
     def hash_value
-      @value.to_h
+      @value.to_h.tap do |h|
+        h.default_proc = @default_proc if @default_proc
+      end
     end
 
     def string_value
@@ -71,7 +74,16 @@ module Dolly
       self_klass == TrueClass || self_klass == FalseClass
     end
 
+    def procable?
+      default_proc? && (default.is_a?(Hash) || class_name == Hash)
+    end
+
     private
+
+    def default_proc?
+      @default_proc.present?
+    end
+
     def truthy_value?
       @value =~ /true/ || @value === true
     end
