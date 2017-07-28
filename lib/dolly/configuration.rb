@@ -9,10 +9,5 @@ module Dolly
       @log_path = $stdout
       @log = :dolly
     end
-
-    def logger
-      return Rails.logger if log.to_sym == :rails
-      Dolly::Logger.new self
-    end
   end
 end
