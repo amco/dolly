@@ -189,6 +189,7 @@ module Dolly
       _properties.reject { |property| options.keys.include? property.name }.each do |property|
         property_value = property.default.clone unless Dolly::Property::CANT_CLONE.any? { |klass| property.default.is_a? klass }
         property_value ||= property.default
+        property_value.default_proc = property.default_proc if property.default_proc? && property.default.is_a?(Hash)
         self.doc[property.name] ||= property_value
       end
     end

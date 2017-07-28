@@ -53,6 +53,10 @@ class Bar < FooBar
   property :a, :b
 end
 
+class DefaultProcDoc < Dolly::Document
+  property :foo, class_name: Hash, default: {}, default_proc: Proc.new { |h,k| h[k] = Hash.new &h.default_proc }
+end
+
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -496,6 +500,12 @@ class DocumentTest < ActiveSupport::TestCase
   test "new object from inhereted document" do
     assert bar = Bar.new(a: 1)
     assert_equal 1, bar.a
+  end
+
+  test "hash properties can have a default proc" do
+    doc = DefaultProcDoc.new
+    doc.foo['a']['b']['c'] = 'd'
+    assert_equal 'd', doc.foo['a']['b']['c']
   end
 
   private
