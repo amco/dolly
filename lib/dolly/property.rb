@@ -75,7 +75,7 @@ module Dolly
     end
 
     def procable?
-      default_proc? && default.is_a?(Hash)
+      default_proc? && (default.is_a?(Hash) || class_name == Hash)
     end
 
     private
