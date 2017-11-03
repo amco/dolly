@@ -5,15 +5,17 @@ module Dolly
 
   class Request
     include HTTParty
-    DEFAULT_HOST = 'localhost'
-    DEFAULT_PORT = '5984'
+    REQUIRED_KEYS = %w/host port name/.freeze
 
     attr_accessor :database_name, :host, :port, :bulk_document
 
     def initialize options = {}
-      @host = options["host"] || DEFAULT_HOST
-      @port = options["port"] || DEFAULT_PORT
+      REQUIRED_KEYS.each do |key|
+        raise Dolly::MissingRequestConfigSettings.new(key) unless options[key]
+      end
 
+      @host          = options["host"]
+      @port          = options["port"]
       @database_name = options["name"]
       @username      = options["username"]
       @password      = options["password"]
@@ -26,6 +28,10 @@ module Dolly
     def get resource, data = nil
       q = {query: values_to_json(data)} if data
       request :get, full_path(resource), q
+    end
+
+    def stats
+      request :get, "/#{database_name}"
     end
 
     def put resource, data
@@ -46,7 +52,7 @@ module Dolly
     end
 
     def protocol
-      @protocol || 'http'
+      @protocol ||= 'http'
     end
 
     def uuids opts = {}
@@ -64,6 +70,7 @@ module Dolly
       headers = { 'Content-Type' => 'application/json' }
       headers.merge! data[:headers] if data[:headers]
       response = self.class.send method, resource, data.merge(headers: headers)
+      log_request(resource, response.code) if Dolly.log_requests?
       if response.code == 404
         raise Dolly::ResourceNotFound
       elsif (400..600).include? response.code
@@ -96,6 +103,16 @@ module Dolly
 
     def attachment_path resource, attachment_name
       "#{full_path(resource)}/#{attachment_name}"
+    end
+
+    def log_request resource, response_code
+      log_value = ->(resource, response_code) { "Query: #{resource}, Response Code: #{response_code}" }
+      case response_code
+      when 200..399
+        Dolly.logger.info log_value[resource, response_code]
+      when 400..600
+        Dolly.logger.warn log_value[resource, response_code]
+      end
     end
   end
 

@@ -36,6 +36,10 @@ module Dolly
       save
     end
 
+    def reload
+      self.doc = self.class.find(id).doc
+    end
+
     def id
       doc['_id'] ||= self.class.next_id
     end
@@ -70,11 +74,15 @@ module Dolly
       save
     end
 
-    def destroy soft = false
-      #TODO: Add soft delete support
-      q = id_as_resource + "?rev=#{rev}"
-      response = database.delete(q)
-      JSON::parse response.parsed_response
+    def destroy hard = true
+      if hard
+        q = id_as_resource + "?rev=#{rev}"
+        response = database.delete(q)
+        JSON::parse response.parsed_response
+      else
+        self.doc['_deleted'] = true
+        self.save
+      end
     end
 
     def rows= col
