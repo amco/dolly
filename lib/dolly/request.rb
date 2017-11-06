@@ -80,6 +80,10 @@ module Dolly
       end
     end
 
+    def replicate! target_db, opts={}
+      Dolly::SimpleReplicator.new(self, target_db, opts).replicate!
+    end
+
     private
     def tools path, opts = nil
       data = {}

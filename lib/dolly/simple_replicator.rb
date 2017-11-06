@@ -4,7 +4,8 @@ module Dolly
 
     attr_reader :source_db, :target_db
 
-    def initialize source_db, target_db
+    def initialize source_db, target_db, opts={}
+      #@opts = opts #TODO add options for difference replications
       @source_db = source_db
       @target_db = target_db
     end
