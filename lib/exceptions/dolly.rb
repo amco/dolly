@@ -35,4 +35,13 @@ module Dolly
   end
   class DocumentInvalidError < RuntimeError; end
   class MissingPropertyError < RuntimeError; end
+  class MissingRequestConfigSettings < RuntimeError
+    def initialize key
+      @key = key
+    end
+
+    def to_s
+      "Missing required #{@key} setting for Dolly::Request"
+    end
+  end
 end
