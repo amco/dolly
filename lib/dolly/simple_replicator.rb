@@ -1,6 +1,6 @@
 module Dolly
   class SimpleReplicator
-    include Dolly::Connection
+    include Dolly::Replicator::Database
 
     attr_reader :source_db, :target_db
 
