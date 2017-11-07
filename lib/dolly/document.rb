@@ -78,7 +78,7 @@ module Dolly
       if hard
         q = id_as_resource + "?rev=#{rev}"
         response = database.delete(q)
-        JSON::parse response.parsed_response
+        response.parsed_response
       else
         self.doc['_deleted'] = true
         self.save

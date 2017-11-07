@@ -75,7 +75,7 @@ module Dolly
       end
 
       def raw_view doc, view, opts = {}
-        JSON.parse database.get "_design/#{doc}/_view/#{view}", opts
+        database.get "_design/#{doc}/_view/#{view}", opts
       end
 
     end
