@@ -142,14 +142,19 @@ module Dolly
       obj
     end
 
-    def self.property *ary
+    def self.property *ary, &block
       self.properties ||= {}
       options           = ary.pop if ary.last.kind_of? Hash
       options         ||= {}
 
-      ary.each do |name|
-        self.properties[name] = Property.new options.merge(name: name)
-        self.write_methods name
+      if options[:class_name] == Hash && block_given?
+        ary.each do |name|
+          init_property name, options
+          property = self.properties[name]
+          property.instance_exec(property, &block)
+        end
+      else
+        ary.each { |name| init_property name, options }
       end
     end
 
@@ -189,9 +194,14 @@ module Dolly
       init_doc options
     end
 
+    def self.init_property name, opts={}
+      self.properties[name] = Property.new opts.merge(name: name)
+      self.write_methods name
+    end
+
     def initialize_default_properties options
       _properties.reject { |property| options.keys.include? property.name }.each do |property|
-        property_value = property.default.clone unless Dolly::Property::CANT_CLONE.any? { |klass| property.default.is_a? klass }
+        property_value = property.value.clone unless Dolly::Property::CANT_CLONE.any? { |klass| property.default.is_a? klass }
         property_value ||= property.default
         self.doc[property.name] ||= property_value
       end
