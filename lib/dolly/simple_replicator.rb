@@ -13,15 +13,15 @@ module Dolly
     end
 
     def replicate!
-      database.request :post, '/_replicate', {body: request_body}
+      database.request :post, '/_replicate', body: request_body
     end
 
     private
 
     def request_body
       {
-        source: source_db,
-        target_db: target_db
+        source: source_db.database_name,
+        target: target_db.database_name
       }.to_json
     end
 
