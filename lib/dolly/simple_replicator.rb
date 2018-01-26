@@ -1,6 +1,8 @@
+require 'dolly/replication/database'
+
 module Dolly
   class SimpleReplicator
-    include Dolly::Replicator::Database
+    include Dolly::Replication::Database
 
     attr_reader :source_db, :target_db
 
