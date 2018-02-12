@@ -18,7 +18,7 @@ module Dolly
         if keys.count > 1
           build_collection( query_hash )
         else
-          self.new.from_response( database.all_docs(query_hash).parsed_response )
+          self.new.from_response( JSON.parse database.all_docs(query_hash).parsed_response )
         end
       rescue NoMethodError => err
         if err.message == "undefined method `[]' for nil:NilClass"
