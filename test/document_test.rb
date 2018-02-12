@@ -264,7 +264,9 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test 'soft delete on document' do
-    skip "delete should be able to do soft deletion."
+    assert doc = FooBar.find("1")
+    assert doc.destroy(false)
+    assert_equal true, doc.doc['_deleted']
   end
 
   test 'query custom view' do
