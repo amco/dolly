@@ -57,7 +57,7 @@ module Dolly
     end
 
     def load
-      parsed = JSON::parse json
+      parsed = json.is_a?(String) ? JSON.parse(json) : json
       self.rows = parsed['rows']
     end
 

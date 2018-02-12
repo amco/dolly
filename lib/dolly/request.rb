@@ -76,7 +76,8 @@ module Dolly
       elsif (400..600).include? response.code
         raise Dolly::ServerError.new( response )
       else
-        response
+        body = response.parsed_response
+        body.is_a?(String) ? JSON.parse(body) : body
       end
     end
 

@@ -24,7 +24,7 @@ module Dolly
 
     def save
       return if docs.empty?
-      self.response = JSON::parse self.database.post(DOC_NAME, json_payload)
+      self.response = self.database.post(DOC_NAME, json_payload)
       build_errors
       update_revs
     end

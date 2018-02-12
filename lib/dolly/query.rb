@@ -18,7 +18,7 @@ module Dolly
         if keys.count > 1
           build_collection( query_hash )
         else
-          self.new.from_response( JSON.parse database.all_docs(query_hash).parsed_response )
+          self.new.from_response(database.all_docs(query_hash))
         end
       rescue NoMethodError => err
         if err.message == "undefined method `[]' for nil:NilClass"
@@ -48,12 +48,12 @@ module Dolly
 
       def build_collection q
         res = database.all_docs(q)
-        Collection.new res.parsed_response, name_for_class
+        Collection.new res, name_for_class
       end
 
       def find_with doc, view_name, opts = {}
         res = view "_design/#{doc}/_view/#{view_name}", opts
-        Collection.new res.parsed_response, name_for_class
+        Collection.new res, name_for_class
       end
 
       #TODO: new implementation for collection returning
@@ -72,7 +72,7 @@ module Dolly
       end
 
       def raw_view doc, view, opts = {}
-        database.get("_design/#{doc}/_view/#{view}", opts).parsed_response
+        database.get("_design/#{doc}/_view/#{view}", opts)
       end
 
     end
