@@ -67,7 +67,7 @@ module Dolly
     def request method, resource, data = nil
       data ||= {}
       data.merge!(basic_auth: auth_info) if auth_info.present?
-      headers = { 'Content-Type' => 'application/json' }
+      headers = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
       headers.merge! data[:headers] if data[:headers]
       response = self.class.send method, resource, data.merge(headers: headers)
       log_request(resource, response.code) if Dolly.log_requests?
@@ -76,7 +76,8 @@ module Dolly
       elsif (400..600).include? response.code
         raise Dolly::ServerError.new( response )
       else
-        response
+        body = response.parsed_response
+        body.is_a?(String) ? JSON.parse(body) : body
       end
     end
 

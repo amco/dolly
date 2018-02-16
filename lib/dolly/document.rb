@@ -63,8 +63,7 @@ module Dolly
       self.doc['_id'] = self.class.next_id if self.doc['_id'].blank?
       set_created_at if timestamps[self.class.name]
       set_updated_at if timestamps[self.class.name]
-      response = database.put(id_as_resource, self.doc.to_json)
-      obj = JSON::parse response.parsed_response
+      obj = database.put(id_as_resource, self.doc.to_json)
       doc['_rev'] = obj['rev'] if obj['rev']
       obj['ok']
     end
@@ -77,8 +76,7 @@ module Dolly
     def destroy hard = true
       if hard
         q = id_as_resource + "?rev=#{rev}"
-        response = database.delete(q)
-        JSON::parse response.parsed_response
+        database.delete(q)
       else
         self.doc['_deleted'] = true
         self.save
@@ -101,6 +99,11 @@ module Dolly
     def from_json string
       parsed = JSON::parse( string )
       self.rows = parsed['rows']
+      self
+    end
+
+    def from_response response
+      self.rows = response['rows']
       self
     end
 
