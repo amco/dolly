@@ -4,7 +4,7 @@ module Dolly
     attr_accessor :name
     attr_reader :class_name, :default
 
-    CANT_CLONE = [NilClass, TrueClass, FalseClass, Fixnum].freeze
+    CANT_CLONE = [NilClass, TrueClass, FalseClass, Integer].freeze
 
     def initialize opts = {}
       @class_name = opts.delete(:class_name) if opts.present?
