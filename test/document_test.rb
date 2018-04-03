@@ -85,7 +85,7 @@ class DocumentTest < ActiveSupport::TestCase
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json, content_type: "application/json"
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json, content_type: "application/json"
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Fbig_doc%22%5D&include_docs=true", body: build_view_response([data.merge(other_property: 'other')]).to_json, content_type: "application/json"
-    FakeWeb.register_uri :get, "http://localhost:5984/_uuids", body: uuid_resp.to_json
+    FakeWeb.register_uri :get, "http://localhost:5984/_uuids", body: uuid_resp.to_json, content_type: "application/json"
   end
 
   test 'new in memory document' do

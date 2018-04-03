@@ -35,4 +35,22 @@ module Dolly
   end
   class DocumentInvalidError < RuntimeError; end
   class MissingPropertyError < RuntimeError; end
+  class BadQueryArguement < RuntimeError
+    def initialize operator, expected_type
+      @operator, @expected_type = operator, expected_type
+    end
+
+    def to_s
+      "The operator #{@operator} only accepts a(n) #{@expected_type}"
+    end
+  end
+  class UnrecognizedOperator < RuntimeError
+    def initialize operator
+      @operator = operator
+    end
+
+    def to_s
+      "The operator #{@operator} is unrecognized"
+    end
+  end
 end
