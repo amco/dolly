@@ -18,7 +18,7 @@ module Dolly
         if keys.count > 1
           build_collection( query_hash )
         else
-          self.new.from_json( database.all_docs(query_hash).parsed_response )
+          self.new( database.all_docs(query_hash).parsed_response )
         end
       rescue NoMethodError => err
         if err.message == "undefined method `[]' for nil:NilClass"
@@ -72,7 +72,7 @@ module Dolly
       end
 
       def raw_view doc, view, opts = {}
-        JSON.parse database.get "_design/#{doc}/_view/#{view}", opts
+        database.get "_design/#{doc}/_view/#{view}", opts
       end
 
     end

@@ -64,7 +64,7 @@ module Dolly
       set_created_at if timestamps[self.class.name]
       set_updated_at if timestamps[self.class.name]
       response = database.put(id_as_resource, self.doc.to_json)
-      obj = JSON::parse response.parsed_response
+      obj = response.parsed_response
       doc['_rev'] = obj['rev'] if obj['rev']
       obj['ok']
     end
@@ -78,7 +78,7 @@ module Dolly
       if hard
         q = id_as_resource + "?rev=#{rev}"
         response = database.delete(q)
-        JSON::parse response.parsed_response
+        response.parsed_response
       else
         self.doc['_deleted'] = true
         self.save

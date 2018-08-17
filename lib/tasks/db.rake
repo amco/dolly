@@ -38,7 +38,7 @@ namespace :db do
       view_doc.merge!( '_id' => design_doc_name, 'language' => 'coffeescript')
 
       begin
-        hash_doc = JSON::parse Dolly::Document.database.get(view_doc["_id"]).parsed_response
+        hash_doc = Dolly::Document.database.get(view_doc["_id"]).parsed_response
 
         rev = hash_doc.delete('_rev')
 

@@ -81,11 +81,12 @@ module Dolly
     end
 
     private
+
     def tools path, opts = nil
       data = {}
       q = "?#{CGI.unescape(opts.to_query)}" unless opts.blank?
       data.merge!(basic_auth: auth_info) if auth_info.present?
-      JSON::parse self.class.get("/#{path}#{q}", data)
+      self.class.get("/#{path}#{q}", data)
     end
 
     def auth_info

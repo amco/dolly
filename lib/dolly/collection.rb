@@ -1,11 +1,11 @@
 module Dolly
   class Collection < DelegateClass(Set)
-    attr_accessor :rows
+    attr_accessor :rows, :collection
     attr_writer :json, :docs_class
 
-    def initialize str, docs_class
+    def initialize collection, docs_class
       @docs_class = docs_class
-      @json = str
+      @collection = collection
       initial = []
       super(initial)
       load
@@ -57,8 +57,7 @@ module Dolly
     end
 
     def load
-      parsed = JSON::parse json
-      self.rows = parsed['rows']
+      self.rows = collection['rows']
     end
 
     def to_json options = {}
@@ -81,7 +80,7 @@ module Dolly
     end
 
     def json
-      @json
+      @json ||= @collection.to_json
     end
 
   end
