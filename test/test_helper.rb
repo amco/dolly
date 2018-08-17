@@ -25,7 +25,7 @@ class ActiveSupport::TestCase
     FakeWeb.allow_net_connect = false
 
     response = { uuids: [SecureRandom.uuid] }
-    FakeWeb.register_uri(:get, %r|http://.*:5984/_uuids.*|, body: response.to_json)
+    FakeWeb.register_uri(:get, %r|http://.*:5984/_uuids.*|, body: response.to_json, content_type: 'application/json', accept: 'application/json')
   end
 
   protected

@@ -61,7 +61,7 @@ module Dolly
 
     def all_docs data = {}
       data =  values_to_json data.merge( include_docs: true )
-      request :get, full_path('_all_docs'), {query: data}
+      request(:get, full_path('_all_docs'), { query: data }).parsed_response
     end
 
     def request method, resource, data = nil

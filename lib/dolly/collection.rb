@@ -17,23 +17,13 @@ module Dolly
 
     def update_properties! properties ={}
       properties.each do |key, value|
-
-        regex = %r{
-          \"#{key}\":  # find key definition in json string
-          (            # start value group
-            \"[^\"]*\" # find anything (even empty) between \" and \"
-            |          # logical OR
-            null       #literal null value
-          )            # end value group
-        }x
-
-        raise Dolly::MissingPropertyError unless json.match regex
-        json.gsub! regex, "\"#{key}\":\"#{value}\""
+        each do |doc|
+          raise Dolly::MissingPropertyError unless doc.respond_to? key.to_sym
+          doc.send(:"#{key}=", value)
+        end
       end
 
       BulkDocument.new(Dolly::Document.database, to_a).save
-      clear
-      load
       self
     end
 
