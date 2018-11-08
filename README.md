@@ -2,6 +2,23 @@
 
 Dolly is a Object Oriented CouchDB interface to interact with the JSON documents through CouchDB's RESTful API.
 
+## Versions
+
+### Dolly 1.x
+
+It is only compatible with CouchDB 1.x
+
+### Dolly 2.x
+
+Dolly 2.x is compatible only with CouchDB 2.x and up
+
+#### Braking changes
+
+  * Due to fix on HTTParty, now `parsed_response` returns a `Hash` instead of a `JSON` string.
+    So no need to call `JSON.parse` on db responses.
+  * CochDB 2.0 will not accept post requests to views without a rquest body.
+  * No need to call `to_json` on body values for requests
+
 ## Installation
 
 Add this line to your application's Gemfile:

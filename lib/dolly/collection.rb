@@ -1,11 +1,11 @@
 module Dolly
   class Collection < DelegateClass(Set)
-    attr_accessor :rows
+    attr_accessor :rows, :collection
     attr_writer :json, :docs_class
 
-    def initialize str, docs_class
+    def initialize collection, docs_class
       @docs_class = docs_class
-      @json = str
+      @collection = collection
       initial = []
       super(initial)
       load
@@ -17,23 +17,13 @@ module Dolly
 
     def update_properties! properties ={}
       properties.each do |key, value|
-
-        regex = %r{
-          \"#{key}\":  # find key definition in json string
-          (            # start value group
-            \"[^\"]*\" # find anything (even empty) between \" and \"
-            |          # logical OR
-            null       #literal null value
-          )            # end value group
-        }x
-
-        raise Dolly::MissingPropertyError unless json.match regex
-        json.gsub! regex, "\"#{key}\":\"#{value}\""
+        each do |doc|
+          raise Dolly::MissingPropertyError unless doc.respond_to? key.to_sym
+          doc.send(:"#{key}=", value)
+        end
       end
 
       BulkDocument.new(Dolly::Document.database, to_a).save
-      clear
-      load
       self
     end
 
@@ -57,8 +47,7 @@ module Dolly
     end
 
     def load
-      parsed = JSON::parse json
-      self.rows = parsed['rows']
+      self.rows = collection['rows']
     end
 
     def to_json options = {}
@@ -81,7 +70,7 @@ module Dolly
     end
 
     def json
-      @json
+      @json ||= @collection.to_json
     end
 
   end

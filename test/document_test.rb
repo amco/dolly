@@ -56,6 +56,8 @@ end
 class DocumentTest < ActiveSupport::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
+  attr_accessor :headers
+
   def setup
     data     = {foo: 'Foo', bar: 'Bar', type: 'foo_bar'}
 
@@ -71,18 +73,20 @@ class DocumentTest < ActiveSupport::TestCase
     build_request [["foo_bar","2"]], empty_resp
     build_request [["foo_bar","1"],["foo_bar","2"]], @multi_resp
 
+    @headers = { content_type: 'application/json', accept: 'application/json' }
+
     #TODO: Mock Dolly::Request to return helper with expected response. request builder can be tested by itself.
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&limit=1&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%EF%BF%B0%22&limit=1&descending=true&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%22%2C%7B%7D&limit=2&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%EF%BF%B0%22&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%5D&include_docs=true", body: view_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%5D&include_docs=true", body: not_found_resp.to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&include_docs=true", body: @multi_resp.to_json, **headers
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&limit=1&include_docs=true", body: view_resp.to_json, **headers
+    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%EF%BF%B0%22&limit=1&descending=true&include_docs=true", body: view_resp.to_json, **headers
+    FakeWeb.register_uri :get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%22%2C%7B%7D&limit=2&include_docs=true", body: @multi_resp.to_json, **headers
+    FakeWeb.register_uri :get, "#{query_base_path}?endkey=%22foo_bar%2F%22&startkey=%22foo_bar%2F%EF%BF%B0%22&limit=2&descending=true&include_docs=true", body: @multi_resp.to_json, **headers
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%5D&include_docs=true", body: view_resp.to_json, **headers
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%5D&include_docs=true", body: not_found_resp.to_json, **headers
     FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Ferror%22%5D&include_docs=true", body: 'error', status: ["500", "Error"]
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Fbig_doc%22%5D&include_docs=true", body: build_view_response([data.merge(other_property: 'other')]).to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F1%22%2C%22foo_bar%2F2%22%5D&include_docs=true", body: @multi_resp.to_json, **headers
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F2%22%5D&include_docs=true", body: not_found_resp.to_json, **headers
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2Fbig_doc%22%5D&include_docs=true", body: build_view_response([data.merge(other_property: 'other')]).to_json, **headers
   end
 
   test 'new in memory document' do
@@ -182,7 +186,7 @@ class DocumentTest < ActiveSupport::TestCase
   test 'reload reloads the doc attribute from database' do
     assert foo = FooBar.find('1')
     expected_doc = foo.doc.dup
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json, **headers
     assert foo.foo = 1
     assert_not_equal expected_doc, foo.doc
     assert foo.reload
@@ -191,12 +195,12 @@ class DocumentTest < ActiveSupport::TestCase
 
   test 'accessors work as expected after reload' do
     resp = {ok: true, id: "foo_bar/1", rev: "FF0000"}
-    FakeWeb.register_uri :put, "http://localhost:5984/test/foo_bar%2F0", body: resp.to_json
+    FakeWeb.register_uri :put, "http://localhost:5984/test/foo_bar%2F0", body: resp.to_json, **headers
     assert foo = FooBar.find('1')
     assert foo.foo = 1
     assert foo.save
     assert expected_doc = foo.doc
-    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json
+    FakeWeb.register_uri :get, "#{query_base_path}?keys=%5B%22foo_bar%2F0%22%5D&include_docs=true", body: build_view_response([expected_doc]).to_json, **headers
     assert foo.reload
     assert_equal 1, foo.foo
   end
@@ -270,14 +274,14 @@ class DocumentTest < ActiveSupport::TestCase
   end
 
   test 'query custom view' do
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/custom_view?key=1&include_docs=true", body: @multi_resp.to_json
+    FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/custom_view?key=1&include_docs=true", body: @multi_resp.to_json, **headers
     f = FooBar.find_with "test", "custom_view", key: 1
     assert_equal 2, f.count
     f.each{ |d| assert d.kind_of?(FooBar) }
   end
 
   test 'query custom view collation' do
-    FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/custom_view?startkey=%5B1%5D&endkey=%5B1%2C%7B%7D%5D&include_docs=true", body: @multi_type_resp.to_json
+    FakeWeb.register_uri :get, "http://localhost:5984/test/_design/test/_view/custom_view?startkey=%5B1%5D&endkey=%5B1%2C%7B%7D%5D&include_docs=true", body: @multi_type_resp.to_json, **headers
     f = FooBar.find_with "test", "custom_view", { startkey: [1], endkey: [1, {}]}
     assert_equal 2, f.count
     assert f.first.kind_of?(FooBar)
