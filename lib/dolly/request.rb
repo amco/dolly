@@ -60,14 +60,14 @@ module Dolly
     end
 
     def all_docs data = {}
-      data =  values_to_json data.merge( include_docs: true )
+      data = values_to_json data.merge( include_docs: true )
       request(:get, full_path('_all_docs'), { query: data }).parsed_response
     end
 
     def request method, resource, data = nil
       data ||= {}
       data.merge!(basic_auth: auth_info) if auth_info.present?
-      headers = { 'Content-Type' => 'application/json' }
+      headers = { 'Content-Type' => 'application/json', 'Accept' => "application/json" }
       headers.merge! data[:headers] if data[:headers]
       response = self.class.send method, resource, data.merge(headers: headers)
       log_request(resource, response.code) if Dolly.log_requests?
