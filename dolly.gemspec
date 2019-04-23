@@ -24,8 +24,9 @@ Gem::Specification.new do |spec|
 
   #TODO: Change tests to run independent of rails
   #removing the need for raisl at all.
-  spec.add_development_dependency "rails"
+  spec.add_development_dependency "rails", "~> 4.1.16"
   spec.add_development_dependency "bundler", "~> 1.3"
+  spec.add_development_dependency "rack", "~> 1.5.4"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "fakeweb", "~> 1.3.0"
   spec.add_development_dependency "factory_girl_rails", "~> 4.2"
