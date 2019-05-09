@@ -9,14 +9,15 @@ require 'refinements/string_refinements'
 module Dolly
   class Connection
     include Dolly::Configuration
-    attr_reader :db
+    attr_reader :db, :app_env
 
     DEFAULT_HEADER = { 'Content-Type' => 'application/json' }
 
     using StringRefinements
 
-    def initialize db = :default
-      @db = db
+    def initialize db = :default, app_env = :development
+      @db      = db
+      @app_env = app_env
     end
 
     def get(resource, data = {})
@@ -37,7 +38,7 @@ module Dolly
     end
 
     def view resource, opts
-      request :get, resource, query: values_to_json(opts)
+      request :get, resource, query: values_to_json({include_docs: true}.merge!(opts))
     end
 
     def attach resource, attachment_name, data, headers = {}
@@ -71,7 +72,7 @@ module Dolly
 
     def start_request(req)
       Net::HTTP.start(req.uri.hostname, req.uri.port) do |http|
-        req.basic_auth env[:user], env[:password]
+        req.basic_auth env['username'], env['password']
         http.request(req)
       end
     end
@@ -90,7 +91,8 @@ module Dolly
 
     def build_uri(resource, query = nil)
       query_str = "?#{to_query(query)}" if query
-      uri = resource =~ %r{^/} ? resource : "/#{db_name}/#{resource}"
+      uri       = (resource =~ %r{^/}) ? resource : "/#{db_name}/#{resource}"
+
       URI("#{base_uri}#{uri}#{query_str}")
     end
 
@@ -99,13 +101,11 @@ module Dolly
     end
 
     def values_to_json hash
-      hash.reduce({}){|h, v| h[v.first] = v.last.to_json; h}
+      hash.each_with_object({}) { |(k,v), h| h[k] = v.is_a?(Numeric) ? v : v.to_json }
     end
 
     def to_query(string)
-      string.collect do |key, value|
-        "#{key}=#{value}"
-      end.sort * '&'
+      string.map { |k, v| "#{k}=#{v}" }.sort * '&'
     end
   end
 end

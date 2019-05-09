@@ -1,3 +1,5 @@
+require 'forwardable'
+
 module Dolly
   class HeaderRequest
     extend Forwardable

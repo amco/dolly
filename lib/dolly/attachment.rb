@@ -1,3 +1,5 @@
+require 'base64'
+
 module Dolly
   module Attachment
     def attach_file! file_name, mime_type, body, opts={}

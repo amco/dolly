@@ -6,8 +6,12 @@ require 'dolly/document_state'
 require 'dolly/properties'
 require 'dolly/identity_properties'
 require 'dolly/attachment'
-require 'dolly/property'
+require 'dolly/property_manager'
 require 'dolly/timestamp'
+require 'dolly/query_arguments'
+require 'dolly/document_creation'
+require 'dolly/class_methods_delegation'
+require 'refinements/string_refinements'
 
 module Dolly
   class Document
@@ -15,35 +19,19 @@ module Dolly
     extend Request
     extend DepracatedDatabase
     extend Properties
-    include Property
+    extend DocumentCreation
+    include PropertyManager
     include Timestamp
     include DocumentState
     include IdentityProperties
     include Attachment
+    include QueryArguments
+    include ClassMethodsDelegation
 
     attr_writer :doc
 
-    class << self
-      def from_doc(doc)
-        required_properties = doc.select { |key, value| properties.include? key }
-        new(required_properties).tap { |d| d.doc = doc }
-      end
-
-      def from_json(json)
-        from_doc(JSON.parse(json, symbolize_names: true))
-      end
-
-      def create(attributes)
-        new(attributes).tap { |doc| doc.save }
-      end
-    end
-
     def initialize attributes = {}
-      attributes.each(&build_property)
-    end
-
-    def database
-      self.class.connection
+      properties.each(&build_property(attributes))
     end
 
     protected

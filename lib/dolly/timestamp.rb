@@ -7,7 +7,7 @@ module Dolly
     end
 
     def timestamped?
-      respond_to?(:created_at) || respond_to?(:update_at)
+      respond_to?(:created_at) && respond_to?(:updated_at)
     end
 
     def self.included(base)
@@ -16,7 +16,7 @@ module Dolly
 
     module ClassMethods
       def timestamps!
-        property :created_at, :updated_at
+        property :created_at, :updated_at, class_name: Time
       end
     end
   end

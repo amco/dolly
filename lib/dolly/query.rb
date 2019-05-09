@@ -1,10 +1,23 @@
 require 'dolly/collection'
+require 'dolly/query_arguments'
+require 'dolly/document_type'
 
 module Dolly
   module Query
+    include QueryArguments
+    include DocumentType
+
     def find *keys
       query_hash = { keys: namespace_keys(keys) }
-      build_collection(query_hash)
+
+      build_collection(query_hash).first_or_all&.itself ||
+        raise(Dolly::ResourceNotFound)
+    end
+
+    def safe_find *keys
+      find *keys
+    rescue Dolly::ResourceNotFound
+      nil
     end
 
     def all
@@ -13,53 +26,32 @@ module Dolly
 
     def first limit = 1
       query_hash = default_query_args.merge(limit: limit)
-      build_collection(query_hash)
+      build_collection(query_hash).first_or_all(limit > 1)
     end
 
     def last limit = 1
-      query_hash = { startkey: default_query_args[:endkey], endkey: default_query_args[:startkey], limit: limit, descending: true, include_docs: true }
-      build_collection(query_hash)
+      query_hash = descending_query_args.merge(limit: limit)
+      build_collection(query_hash).first_or_all(limit > 1)
     end
 
     def find_with doc, view_name, opts = {}
-      Collection.new(raw_view(doc, view_name, opts.merge(include_docs: true))).first_or_all
+      opts          = opts.each_with_object({}) { |(k, v), h| h[k] = escape_value(v) }
+      query_results = raw_view(doc, view_name, opts)
+
+      Collection.new(query_results).first_or_all
     end
 
     def raw_view doc, view_name, opts = {}
-      design = "_design/#{doc}/_view/#{view}"
-      connection.view design, opts
+      design = "_design/#{doc}/_view/#{view_name}"
+      connection.view(design, opts)
     end
 
     def build_collection(query)
-      Collection.new(connection.get('_all_docs', query.merge(include_docs: true))).first_or_all
+      Collection.new(connection.get('_all_docs', query.merge(include_docs: true)))
     end
 
-    def namespace_keys(keys)
-      keys.map { |key| namespace_key key }
-    end
-
-    def namespace_key(key)
-      return key if key =~ %r{^#{name_paramitized}/}
-      "#{name_paramitized}/#{key}"
-    end
-
-    private
-
-    def default_query_args
-      { startkey: "#{name_paramitized}/", endkey: URI.escape("#{name_paramitized}/\ufff0") }
-    end
-
-    def name_paramitized
-      underscore name.split("::").last
-    end
-
-    #FROM ActiveModel::Name
-    def underscore(camel_cased_word)
-      camel_cased_word.to_s.gsub(/::/, '/').
-        gsub(/([A-Z]+)([A-Z][a-z])/,'\1_\2').
-        gsub(/([a-z\d])([A-Z])/,'\1_\2').
-        tr("-", "_").
-        downcase
+    def bulk_document
+      BulkDocument.new(connection)
     end
   end
 end

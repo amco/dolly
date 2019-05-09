@@ -1,5 +1,6 @@
-Dir[File.dirname(__FILE__) + '../refinements/*.rb'].each {|file| require file }
-require 'dolly/document'
+require "dolly/version"
+require "dolly/document"
+require 'railties/railtie' if defined?(Rails)
 
 module Dolly
 end

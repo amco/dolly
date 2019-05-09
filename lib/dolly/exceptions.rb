@@ -14,4 +14,8 @@ module Dolly
       "There has been an error on the couchdb server: #{@msg.inspect}"
     end
   end
+
+  class InvalidConfigFileError < RuntimeError; end
+  class InvalidProperty < RuntimeError; end
+  class DocumentInvalidError < RuntimeError; end
 end

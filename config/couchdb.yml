@@ -1,0 +1,29 @@
+couchdb: &couchdb
+  host: https://localhost
+  port: 5984
+  design: dolly
+  username: 
+  password: 
+  name: test
+
+travis: &travis
+  default:
+    <<: *couchdb
+    username:
+    password:
+
+development:
+  default:
+    <<: *couchdb
+
+test:
+  default:
+    <<: <%= ENV['TRAVIS'] ? "*travis" : "*couchdb" %>
+
+staging:
+  default:
+    <<: *couchdb
+
+production:
+  default:
+    <<: *couchdb

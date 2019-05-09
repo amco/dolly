@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+require 'erb'
+
 module Dolly
   module Configuration
     def env
-      @env ||= configuration[db]
+      @env ||= configuration[db.to_s]
     end
 
     def base_uri
@@ -9,24 +12,30 @@ module Dolly
     end
 
     def protocol
-      env[:protocol]
+      env['protocol']
     end
 
     def host
-      env[:host]
+      env['host']
     end
 
     def port
-      return unless env[:port]
-      ":#{env[:port]}"
+      return unless env['port']
+      ":#{env['port']}"
     end
 
     def db_name
-      env[:name]
+      env['name']
     end
 
     def configuration
-      { default: { host: 'http://localhost', port: '5984', name: 'bs', user: 'root', password: '123' } }
+      @config_data ||= File.read(config_file)
+      raise Dolly::InvalidConfigFileError if @config_data&.empty?
+      data = YAML::load(ERB.new(@config_data).result)[app_env.to_s]
+    end
+
+    def config_file
+      File.join('config', 'couchdb.yml')
     end
   end
 end

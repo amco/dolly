@@ -23,11 +23,16 @@ Gem::Specification.new do |spec|
   end
 
   spec.files         = Dir["README.md", "lib/**/*"]
+  spec.test_files = Dir["test/**/*"]
+
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
   spec.add_dependency "fast_jsonapi"
-  spec.add_development_dependency "bundler", "~> 1.15"
+  spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "test-unit-full"
+  spec.add_development_dependency "webmock"
+  spec.add_development_dependency "mocha"
 end
