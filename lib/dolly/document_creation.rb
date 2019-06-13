@@ -10,7 +10,7 @@ module Dolly
     end
 
     def from_json(json)
-      from_doc(JSON.parse(json, symbolize_names: true))
+      from_doc(Oj.load(json, symbol_keys: true))
     end
 
     def create(attributes)

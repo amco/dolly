@@ -1,4 +1,4 @@
-require 'json'
+require 'oj'
 require 'cgi'
 require 'net/http'
 require 'dolly/request_header'
@@ -80,7 +80,7 @@ module Dolly
     def response_format(res)
       raise Dolly::ResourceNotFound if res.code.to_i == 404
       raise Dolly::ServerError.new(res.body) if (400..600).include? res.code.to_i
-      JSON.parse(res.body, symbolize_names: true)
+      Oj.load(res.body, symbol_keys: true)
     end
 
     def format_data(data = nil, is_json)

@@ -12,7 +12,7 @@ module Dolly
     end
 
     def protocol
-      env['protocol']
+      "#{env['protocol']}://"
     end
 
     def host
@@ -31,7 +31,7 @@ module Dolly
     def configuration
       @config_data ||= File.read(config_file)
       raise Dolly::InvalidConfigFileError if @config_data&.empty?
-      data = YAML::load(ERB.new(@config_data).result)[app_env.to_s]
+      YAML::load(ERB.new(@config_data).result)[app_env.to_s]
     end
 
     def config_file

@@ -24,6 +24,10 @@ module Dolly
       [TrueClass, FalseClass].include?(class_name)
     end
 
+    def string_value(value)
+      value.to_s
+    end
+
     def hash_value(value)
       value.to_h
     end
