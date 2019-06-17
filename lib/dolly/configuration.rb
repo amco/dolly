@@ -4,7 +4,7 @@ require 'erb'
 module Dolly
   module Configuration
     def env
-      @env ||= configuration[db.to_s]
+      @env ||= configuration
     end
 
     def base_uri
