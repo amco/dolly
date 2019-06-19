@@ -33,3 +33,46 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/dolly3.
+
+
+## Migrating from couch 1.x to 2.x
+
+[Official docs](https://docs.couchdb.org/en/2.3.1/install/index.html)
+
+
+You will need to uninstall the couchdb service with brew
+
+`brew services stop couchdb`
+`brew services uninstall couchdb`
+
+Download the application from the following source
+
+http://couchdb.apache.org/#download
+
+launch fauxton and check your installation
+
+Copy [this file](https://github.com/apache/couchdb/blob/master/rel/overlay/bin/couchup) into your filesystem
+
+
+make it executable
+
+`chmod +x couchup.py`
+
+and run it
+
+`./couchup.py -h`
+
+You might need to install python 3 and pip3 and the following libs
+
+`pip3 install requests progressbar2`
+
+move your .couch files into the specified `database_dir` in your [fauxton config](http://127.0.0.1:5984/_utils/#_config/couchdb@localhost)
+
+
+```
+$ ./couchup list           # Shows your unmigrated 1.x databases
+$ ./couchup replicate -a   # Replicates your 1.x DBs to 2.x
+$ ./couchup rebuild -a     # Optional; starts rebuilding your views
+$ ./couchup delete -a      # Deletes your 1.x DBs (careful!)
+$ ./couchup list           # Should show no remaining databases!
+```

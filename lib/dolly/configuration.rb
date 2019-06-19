@@ -1,10 +1,11 @@
 # frozen_string_literal: true
+
 require 'erb'
 
 module Dolly
   module Configuration
     def env
-      @env ||= configuration
+      @env ||= configuration[db.to_s]
     end
 
     def base_uri
