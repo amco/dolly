@@ -3,6 +3,8 @@ require 'erb'
 
 module Dolly
   module Configuration
+    attr_writer :config_file
+
     def env
       @env ||= configuration[db.to_s]
     end
@@ -35,7 +37,7 @@ module Dolly
     end
 
     def config_file
-      File.join('config', 'couchdb.yml')
+      @config_file ||= File.join('config', 'couchdb.yml')
     end
   end
 end
