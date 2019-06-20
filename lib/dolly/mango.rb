@@ -3,8 +3,19 @@
 module Dolly
   module Mango
 
-    SELECTOR_SYMBOL = "$"
-    AVAILABLE_SELECTORS = %I[
+    SELECTOR_SYMBOL = '$'
+
+    COMBINATION_OPERATORS = %I[
+      and
+      or
+      not
+      nor
+      all
+      elemMatch
+      allMath
+    ].freeze
+
+    CONDITION_OPERATORS = %I[
       lt
       lte
       eq
@@ -20,7 +31,7 @@ module Dolly
       regex
     ].freeze
 
-    DESIGN = "_find"
+    DESIGN = '_find'
 
     def find_by(query, opts = {})
       build_model_from_doc(find_doc_by(query, opts))
@@ -44,6 +55,7 @@ module Dolly
     private
 
     def build_model_from_doc(doc)
+      return nil if doc.nil?
       self.new(doc.slice(*self.property_keys))
     end
 
@@ -53,25 +65,22 @@ module Dolly
 
     def build_query(query, opts)
       {
-        "selector" => build_selectors(query)
+        'selector' => build_selectors(query)
       }.merge(opts)
     end
 
     def build_selectors(query)
-      query.each_with_object(Hash.new) do |(key, value), hsh|
-        inner_key = value.keys.first
-        inner_value = value.values.first
-        next unless AVAILABLE_SELECTORS.include?(inner_key)
-        hsh.merge!({
-          "#{key}" => {
-            build_key(inner_key) => inner_value
-          }
-        })
+      query.deep_transform_keys do |key|
+        is_operator?(key) ? build_key(key) : key
       end
     end
 
     def build_key(key)
       "#{SELECTOR_SYMBOL}#{key}"
+    end
+
+    def is_operator?(key)
+      COMBINATION_OPERATORS.include?(key) || CONDITION_OPERATORS.include?(key)
     end
   end
 end
