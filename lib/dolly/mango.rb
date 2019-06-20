@@ -74,7 +74,7 @@ module Dolly
         if is_operator?(key)
           build_key(key)
         else
-          raise "invalid operator #{key}" unless self.all_property_keys.include?(key)
+          raise InvalidMangoOperatorError unless self.all_property_keys.include?(key)
           key
         end
       end
