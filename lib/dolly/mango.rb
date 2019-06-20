@@ -56,7 +56,7 @@ module Dolly
 
     def build_model_from_doc(doc)
       return nil if doc.nil?
-      self.new(doc.slice(*self.property_keys))
+      self.new(doc.slice(*self.all_property_keys))
     end
 
     def perform_query(structured_query)
@@ -71,7 +71,12 @@ module Dolly
 
     def build_selectors(query)
       query.deep_transform_keys do |key|
-        is_operator?(key) ? build_key(key) : key
+        if is_operator?(key)
+          build_key(key)
+        else
+          raise "invalid operator #{key}" unless self.all_property_keys.include?(key)
+          key
+        end
       end
     end
 

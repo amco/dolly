@@ -15,6 +15,16 @@ module Dolly
     end
   end
 
+  class InvalidMangoOperatorError < RuntimeError
+    def initialize msg
+      @msg = msg
+    end
+
+    def to_s
+      "Invalid Mango operator: #{@msg.inspect}"
+    end
+  end
+
   class InvalidConfigFileError < RuntimeError; end
   class InvalidProperty < RuntimeError; end
   class DocumentInvalidError < RuntimeError; end
