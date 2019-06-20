@@ -19,18 +19,13 @@ module Couch
       save
     end
 
-    #TODO: use Dolly native update_properties method
     def update_attributes! attributes
-      attributes.each do |key, value|
-        send(:"#{key}=", value)
-      end
-
+      attributes.each(&update_attribute)
       save
     end
 
     def update_attributes(attributes)
-      doc.merge(attributes)
-      save
+      attributes.each(&update_attribute)
     end
 
     def base_id

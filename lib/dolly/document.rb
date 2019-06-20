@@ -1,3 +1,4 @@
+require 'dolly/mango'
 require 'dolly/query'
 require 'dolly/connection'
 require 'dolly/request'
@@ -15,11 +16,13 @@ require 'refinements/string_refinements'
 
 module Dolly
   class Document
+    extend Mango
     extend Query
     extend Request
     extend DepracatedDatabase
     extend Properties
     extend DocumentCreation
+
     include PropertyManager
     include Timestamp
     include DocumentState
