@@ -58,18 +58,5 @@ namespace :db do
       Dolly::Document.connection.request :put, design_doc_name, view_doc if will_save
     end
   end
-
-  namespace :index do
-    desc "Creates indexes for mango querys located in db/indexes/*.json"
-    task create: :environment do
-      indexes_dir = Rails.root.join('db', 'indexes')
-      files = Dir.glob File.join(indexes_dir, '**', '*.json')
-
-      files.each do |file|
-        index_data = JSON.parse(File.read(file))
-        Dolly::MangoIndex.create(index_data['name'], index_data['fields'])
-      end
-    end
-  end
 end
 

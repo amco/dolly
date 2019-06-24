@@ -1,8 +1,5 @@
 # frozen_string_literal: true
 
-require 'dolly/mango_index'
-require 'refinements/hash_refinements'
-
 module Dolly
   module Mango
     using HashRefinements
@@ -42,7 +39,6 @@ module Dolly
     end
 
     def find_doc_by(query, opts = {})
-      raise IndexNotFound unless index_exists?(query)
       opts.merge!(limit: 1)
       perform_query(build_query(query, opts))[:docs].first
     end
@@ -54,7 +50,6 @@ module Dolly
     end
 
     def docs_where(query, opts = {})
-      raise IndexNotFound unless index_exists?(query)
       perform_query(build_query(query, opts))[:docs]
     end
 
@@ -92,16 +87,6 @@ module Dolly
 
     def is_operator?(key)
       COMBINATION_OPERATORS.include?(key) || CONDITION_OPERATORS.include?(key)
-    end
-
-    def index_exists?(query)
-      Dolly::MangoIndex.find_by_fields(fetch_fields(query))
-    end
-
-    def fetch_fields(query)
-      query.deep_keys.reject do |key|
-        is_operator?(key)
-      end
     end
   end
 end
