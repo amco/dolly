@@ -1,4 +1,5 @@
 require 'dolly/mango'
+require 'dolly/mango_index'
 require 'dolly/query'
 require 'dolly/connection'
 require 'dolly/request'
