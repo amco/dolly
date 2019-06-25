@@ -58,5 +58,6 @@ namespace :db do
       Dolly::Document.connection.request :put, design_doc_name, view_doc if will_save
     end
   end
+
 end
 
