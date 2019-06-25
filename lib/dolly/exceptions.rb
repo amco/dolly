@@ -25,6 +25,7 @@ module Dolly
     end
   end
 
+  class IndexNotFoundError < RuntimeError; end
   class InvalidConfigFileError < RuntimeError; end
   class InvalidProperty < RuntimeError; end
   class DocumentInvalidError < RuntimeError; end

@@ -32,6 +32,21 @@ class MangoTest < Test::Unit::TestCase
 
     stub_request(:get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&include_docs=true").
       to_return(body: @multi_resp.to_json)
+
+    stub_request(:get, index_base_path).
+      to_return(body: { indexes:[ {
+        ddoc: nil,
+        name:"_all_docs",
+        type:"special",
+        def:{ fields:[{ _id:"asc" }] }
+      },
+      {
+        ddoc: "_design/1",
+        name:"foo-index-json",
+        type:"json",
+        def:{ fields:[{ foo:"asc" }] }
+      }
+    ]}.to_json)
   end
 
   test '#find_by' do
@@ -42,6 +57,18 @@ class MangoTest < Test::Unit::TestCase
      to_return(body: resp.to_json)
 
     assert_equal(FooBar.find_by(foo: 'bar').class, FooBar)
+  end
+
+  test '#find_by for a property that does not have an index' do
+    #TODO: clean up all the fake request creation
+    resp = { docs: [{ foo: 'bar', id: "foo_bar/1"} ] }
+
+    stub_request(:post, query_base_path).
+     to_return(body: resp.to_json)
+
+    assert_raise Dolly::IndexNotFoundError do
+      FooBar.find_by(date: Date.today)
+    end
   end
 
   test '#find_by with no returned data' do
@@ -71,6 +98,18 @@ class MangoTest < Test::Unit::TestCase
      to_return(body: resp.to_json)
 
     assert_equal(FooBar.where(foo: { eq: 'bar' }).map(&:class).uniq, [FooBar])
+  end
+
+  test '#where for a property that does not have an index' do
+    #TODO: clean up all the fake request creation
+    resp = { docs: [{ foo: 'bar', id: "foo_bar/1"} ] }
+
+    stub_request(:post, query_base_path).
+     to_return(body: resp.to_json)
+
+    assert_raise Dolly::IndexNotFoundError do
+      FooBar.where(date: Date.today)
+    end
   end
 
   test '#where with no returned data' do
@@ -155,6 +194,10 @@ class MangoTest < Test::Unit::TestCase
 
   def query_base_path
     "#{DB_BASE_PATH}/_find"
+  end
+
+  def index_base_path
+    "#{DB_BASE_PATH}/_index"
   end
 
   def build_save_request(obj)
