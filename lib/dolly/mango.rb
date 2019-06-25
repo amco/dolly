@@ -34,6 +34,8 @@ module Dolly
       regex
     ].freeze
 
+    ALL_OPERATORS = COMBINATION_OPERATORS + CONDITION_OPERATORS
+
     DESIGN = '_find'
 
     def find_by(query, opts = {})
@@ -59,7 +61,7 @@ module Dolly
 
     def build_model_from_doc(doc)
       return nil if doc.nil?
-      self.new(doc.slice(*self.all_property_keys))
+      new(doc.slice(*all_property_keys))
     end
 
     def perform_query(structured_query)
@@ -67,19 +69,14 @@ module Dolly
     end
 
     def build_query(query, opts)
-      {
-        'selector' => build_selectors(query)
-      }.merge(opts)
+      { 'selector' => build_selectors(query) }.merge(opts)
     end
 
     def build_selectors(query)
       query.deep_transform_keys do |key|
-        if is_operator?(key)
-          build_key(key)
-        else
-          raise InvalidMangoOperatorError.new(key) unless self.all_property_keys.include?(key)
-          key
-        end
+        next build_key(key) if is_operator?(key)
+        raise InvalidMangoOperatorError.new(key) unless self.all_property_keys.include?(key)
+        key
       end
     end
 
@@ -88,7 +85,7 @@ module Dolly
     end
 
     def is_operator?(key)
-      COMBINATION_OPERATORS.include?(key) || CONDITION_OPERATORS.include?(key)
+      ALL_OPERATORS.include?(key)
     end
   end
 end
