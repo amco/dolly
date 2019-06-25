@@ -29,3 +29,5 @@ class Test::Unit::TestCase
     %r{http://.*:5984/#{DEFAULT_DB}}
   end
 end
+
+class BaseDolly < Dolly::Document; end

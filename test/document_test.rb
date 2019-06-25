@@ -1,7 +1,5 @@
 require 'test_helper'
 
-class BaseDolly < Dolly::Document; end
-
 class BarFoo < BaseDolly
   property :a, :b, :c, :d, :e, :f, :g, :h, :i, :j, :k, :l, :m, :n, :persist
 end

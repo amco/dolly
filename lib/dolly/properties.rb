@@ -20,8 +20,12 @@ module Dolly
       @properties ||= PropertySet.new
     end
 
+    def all_property_keys
+      properties.map(&:key) + SPECIAL_KEYS
+    end
+
     def property_keys
-      properties.map(&:key) - SPECIAL_KEYS
+      all_property_keys - SPECIAL_KEYS
     end
 
     def property_clean_doc(doc)
