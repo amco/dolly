@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'refinements/hash_refinements'
+
 module Dolly
   module Mango
     using HashRefinements

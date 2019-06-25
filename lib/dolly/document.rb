@@ -16,6 +16,7 @@ require 'refinements/string_refinements'
 
 module Dolly
   class Document
+    extend Mango
     extend Query
     extend Request
     extend DepracatedDatabase
