@@ -1,18 +1,23 @@
 # frozen_string_literal: true
 
+require 'forwardable'
 require 'dolly/document'
 
 module Dolly
   class MangoIndex
     class << self
+      extend Forwardable
+
       DESIGN = '_index'
 
+      def_delegators :connection, :get, :post, :delete_index
+
       def all
-        Dolly::Document.connection.get(DESIGN)[:indexes]
+        get(DESIGN)[:indexes]
       end
 
       def create(name, fields, type = 'json')
-        Dolly::Document.connection.post(DESIGN, build_index_structure(name, fields, type))
+        post(DESIGN, build_index_structure(name, fields, type))
       end
 
       def find_by_fields(fields)
@@ -31,10 +36,14 @@ module Dolly
       def delete(index_doc)
         resource = "#{DESIGN}/#{index_doc[:ddoc]}/json/#{index_doc[:name]}"
 
-        Dolly::Document.connection.delete_index(resource)
+        delete_index(resource)
       end
 
       private
+
+      def connection
+        @connection ||= Dolly::Document.connection
+      end
 
       def build_index_structure(name, fields, type)
         {

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :db do
   desc "Will create if missing database and add default views"
   task setup: :environment do
@@ -60,7 +62,7 @@ namespace :db do
   end
 
   namespace :index do
-    desc "Creates indexes for mango querys located in db/indexes/*.json"
+    desc 'Creates indexes for mango querys located in db/indexes/*.json'
     task create: :environment do
       indexes_dir = Rails.root.join('db', 'indexes')
       files = Dir.glob File.join(indexes_dir, '**', '*.json')
