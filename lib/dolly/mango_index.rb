@@ -23,8 +23,15 @@ module Dolly
 
       def delete_all
         all.each do |index_doc|
+          next if index_doc[:ddoc].nil?
           delete(index_doc)
         end
+      end
+
+      def delete(index_doc)
+        resource = "#{DESIGN}/#{index_doc[:ddoc]}/json/#{index_doc[:name]}"
+
+        Dolly::Document.connection.delete_index(resource)
       end
 
       private
