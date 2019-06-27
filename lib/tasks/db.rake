@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 namespace :db do
   desc "Will create if missing database and add default views"
   task setup: :environment do
@@ -59,5 +61,17 @@ namespace :db do
     end
   end
 
+  namespace :index do
+    desc 'Creates indexes for mango querys located in db/indexes/*.json'
+    task create: :environment do
+      indexes_dir = Rails.root.join('db', 'indexes')
+      files = Dir.glob File.join(indexes_dir, '**', '*.json')
+
+      files.each do |file|
+        index_data = JSON.parse(File.read(file))
+        Dolly::MangoIndex.create(index_data['name'], index_data['fields'])
+      end
+    end
+  end
 end
 

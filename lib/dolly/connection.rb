@@ -37,6 +37,10 @@ module Dolly
       request :delete, resource.cgi_escape, query: { rev: rev }
     end
 
+    def delete_index resource
+      request :delete, resource
+    end
+
     def view resource, opts
       request :get, resource, query: values_to_json({include_docs: true}.merge!(opts))
     end
