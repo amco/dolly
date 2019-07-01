@@ -34,7 +34,8 @@ module Dolly
 
     attr_writer :doc
 
-    def initialize attributes = {}
+    def initialize(attributes = {})
+      init_ancestor_properties
       properties.each(&build_property(attributes))
     end
 
@@ -42,6 +43,17 @@ module Dolly
 
     def doc
       @doc ||= {}
+    end
+
+    def init_ancestor_properties
+      self.class.ancestors.map do |ancestor|
+        begin
+          ancestor.properties.entries.each do |property|
+            properties << property
+          end
+        rescue NoMethodError => e
+        end
+      end
     end
   end
 end

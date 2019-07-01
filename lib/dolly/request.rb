@@ -1,7 +1,7 @@
 module Dolly
   module Request
     def set_namespace name
-      @namspace = name
+      @namespace = name
     end
 
     def set_app_env env
