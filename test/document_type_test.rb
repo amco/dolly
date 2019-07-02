@@ -7,7 +7,7 @@ end
 class UntypedDoc < Dolly::Document
 end
 
-class DocumentTest < Test::Unit::TestCase
+class DocumentTypeTest < Test::Unit::TestCase
   test 'typed?' do
     assert_equal(TypedDoc.new.typed?, true)
     assert_equal(UntypedDoc.new.typed?, false)

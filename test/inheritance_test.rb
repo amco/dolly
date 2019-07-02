@@ -12,7 +12,7 @@ class NewBar < BaseBaseDoc
   property :a, :b
 end
 
-class DocumentTest < Test::Unit::TestCase
+class InheritanceTest < Test::Unit::TestCase
   test 'property inheritance' do
     assert_equal(BaseBaseDoc.new.properties.map(&:key), [:supertype, :type])
   end
