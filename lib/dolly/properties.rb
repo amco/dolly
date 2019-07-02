@@ -4,9 +4,12 @@ require  'dolly/property'
 module Dolly
   module Properties
     SPECIAL_KEYS = %i[_id _rev]
+    INVALID_PROPS = %i[type]
 
     def property *opts, class_name: nil, default: nil
       opts.each do |opt|
+        raise Dolly::InvalidProperty if INVALID_PROPS.include?(opt)
+
         properties << (prop = Property.new(opt, class_name, default))
         send(:attr_reader, opt)
 

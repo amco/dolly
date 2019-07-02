@@ -95,8 +95,16 @@ module Dolly
     end
 
     def fetch_fields(query)
-      query.deep_keys.reject do |key|
+      deep_keys(query).reject do |key|
         is_operator?(key)
+      end
+    end
+
+    def deep_keys(obj)
+      case obj
+      when Hash then obj.keys + obj.values.flat_map { |v| deep_keys(v) }
+      when Array then obj.flat_map { |i| deep_keys(i) }
+      else []
       end
     end
   end

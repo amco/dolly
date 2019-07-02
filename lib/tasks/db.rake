@@ -69,7 +69,8 @@ namespace :db do
 
       files.each do |file|
         index_data = JSON.parse(File.read(file))
-        Dolly::MangoIndex.create(index_data['name'], index_data['fields'])
+        puts "Creating index: #{index_data["name"]}"
+        puts Dolly::MangoIndex.create(index_data['name'], index_data['fields'])
       end
     end
   end

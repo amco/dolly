@@ -26,12 +26,12 @@ module Dolly
     end
 
     def typed?
-      respond_to?(:type)
+      respond_to?(:doc_type)
     end
 
     def set_type
       return unless typed?
-      write_attribute(:type, name_paramitized)
+      write_attribute(:doc_type, name_paramitized)
     end
 
     def self.included(base)
@@ -40,7 +40,7 @@ module Dolly
 
     module ClassMethods
       def typed_model
-        property :type, class_name: String
+        property :doc_type, class_name: String
       end
     end
   end
