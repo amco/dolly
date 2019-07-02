@@ -41,11 +41,6 @@ module Dolly
       Collection.new(query_results).first_or_all
     end
 
-    def raw_view doc, view_name, opts = {}
-      design = "_design/#{doc}/_view/#{view_name}"
-      connection.view(design, opts)
-    end
-
     def build_collection(query)
       Collection.new(connection.get('_all_docs', query.merge(include_docs: true)))
     end

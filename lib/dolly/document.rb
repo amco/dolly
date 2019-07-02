@@ -1,11 +1,13 @@
 require 'dolly/mango'
 require 'dolly/mango_index'
 require 'dolly/query'
+require 'dolly/view_query'
 require 'dolly/connection'
 require 'dolly/request'
 require 'dolly/depracated_database'
 require 'dolly/document_state'
 require 'dolly/properties'
+require 'dolly/document_type'
 require 'dolly/identity_properties'
 require 'dolly/attachment'
 require 'dolly/property_manager'
@@ -19,11 +21,13 @@ module Dolly
   class Document
     extend Mango
     extend Query
+    extend ViewQuery
     extend Request
     extend DepracatedDatabase
     extend Properties
     extend DocumentCreation
 
+    include DocumentType
     include PropertyManager
     include Timestamp
     include DocumentState
