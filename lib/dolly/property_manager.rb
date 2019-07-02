@@ -43,12 +43,5 @@ module Dolly
       id_presence = opts[:id] || opts[:_id] || opts['id'] || opts['_id']
       self.id = id_presence if id_presence
     end
-
-    def read_property name
-      if instance_variable_get(:"@#{name}").nil?
-        write_attribute(name, (doc[name.to_s] || self.properties[name].value))
-      end
-      instance_variable_get(:"@#{name}")
-    end
   end
 end
