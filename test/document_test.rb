@@ -52,7 +52,6 @@ class Bar < FooBar
 end
 
 class DocumentTest < Test::Unit::TestCase
-  DB_BASE_PATH = "http://localhost:5984/test".freeze
 
   def setup
     data     = {foo: 'Foo', bar: 'Bar', type: 'foo_bar'}
@@ -575,51 +574,5 @@ class DocumentTest < Test::Unit::TestCase
   test "new object from inhereted document" do
     assert bar = Bar.new(a: 1)
     assert_equal 1, bar.a
-  end
-
-  private
-  def generic_response rows, count = 1
-    {total_rows: count, offset:0, rows: rows}
-  end
-
-  def build_view_response properties
-    rows = properties.map.with_index do |v, i|
-      {
-        id: "foo_bar/#{i}",
-        key: "foo_bar",
-        value: 1,
-        doc: {_id: "foo_bar/#{i}", _rev: SecureRandom.hex}.merge!(v)
-      }
-    end
-    generic_response rows, properties.count
-  end
-
-  def build_view_collation_response properties
-    rows = properties.map.with_index do |v, i|
-      id = i.zero? ? "foo_bar/#{i}" : "baz/#{i}"
-      {
-        id: id,
-        key: "foo_bar",
-        value: 1,
-        doc: {_id: id, _rev: SecureRandom.hex}.merge!(v)
-      }
-    end
-    generic_response rows, properties.count
-  end
-
-
-  def build_request keys, body, view_name = 'foo_bar'
-    query = "keys=#{CGI::escape keys.to_s.gsub(' ','')}&" unless keys&.empty?
-    stub_request(:get, "#{query_base_path}?#{query.to_s}include_docs=true").
-      to_return(body: body.to_json)
-  end
-
-  def query_base_path
-    "#{DB_BASE_PATH}/_all_docs"
-  end
-
-  def build_save_request(obj)
-    stub_request(:put, "#{DB_BASE_PATH}/#{CGI.escape(obj.id)}").
-      to_return(body: {ok: true, id: obj.id, rev: "FF0000" }.to_json)
   end
 end

@@ -24,5 +24,24 @@ module Dolly
     def class_name
       is_a?(Class) ? name : self.class.name
     end
+
+    def typed?
+      respond_to?(:type)
+    end
+
+    def set_type
+      return unless typed?
+      write_attribute(:type, name_paramitized)
+    end
+
+    def self.included(base)
+      base.extend(ClassMethods)
+    end
+
+    module ClassMethods
+      def typed_model
+        property :type, class_name: String
+      end
+    end
   end
 end
