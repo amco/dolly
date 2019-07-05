@@ -33,7 +33,7 @@ module Dolly
       request :put, resource.cgi_escape, data
     end
 
-    def delete resource, rev= nil, escape: true
+    def delete resource, rev = nil, escape: true
       query = { query: { rev: rev } } if rev
       resource = resource.cgi_escape if escape
       request :delete, resource, query
