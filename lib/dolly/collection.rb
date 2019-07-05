@@ -1,12 +1,12 @@
 module Dolly
   class Collection < DelegateClass(Array)
-    attr_reader :info
+    attr_reader :options
 
-    def initialize(rows: [], **info)
-      @info = info
+    def initialize(rows: [], options: {})
+      @options = options
       #TODO: We should raise an exception if one of the
       #      requested documents is missing
-      super rows.map(&collect_docs).compact
+      super rows[:rows].map(&collect_docs).compact
     end
 
     def first_or_all(forced_first = false)
@@ -23,9 +23,13 @@ module Dolly
     def collect_docs
       lambda do |row|
         next unless collectable_row?(row)
-        klass = Object.const_get doc_type(row[:id])
+        klass = Object.const_get(doc_model(row[:id]))
         klass.from_doc(row[:doc])
       end
+    end
+
+    def doc_model(id)
+      options[:doc_type] || doc_type(id)
     end
 
     def doc_type(key)

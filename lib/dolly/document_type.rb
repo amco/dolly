@@ -13,8 +13,8 @@ module Dolly
       "#{name_paramitized}/#{key}"
     end
 
-    def base_id(id)
-      id.sub(%r{^#{name_paramitized}/}, '')
+    def base_id
+      self.id.sub(%r{^#{name_paramitized}/}, '')
     end
 
     def name_paramitized
