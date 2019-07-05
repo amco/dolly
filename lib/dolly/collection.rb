@@ -23,17 +23,23 @@ module Dolly
     def collect_docs
       lambda do |row|
         next unless collectable_row?(row)
-        klass = Object.const_get(doc_model(row[:id]))
+        klass = Object.const_get(doc_model(row))
         klass.from_doc(row[:doc])
       end
     end
 
-    def doc_model(id)
-      options[:doc_type] || doc_type(id)
+    def doc_model(doc)
+      options[:doc_type] || constantize_key(doc[:doc_type]) || constantize_key(doc_type_for(doc[:id]))
     end
 
-    def doc_type(key)
-      key.match(%r{^([^/]+)/})[1].split('_').collect(&:capitalize).join
+    def doc_type_for(key)
+      return false if key.nil?
+      key.match(%r{^([^/]+)/})[1]
+    end
+
+    def constantize_key(key)
+      return false if key.nil?
+      key.split('_').collect(&:capitalize).join
     end
 
     def collectable_row?(row)

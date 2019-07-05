@@ -53,7 +53,10 @@ class Test::Unit::TestCase
         id: id,
         key: "foo_bar",
         value: 1,
-        doc: {_id: id, _rev: SecureRandom.hex}.merge!(v)
+        doc_type: id.split("/").first,
+        doc: {
+          _id: id, _rev: SecureRandom.hex
+        }.merge!(v)
       }
     end
     generic_response rows, properties.count
