@@ -33,12 +33,10 @@ module Dolly
       request :put, resource.cgi_escape, data
     end
 
-    def delete resource, rev
-      request :delete, resource.cgi_escape, query: { rev: rev }
-    end
-
-    def delete_index resource
-      request :delete, resource
+    def delete resource, rev = nil, escape: true
+      query = { query: { rev: rev } } if rev
+      resource = resource.cgi_escape if escape
+      request :delete, resource, query
     end
 
     def view resource, opts
@@ -62,8 +60,8 @@ module Dolly
     end
 
     def request(method, resource, data = {})
-      headers  = Dolly::HeaderRequest.new data.delete(:headers)
-      uri      = build_uri(resource, data.delete(:query))
+      headers  = Dolly::HeaderRequest.new data&.delete(:headers)
+      uri      = build_uri(resource, data&.delete(:query))
       klass    = request_method(method)
       req      = klass.new(uri, headers)
       req.body = format_data(data, headers.json?)

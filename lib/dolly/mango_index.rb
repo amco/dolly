@@ -10,7 +10,7 @@ module Dolly
 
       DESIGN = '_index'
 
-      def_delegators :connection, :get, :post, :delete_index
+      def_delegators :connection, :get, :post
 
       def all
         get(DESIGN)[:indexes]
@@ -35,8 +35,7 @@ module Dolly
 
       def delete(index_doc)
         resource = "#{DESIGN}/#{index_doc[:ddoc]}/json/#{index_doc[:name]}"
-
-        delete_index(resource)
+        connection.delete(resource, escape: false)
       end
 
       private
