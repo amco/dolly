@@ -33,20 +33,21 @@ class MangoTest < Test::Unit::TestCase
     stub_request(:get, "#{query_base_path}?startkey=%22foo_bar%2F%22&endkey=%22foo_bar%2F%EF%BF%B0%22&include_docs=true").
       to_return(body: @multi_resp.to_json)
 
-    stub_request(:get, index_base_path).
-      to_return(body: { indexes:[ {
-        ddoc: nil,
-        name:"_all_docs",
-        type:"special",
-        def:{ fields:[{ _id:"asc" }] }
-      },
-      {
-        ddoc: "_design/1",
-        name:"foo-index-json",
-        type:"json",
-        def:{ fields:[{ foo:"asc" }] }
-      }
-    ]}.to_json)
+    stub_request(:get, "#{all_docs_path}?key=\"index_foo\"").
+      to_return(body: {
+        total_rows: 2,
+        offset: 0,
+        rows: [{
+          id: '_design/index_foo',
+          key: '_design/index_foo',
+          value: { rev: '1-c5457a0d26da85f15c4ad6bd739e441d' }
+        }]}.to_json)
+
+    stub_request(:get, "#{all_docs_path}?key=\"index_date\"").
+      to_return(body: {
+        total_rows: 2,
+        offset: 0,
+        rows: []}.to_json)
   end
 
   test '#find_by' do
@@ -196,8 +197,8 @@ class MangoTest < Test::Unit::TestCase
     "#{DB_BASE_PATH}/_find"
   end
 
-  def index_base_path
-    "#{DB_BASE_PATH}/_index"
+  def all_docs_path
+    "#{DB_BASE_PATH}/_all_docs"
   end
 
   def build_save_request(obj)
