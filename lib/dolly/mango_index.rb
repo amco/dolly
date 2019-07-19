@@ -8,7 +8,9 @@ module Dolly
     class << self
       extend Forwardable
 
+      ALL_DOCS = '_all_docs'
       DESIGN = '_index'
+      ROWS_KEY = :rows
 
       def_delegators :connection, :get, :post
 
@@ -21,9 +23,8 @@ module Dolly
       end
 
       def find_by_fields(fields)
-        all.find do |index_doc|
-          index_doc.dig(:def, :fields).map(&:keys).flatten == fields
-        end
+        rows = get(ALL_DOCS, key: key_from_fields(fields))[ROWS_KEY]
+        rows && !rows.empty?
       end
 
       def delete_all
@@ -46,12 +47,17 @@ module Dolly
 
       def build_index_structure(name, fields, type)
         {
+          ddoc: key_from_fields(feilds),
           index: {
             fields: fields
           },
           name: name,
           type: type
         }
+      end
+
+      def key_from_fields(fields)
+        "index_#{fields.join('_')}"
       end
     end
   end
