@@ -6,7 +6,7 @@ module Dolly
 
     def save(options = {})
       return false unless options[:validate] == false || valid?
-      set_type if typed? && doc_type.nil?
+      set_type if typed? && type.nil?
       write_timestamps(persisted?)
       after_save(connection.put(id, doc))
     end
