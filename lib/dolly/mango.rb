@@ -26,13 +26,17 @@ module Dolly
       gte
       gt
       exists
-      type
       in
       nin
       size
       mod
       regex
     ].freeze
+
+    TYPE_OPERATOR = %I[
+      type
+      $type
+    ]
 
     ALL_OPERATORS = COMBINATION_OPERATORS + CONDITION_OPERATORS
 
@@ -77,7 +81,8 @@ module Dolly
     def build_selectors(query)
       query.deep_transform_keys do |key|
         next build_key(key) if is_operator?(key)
-        raise Dolly::InvalidMangoOperatorError.new(key) unless self.all_property_keys.include?(key)
+        next key if is_type_operator?(key)
+        raise Dolly::InvalidMangoOperatorError.new(key) unless has_property?(key)
         key
       end
     end
@@ -96,8 +101,16 @@ module Dolly
 
     def fetch_fields(query)
       deep_keys(query).reject do |key|
-        is_operator?(key)
+        is_operator?(key) || is_type_operator?(key)
       end
+    end
+
+    def has_property?(key)
+      self.all_property_keys.include?(key)
+    end
+
+    def is_type_operator?(key)
+      TYPE_OPERATOR.include?(key)
     end
 
     def deep_keys(obj)

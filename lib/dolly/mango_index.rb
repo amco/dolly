@@ -11,6 +11,7 @@ module Dolly
       ALL_DOCS = '_all_docs'
       DESIGN = '_index'
       ROWS_KEY = :rows
+      DESIGN_PREFIX = '_design/'
 
       def_delegators :connection, :get, :post
 
@@ -24,7 +25,7 @@ module Dolly
 
       def find_by_fields(fields)
         rows = get(ALL_DOCS, key: key_from_fields(fields))[ROWS_KEY]
-        rows && !rows.empty?
+        rows && rows.any?
       end
 
       def delete_all
@@ -47,7 +48,7 @@ module Dolly
 
       def build_index_structure(name, fields, type)
         {
-          ddoc: key_from_fields(feilds),
+          ddoc: key_from_fields(fields).gsub(DESIGN_PREFIX, ''),
           index: {
             fields: fields
           },
@@ -57,7 +58,7 @@ module Dolly
       end
 
       def key_from_fields(fields)
-        "index_#{fields.join('_')}"
+        "#{DESIGN_PREFIX}index_#{fields.join('_')}"
       end
     end
   end
