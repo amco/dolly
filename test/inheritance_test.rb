@@ -14,10 +14,10 @@ end
 
 class InheritanceTest < Test::Unit::TestCase
   test 'property inheritance' do
-    assert_equal(BaseBaseDoc.new.properties.map(&:key), [:supertype, :doc_type])
+    assert_equal(BaseBaseDoc.new.properties.map(&:key), [:supertype, :type])
   end
 
   test 'deep properties inheritance' do
-    assert_equal(NewBar.new.properties.map(&:key), [:a, :b, :supertype, :doc_type])
+    assert_equal(NewBar.new.properties.map(&:key), [:a, :b, :supertype, :type])
   end
 end
