@@ -12,6 +12,10 @@ class FooBar < BaseDolly
   timestamps!
 end
 
+class FooBarTyped < BaseDolly
+  typed_model
+end
+
 class MangoTest < Test::Unit::TestCase
   DB_BASE_PATH = "http://localhost:5984/test".freeze
 
@@ -57,15 +61,23 @@ class MangoTest < Test::Unit::TestCase
     stub_request(:post, query_base_path).
      to_return(body: resp.to_json)
 
+    key = 'foo'
+    stub_request(:get, "#{all_docs_path}?key=\"_design/index_#{key}\"").
+     to_return(body: index_response(key).to_json)
+
     assert_equal(FooBar.find_by(foo: 'bar').class, FooBar)
   end
 
   test '#find_by for a property that does not have an index' do
     #TODO: clean up all the fake request creation
     resp = { docs: [{ foo: 'bar', id: "foo_bar/1"} ] }
+    key = 'date'
 
     stub_request(:post, query_base_path).
      to_return(body: resp.to_json)
+
+    stub_request(:get, "#{all_docs_path}?key=\"_design/index_#{key}\"").
+     to_return(body: { rows: [] }.to_json)
 
     assert_raise Dolly::IndexNotFoundError do
       FooBar.find_by(date: Date.today)
@@ -78,6 +90,10 @@ class MangoTest < Test::Unit::TestCase
     stub_request(:post, query_base_path).
      to_return(body: resp.to_json)
 
+    key = 'foo'
+    stub_request(:get, "#{all_docs_path}?key=\"_design/index_#{key}\"").
+     to_return(body: index_response(key).to_json)
+
     assert_equal(FooBar.find_by(foo: 'bar'), nil)
   end
 
@@ -87,6 +103,10 @@ class MangoTest < Test::Unit::TestCase
 
     stub_request(:post, query_base_path).
      to_return(body: resp.to_json)
+
+    key = 'foo'
+    stub_request(:get, "#{all_docs_path}?key=\"_design/index_#{key}\"").
+     to_return(body: index_response(key).to_json)
 
     assert_equal(FooBar.find_doc_by(foo: 'bar').class, Hash)
   end
@@ -98,6 +118,10 @@ class MangoTest < Test::Unit::TestCase
     stub_request(:post, query_base_path).
      to_return(body: resp.to_json)
 
+    key = 'foo'
+    stub_request(:get, "#{all_docs_path}?key=\"_design/index_#{key}\"").
+     to_return(body: index_response(key).to_json)
+
     assert_equal(FooBar.where(foo: { eq: 'bar' }).map(&:class).uniq, [FooBar])
   end
 
@@ -107,6 +131,10 @@ class MangoTest < Test::Unit::TestCase
 
     stub_request(:post, query_base_path).
      to_return(body: resp.to_json)
+
+    key = 'date'
+    stub_request(:get, "#{all_docs_path}?key=\"_design/index_#{key}\"").
+     to_return(body: { rows: [] }.to_json)
 
     assert_raise Dolly::IndexNotFoundError do
       FooBar.where(date: Date.today)
@@ -119,6 +147,10 @@ class MangoTest < Test::Unit::TestCase
     stub_request(:post, query_base_path).
      to_return(body: resp.to_json)
 
+    key = 'foo'
+    stub_request(:get, "#{all_docs_path}?key=\"_design/index_#{key}\"").
+     to_return(body: index_response(key).to_json)
+
     assert_equal(FooBar.where(foo: 'bar'), [])
   end
 
@@ -128,6 +160,10 @@ class MangoTest < Test::Unit::TestCase
 
     stub_request(:post, query_base_path).
      to_return(body: resp.to_json)
+
+    key = 'foo'
+    stub_request(:get, "#{all_docs_path}?key=\"_design/index_#{key}\"").
+     to_return(body: index_response(key).to_json)
 
     assert_equal(FooBar.docs_where(foo: { eq: 'bar' }).map(&:class).uniq, [Hash])
   end
@@ -156,7 +192,24 @@ class MangoTest < Test::Unit::TestCase
     end
   end
 
+  test '#build_selectors with type operator' do
+    query = { _id: { type: "user" } }
+
+    assert_nothing_raised Dolly::InvalidMangoOperatorError do
+      FooBarTyped.send(:build_selectors, query)
+    end
+  end
+
+  test '#build_selectors with $type operator' do
+    query = { _id: { "$type" => "null" } }
+
+    assert_nothing_raised Dolly::InvalidMangoOperatorError do
+      FooBarTyped.send(:build_selectors, query)
+    end
+  end
+
   private
+
   def generic_response rows, count = 1
     {total_rows: count, offset:0, rows: rows}
   end
@@ -204,5 +257,17 @@ class MangoTest < Test::Unit::TestCase
   def build_save_request(obj)
     stub_request(:put, "#{DB_BASE_PATH}/#{CGI.escape(obj.id)}").
       to_return(body: {ok: true, id: obj.id, rev: "FF0000" }.to_json)
+  end
+
+  def index_response(key)
+    {
+      rows: [
+        {
+          id: "_design/index_#{key}",
+          key: "_design/index_#{key}",
+          value: { rev: '1-c5457a0d26da85f15c4ad6bd739e441d' }
+        }
+      ]
+    }
   end
 end

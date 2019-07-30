@@ -110,7 +110,7 @@ module Dolly
     end
 
     def is_type_operator?(key)
-      TYPE_OPERATOR.include?(key)
+      TYPE_OPERATOR.include?(key.to_sym)
     end
 
     def deep_keys(obj)
