@@ -67,7 +67,7 @@ module Dolly
       req.body = format_data(data, headers.json?)
       response = start_request(req)
 
-      response_format(response)
+      response_format(response, method)
     end
 
     private
@@ -79,9 +79,10 @@ module Dolly
       end
     end
 
-    def response_format(res)
+    def response_format(res, method)
       raise Dolly::ResourceNotFound if res.code.to_i == 404
       raise Dolly::ServerError.new(res.body) if (400..600).include? res.code.to_i
+      return res if method == :head
       Oj.load(res.body, symbol_keys: true)
     end
 

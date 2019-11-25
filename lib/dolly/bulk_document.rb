@@ -80,7 +80,7 @@ module Dolly
     end
 
     def response_error(item)
-      BulkError.new(error: 'Document saved but not local rev updated.', reason: "Document with id #{doc['id']} on bulk doc was not found in payload.", obj: nil)
+      BulkError.new(error: 'Document saved but not local rev updated.', reason: "Document with id #{item} on bulk doc was not found in payload.", obj: nil)
     end
   end
 end
