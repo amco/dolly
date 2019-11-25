@@ -12,6 +12,7 @@ module Dolly
     attr_reader :db, :app_env
 
     DEFAULT_HEADER = { 'Content-Type' => 'application/json' }
+    SECURE_PROTOCOL = 'https'
 
     using StringRefinements
 
@@ -75,8 +76,13 @@ module Dolly
     def start_request(req)
       Net::HTTP.start(req.uri.hostname, req.uri.port) do |http|
         req.basic_auth env['username'], env['password'] if env['username']&.present?
+        http.use_ssl = secure?
         http.request(req)
       end
+    end
+
+    def secure?
+      env['protocol'] == SECURE_PROTOCOL
     end
 
     def response_format(res, method)
