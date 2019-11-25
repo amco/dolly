@@ -42,7 +42,7 @@ namespace :db do
       begin
         hash_doc = Dolly::Document.connection.request(:get, view_doc["_id"])
 
-        rev = hash_doc.delete('_rev')
+        rev = hash_doc.delete(:_rev)
 
         if hash_doc == view_doc
           puts 'everything up to date'
