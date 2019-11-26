@@ -74,11 +74,12 @@ module Dolly
     private
 
     def start_request(req)
-      Net::HTTP.start(req.uri.hostname, req.uri.port) do |http|
-        req.basic_auth env['username'], env['password'] if env['username']&.present?
-        http.use_ssl = secure?
-        http.request(req)
-      end
+      req.basic_auth env['username'], env['password'] if env['username']&.present?
+
+      http = Net::HTTP.new(req.uri.host, req.uri.port)
+      http.use_ssl = secure?
+
+      http.request(req)
     end
 
     def secure?
