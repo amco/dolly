@@ -1,14 +1,17 @@
 require 'dolly/collection'
 require 'dolly/query_arguments'
 require 'dolly/document_type'
+require 'refinements/string_refinements'
 
 module Dolly
   module Query
     include QueryArguments
     include DocumentType
 
+    using StringRefinements
+
     def find *keys
-      query_hash = { keys: namespace_keys(keys) }
+      query_hash = { keys: namespace_keys(keys).map { |k| k.cgi_escape } }
 
       build_collection(query_hash).first_or_all&.itself ||
         raise(Dolly::ResourceNotFound)
