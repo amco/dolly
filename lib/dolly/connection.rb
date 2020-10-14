@@ -57,7 +57,7 @@ module Dolly
       get("/#{db_name}")
     end
 
-    de tools path, opts = nil
+    def tools path, opts = nil
       request(:get, "/#{path}", opts)
     end
 
@@ -89,41 +89,11 @@ module Dolly
       Curl.send(method, uri.to_s, data.to_json, &block)
     end
 
-    def start_request(req)
-      req.basic_auth env['username'], env['password'] if env['username']&.present?
-
-      http = Net::HTTP.new(req.uri.host, req.uri.port)
-      http.use_ssl = secure?
-
-      http.request(req)
-    end
-
-    def secure?
-      env['protocol'] == SECURE_PROTOCOL
-    end
-
     def response_format(res, method)
       raise Dolly::ResourceNotFound if res.status.to_i == 404
       raise Dolly::ServerError.new(res.status.to_i) if (400..600).include? res.status.to_i
       return res.header_str if method == :head
       Oj.load(res.body_str, symbol_keys: true)
-    end
-
-    def format_data(data = nil, is_json)
-      return unless data
-      body = data.delete(:_body) || data
-      is_json ? body.to_json : body
-    end
-
-    def build_uri(resource, query = nil)
-      query_str = "?#{to_query(query)}" if query
-      uri       = (resource =~ %r{^/}) ? resource : "/#{db_name}/#{resource}"
-
-      URI("#{base_uri}#{uri}#{query_str}")
-    end
-
-    def request_method(method_name)
-      Object.const_get("Net::HTTP::#{method_name.capitalize}")
     end
 
     def values_to_json hash
