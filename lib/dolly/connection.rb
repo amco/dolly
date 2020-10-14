@@ -1,3 +1,4 @@
+require 'curb'
 require 'oj'
 require 'cgi'
 require 'net/http'
@@ -71,7 +72,22 @@ module Dolly
       response_format(response, method)
     end
 
+    def curb(method, resource, data = {})
+      headers  = Dolly::HeaderRequest.new(data&.delete(:headers))
+      data.merge!(data&.delete(:query) || {})
+      uri = URI("#{auth_base_uri}#{resource}")
+      conn = curl_method_call(method, uri, data) do |curl|
+        headers.each { |k, v| curl.headers[k] = v } if headers.present?
+      end
+      response_format(conn, method)
+    end
+
     private
+
+    def curl_method_call(method, uri, data, &block)
+      return Curl::Easy.http_head(uri.to_s, &block) if method.to_sym == :head
+      Curl.send(method, uri, data, &block)
+    end
 
     def start_request(req)
       req.basic_auth env['username'], env['password'] if env['username']&.present?
@@ -87,10 +103,10 @@ module Dolly
     end
 
     def response_format(res, method)
-      raise Dolly::ResourceNotFound if res.code.to_i == 404
-      raise Dolly::ServerError.new(res.body) if (400..600).include? res.code.to_i
-      return res if method == :head
-      Oj.load(res.body, symbol_keys: true)
+      raise Dolly::ResourceNotFound if res.status.to_i == 404
+      raise Dolly::ServerError.new(res.status.to_i) if (400..600).include? res.status.to_i
+      return res.header_str if method == :head
+      Oj.load(res.body_str, symbol_keys: true)
     end
 
     def format_data(data = nil, is_json)

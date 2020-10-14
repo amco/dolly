@@ -13,6 +13,15 @@ module Dolly
       "#{protocol}#{host}#{port}"
     end
 
+    def auth_base_uri
+      "#{protocol}#{auth}#{host}#{port}"
+    end
+
+    def auth
+      return unless env['username']
+      "#{env['username']}:#{env['password']}@"
+    end
+
     def protocol
       "#{env['protocol']}://"
     end
