@@ -57,7 +57,7 @@ module Dolly
       get("/#{db_name}")
     end
 
-    def tools path, opts = nil
+    de tools path, opts = nil
       request(:get, "/#{path}", opts)
     end
 
@@ -65,12 +65,18 @@ module Dolly
       headers  = Dolly::HeaderRequest.new(data&.delete(:headers))
       data.merge!(data&.delete(:query) || {})
       db_resource = (resource =~ %r{^/}) ? resource : "/#{db_name}/#{resource}"
-      uri = URI("#{auth_base_uri}#{db_resource}")
+      uri = URI("#{base_uri}#{db_resource}")
 
       conn = curl_method_call(method, uri, data) do |curl|
-        headers.each { |k, v| curl.headers[k] = v } if headers.present?
-      end
+        if env['username'].present?
+          curl.http_auth_types = :basic
+          curl.username = env['username']
+          curl.password = env['password'].to_s
+        end
 
+        headers.each { |k, v| curl.headers[k] = v } if headers.present?
+        puts curl.headers.inspect
+      end
       response_format(conn, method)
     end
 
