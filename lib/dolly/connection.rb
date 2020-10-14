@@ -62,17 +62,6 @@ module Dolly
     end
 
     def request(method, resource, data = {})
-      headers  = Dolly::HeaderRequest.new data&.delete(:headers)
-      uri      = build_uri(resource, data&.delete(:query))
-      klass    = request_method(method)
-      req      = klass.new(uri, headers)
-      req.body = format_data(data, headers.json?)
-      response = start_request(req)
-
-      response_format(response, method)
-    end
-
-    def curb(method, resource, data = {})
       headers  = Dolly::HeaderRequest.new(data&.delete(:headers))
       data.merge!(data&.delete(:query) || {})
       uri = URI("#{auth_base_uri}#{resource}")
