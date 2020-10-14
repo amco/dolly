@@ -66,6 +66,7 @@ module Dolly
       data.merge!(data&.delete(:query) || {})
       db_resource = (resource =~ %r{^/}) ? resource : "/#{db_name}/#{resource}"
       uri = URI("#{auth_base_uri}#{db_resource}")
+      puts data.inspect
       conn = curl_method_call(method, uri, data) do |curl|
         headers.each { |k, v| curl.headers[k] = v } if headers.present?
       end
@@ -96,6 +97,7 @@ module Dolly
       raise Dolly::ResourceNotFound if res.status.to_i == 404
       raise Dolly::ServerError.new(res.status.to_i) if (400..600).include? res.status.to_i
       return res.header_str if method == :head
+      puts res.body_str
       Oj.load(res.body_str, symbol_keys: true)
     end
 
