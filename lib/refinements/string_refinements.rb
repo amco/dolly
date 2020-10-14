@@ -16,12 +16,10 @@ module StringRefinements
     def cgi_escape
       return if nil?
       return self unless escapable?
-      return self
       CGI.escape self
     end
 
     def escapable?
-      return false if self =~ /%/
       UNESCAPABLE_PATTERNS.none? do |pattern|
         self =~ pattern
       end

@@ -12,7 +12,7 @@ module Dolly
     include Dolly::Configuration
     attr_reader :db, :app_env
 
-    DEFAULT_HEADER = { 'Content-Type' => 'application/json' }
+    DEFAULT_HEADER = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
     SECURE_PROTOCOL = 'https'
 
     using StringRefinements
@@ -24,7 +24,7 @@ module Dolly
 
     def get(resource, data = {})
       query = { query: values_to_json(data) } if data
-      request :get, resource.cgi_escape, query
+      request :get, resource, query
     end
 
     def post resource, data
@@ -37,7 +37,7 @@ module Dolly
 
     def delete resource, rev = nil, escape: true
       query = { query: { rev: rev } } if rev
-      resource = resource.cgi_escape if escape
+      resource = resource if escape
       request :delete, resource, query
     end
 
@@ -66,10 +66,11 @@ module Dolly
       data.merge!(data&.delete(:query) || {})
       db_resource = (resource =~ %r{^/}) ? resource : "/#{db_name}/#{resource}"
       uri = URI("#{auth_base_uri}#{db_resource}")
-      puts data.inspect
+
       conn = curl_method_call(method, uri, data) do |curl|
         headers.each { |k, v| curl.headers[k] = v } if headers.present?
       end
+
       response_format(conn, method)
     end
 
@@ -77,7 +78,8 @@ module Dolly
 
     def curl_method_call(method, uri, data, &block)
       return Curl::Easy.http_head(uri.to_s, &block) if method.to_sym == :head
-      Curl.send(method, uri, data, &block)
+      return Curl.send(method, uri, data, &block) if method.to_sym == :get
+      Curl.send(method, uri.to_s, data.to_json, &block)
     end
 
     def start_request(req)
@@ -97,7 +99,6 @@ module Dolly
       raise Dolly::ResourceNotFound if res.status.to_i == 404
       raise Dolly::ServerError.new(res.status.to_i) if (400..600).include? res.status.to_i
       return res.header_str if method == :head
-      puts res.body_str
       Oj.load(res.body_str, symbol_keys: true)
     end
 
