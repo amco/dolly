@@ -37,7 +37,7 @@ module Dolly
 
     def delete resource, rev = nil, escape: true
       query = { query: { rev: rev } } if rev
-      resource = resource.cgi_escape if escape
+      resource = resource if escape
       request :delete, resource, query
     end
 
@@ -77,7 +77,8 @@ module Dolly
     private
 
     def curl_method_call(method, uri, data, &block)
-      return Curl::Easy.http_head(uri.to_s, &block) if %i[head delete].include? method.to_sym
+      return Curl::Easy.http_head(uri.to_s, &block) if method.to_sym == :head
+      return Curl.delete(uri.to_s, &block) if method.to_sym == :delete
       return Curl.send(method, uri, data, &block) if method.to_sym == :get
       Curl.send(method, uri.to_s, data.to_json, &block)
     end
