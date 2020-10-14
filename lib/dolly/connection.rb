@@ -64,7 +64,8 @@ module Dolly
     def request(method, resource, data = {})
       headers  = Dolly::HeaderRequest.new(data&.delete(:headers))
       data.merge!(data&.delete(:query) || {})
-      uri = URI("#{auth_base_uri}/#{resource}")
+      db_resource = (resource =~ %r{^/}) ? resource : "/#{db_name}/#{resource}"
+      uri = URI("#{auth_base_uri}#{db_resource}")
       conn = curl_method_call(method, uri, data) do |curl|
         headers.each { |k, v| curl.headers[k] = v } if headers.present?
       end
