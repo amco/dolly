@@ -37,7 +37,7 @@ module Dolly
 
     def delete resource, rev = nil, escape: true
       query = { query: { rev: rev } } if rev
-      resource = resource if escape
+      resource = resource.cgi_escape if escape
       request :delete, resource, query
     end
 
