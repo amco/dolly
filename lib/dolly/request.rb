@@ -115,7 +115,6 @@ module Dolly
     def curl_method_call(method, resource, data, &block)
       full_uri = resource.include?('http:') ? resource : "#{base_uri}#{resource}"
       uri = URI(full_uri)
-      puts uri.inspect
 
       return Curl::Easy.http_head(uri.to_s, &block) if method.to_sym == :head
       return Curl.delete(uri.to_s, &block) if method.to_sym == :delete
