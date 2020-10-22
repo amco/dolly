@@ -1,13 +1,21 @@
-require "httparty"
 require "dolly/bulk_document"
 
 module Dolly
 
   class Request
-    include HTTParty
     REQUIRED_KEYS = %w/host port name/.freeze
+    DollyResponse = Struct.new(:parsed_response, :code) do
+      def to_str
+        parsed_response
+      end
+    end
 
     attr_accessor :database_name, :host, :port, :bulk_document
+
+    def self.base_uri(str = nil)
+      return @@base_uri unless str
+      @@base_uri = str
+    end
 
     def initialize options = {}
       REQUIRED_KEYS.each do |key|
@@ -66,11 +74,29 @@ module Dolly
 
     def request method, resource, data = nil
       data ||= {}
-      data.merge!(basic_auth: auth_info) if auth_info.present?
+      data.merge!(data&.delete(:query) || {})
+
+      body = data&.delete(:body) || {}
+      body = JSON.parse(body) unless body.is_a? Hash
+      data.merge!(body || {})
+
       headers = { 'Content-Type' => 'application/json' }
       headers.merge! data[:headers] if data[:headers]
-      response = self.class.send method, resource, data.merge(headers: headers)
+
+      conn = curl_method_call(method, resource, data) do |curl|
+        if @username.present?
+          curl.http_auth_types = :basic
+          curl.username = @username
+          curl.password = @password.to_s
+        end
+
+        headers.each { |k, v| curl.headers[k] = v } if headers.present?
+      end
+
+      response = response_format(conn)
+
       log_request(resource, response.code) if Dolly.log_requests?
+
       if response.code == 404
         raise Dolly::ResourceNotFound
       elsif (400..600).include? response.code
@@ -81,11 +107,31 @@ module Dolly
     end
 
     private
+
+    def base_uri
+      @@base_uri
+    end
+
+    def curl_method_call(method, resource, data, &block)
+      full_uri = resource.include?('http:') ? resource : "#{base_uri}#{resource}"
+      uri = URI(full_uri)
+      puts uri.inspect
+
+      return Curl::Easy.http_head(uri.to_s, &block) if method.to_sym == :head
+      return Curl.delete(uri.to_s, &block) if method.to_sym == :delete
+      return Curl.send(method, uri, data, &block) if method.to_sym == :get
+      Curl.send(method, uri.to_s, data.to_json, &block)
+    end
+
+    def response_format(res)
+      DollyResponse.new res.body_str, res.status.to_i
+    end
+
     def tools path, opts = nil
       data = {}
       q = "?#{CGI.unescape(opts.to_query)}" unless opts.blank?
       data.merge!(basic_auth: auth_info) if auth_info.present?
-      JSON::parse self.class.get("/#{path}#{q}", data)
+      JSON::parse request(:get, "/#{path}#{q}", data).parsed_response
     end
 
     def auth_info

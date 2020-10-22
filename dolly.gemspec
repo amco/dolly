@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "railties"
-  spec.add_dependency "httparty"
+  spec.add_dependency "curb"
 
   #TODO: Change tests to run independent of rails
   #removing the need for raisl at all.
