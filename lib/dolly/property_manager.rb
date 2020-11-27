@@ -2,6 +2,7 @@ module Dolly
   module PropertyManager
     def build_property(attributes)
       assign_identity_properties(attributes)
+      assign_rev_properties(attributes)
 
       lambda do |property|
         name = property.key.to_sym
@@ -42,6 +43,11 @@ module Dolly
     def assign_identity_properties(opts = {})
       id_presence = opts[:id] || opts[:_id] || opts['id'] || opts['_id']
       self.id = id_presence if id_presence
+    end
+
+    def assign_rev_properties(opts = {})
+      rev_presence = opts[:rev] || opts [:_rev] || opts['rev'] || opts['_rev']
+      self.rev = rev_presence if rev_presence
     end
   end
 end
