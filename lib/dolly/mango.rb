@@ -47,7 +47,6 @@ module Dolly
     end
 
     def find_doc_by(query, opts = {})
-      raise Dolly::IndexNotFoundError unless index_exists?(query)
       opts.merge!(limit: 1)
       perform_query(build_query(query, opts))[:docs].first
     end
@@ -59,7 +58,6 @@ module Dolly
     end
 
     def docs_where(query, opts = {})
-      raise Dolly::IndexNotFoundError unless index_exists?(query)
       perform_query(build_query(query, opts))[:docs]
     end
 
@@ -67,7 +65,7 @@ module Dolly
 
     def build_model_from_doc(doc)
       return nil if doc.nil?
-      new(doc.slice(*all_property_keys))
+      new(doc.slice(*all_property_keys)).tap { |d| d.rev = doc[:_rev] }
     end
 
     def perform_query(structured_query)
@@ -93,10 +91,6 @@ module Dolly
 
     def is_operator?(key)
       ALL_OPERATORS.include?(key)
-    end
-
-    def index_exists?(query)
-      Dolly::MangoIndex.find_by_fields(fetch_fields(query))
     end
 
     def fetch_fields(query)

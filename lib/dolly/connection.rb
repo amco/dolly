@@ -75,7 +75,7 @@ module Dolly
         end
 
         headers.each { |k, v| curl.headers[k] = v } if headers.present?
-        puts curl.headers.inspect
+        curl.set(:HTTP_VERSION, Curl::HTTP_2_0)
       end
       response_format(conn, method)
     end
