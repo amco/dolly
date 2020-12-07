@@ -66,7 +66,6 @@ module Dolly
       data.merge!(data&.delete(:query) || {})
       db_resource = (resource =~ %r{^/}) ? resource : "/#{db_name}/#{resource}"
       uri = URI("#{base_uri}#{db_resource}")
-
       conn = curl_method_call(method, uri, data) do |curl|
         if env['username'].present?
           curl.http_auth_types = :basic
@@ -75,7 +74,6 @@ module Dolly
         end
 
         headers.each { |k, v| curl.headers[k] = v } if headers.present?
-        curl.set(:HTTP_VERSION, Curl::HTTP_2_0)
       end
       response_format(conn, method)
     end
