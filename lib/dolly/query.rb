@@ -14,8 +14,7 @@ module Dolly
       query_hash = { keys: namespace_keys(keys).map { |k| k.cgi_escape } }
       return [] if query_hash[:keys].none?
 
-      keys_to_find_counter = query_hash[:keys].length
-      build_collection(query_hash).first_or_all(keys_to_find_counter > 1)&.itself ||
+      build_collection(query_hash).first_or_all&.itself ||
         raise(Dolly::ResourceNotFound)
     end
 
