@@ -12,7 +12,6 @@ module Dolly
 
     def find *keys
       query_hash = { keys: namespace_keys(keys).map { |k| k.cgi_escape } }
-      return [] if query_hash[:keys].none?
 
       build_collection(query_hash).first_or_all&.itself ||
         raise(Dolly::ResourceNotFound)
