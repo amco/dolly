@@ -1,19 +1,19 @@
 module Dolly
   module Request
-    def set_namespace name
-      @namespace = name
+    def set_db_namespace(name)
+      @_db_namespace = name
     end
 
-    def set_app_env env
+    def set_app_env(env)
       @app_env = env
     end
 
     def connection
-      @connection ||= Connection.new(namespace, app_env)
+      @connection ||= Connection.new(db_namespace, app_env)
     end
 
-    def namespace
-      @namespace ||= :default
+    def db_namespace
+      @_db_namespace ||= :default
     end
 
     def app_env

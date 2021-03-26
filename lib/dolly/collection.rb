@@ -6,6 +6,7 @@ module Dolly
       @options = options
       #TODO: We should raise an exception if one of the
       #      requested documents is missing
+
       super rows[:rows].map(&collect_docs).compact
     end
 
