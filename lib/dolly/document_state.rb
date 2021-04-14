@@ -17,7 +17,7 @@ module Dolly
     end
 
     def update_properties(properties)
-      properties.each(&update_attribute)
+      properties.deep_symbolize_keys.each(&update_attribute)
     end
 
     def update_properties!(properties)
