@@ -47,7 +47,7 @@ module Dolly
     end
 
     def find_doc_by(query, opts = {})
-      raise Dolly::IndexNotFoundError unless index_exists?(query)
+      raise Dolly::IndexNotFoundError.new(query) unless index_exists?(query)
       opts.merge!(limit: 1)
       perform_query(build_query(query, opts))[:docs].first
     end
@@ -59,7 +59,7 @@ module Dolly
     end
 
     def docs_where(query, opts = {})
-      raise Dolly::IndexNotFoundError unless index_exists?(query)
+      raise Dolly::IndexNotFoundError.new(query) unless index_exists?(query)
       perform_query(build_query(query, opts))[:docs]
     end
 
