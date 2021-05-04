@@ -3,7 +3,7 @@
 module Dolly
   module QueryArguments
     def last_item_in_range
-      URI.escape("\ufff0")
+      "\ufff0"
     end
 
     def default_query_args

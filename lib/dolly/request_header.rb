@@ -7,7 +7,7 @@ module Dolly
     CONTENT_TYPE_KEY = 'Content-Type'
     JSON_CONTENT = 'application/json'
 
-    def_delegators :@collection, :[], :[]=, :keys, :each
+    def_delegators :@collection, :[], :[]=, :keys, :each, :present?, :merge!
 
     def initialize hash = nil
       @collection = hash || default_value
