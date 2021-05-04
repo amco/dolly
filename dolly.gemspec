@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "oj"
   spec.add_development_dependency "bundler", "~> 2.0"
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rake", "~> 13.0"
   spec.add_development_dependency "test-unit-full"
   spec.add_development_dependency "webmock"
   spec.add_development_dependency "mocha"
