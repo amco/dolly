@@ -25,16 +25,7 @@ module Dolly
 
       def find_by_fields(fields)
         rows = get(ALL_DOCS, key: key_from_fields(fields))[ROWS_KEY]
-        (rows && rows.any?).tap do |result|
-          unless result
-            message = "Index #{key_from_fields(fields)} not found"
-            if defined?(Rails.logger)
-              Rails.logger.info(message)
-            else
-              puts message
-            end
-          end
-        end
+        (rows && rows.any?)
       end
 
       def delete_all
