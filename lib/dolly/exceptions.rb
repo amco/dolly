@@ -25,16 +25,7 @@ module Dolly
     end
   end
 
-  class IndexNotFoundError < RuntimeError
-    def initialize query
-      @query = query
-    end
-
-    def to_s
-      "Mango index not found: #{@query.inspect}"
-    end
-  end
-
+  class IndexNotFoundError < RuntimeError; end
   class InvalidConfigFileError < RuntimeError; end
   class InvalidProperty < RuntimeError; end
   class DocumentInvalidError < RuntimeError; end
