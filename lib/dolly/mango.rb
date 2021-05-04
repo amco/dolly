@@ -47,10 +47,8 @@ module Dolly
     end
 
     def find_doc_by(query, opts = {})
-      raise Dolly::IndexNotFoundError unless index_exists?(query)
       opts.merge!(limit: 1)
       response = perform_query(build_query(query, opts))
-      Rails.logger.info response.inspect
       response[:docs].first
     end
 
@@ -61,12 +59,11 @@ module Dolly
     end
 
     def docs_where(query, opts = {})
-      raise Dolly::IndexNotFoundError.new(query) unless index_exists?(query)
       response = perform_query(build_query(query, opts))
       response[:docs]
     end
 
-    def self.find_bare(id, fields, options = {})
+    def find_bare(id, fields, options = {})
       q = { _id: id }
       opts = { fields: fields }.merge(options)
       query = build_query(q, opts)
@@ -74,7 +71,7 @@ module Dolly
       response[:docs]
     end
 
-    def self.where_bare(ids, fields, options = {})
+    def where_bare(ids, fields, options = {})
       q = { _id: { in: ids } }
       opts = { fields: fields, limit: ids.length }.merge(options)
       query = build_query(q, opts)
@@ -82,12 +79,12 @@ module Dolly
       response[:docs]
     end
 
-    def self.find_doc_by_with_metadata(query, options = {})
+    def find_doc_by_with_metadata(query, options = {})
       opts = options.merge!(limit: 1)
       perform_query(build_query(query, opts))
     end
 
-    def self.docs_where_with_metadata(query, options = {})
+    def docs_where_with_metadata(query, options = {})
       perform_query(build_query(query, options))
     end
 
@@ -99,7 +96,7 @@ module Dolly
 
     def build_model_from_doc(doc)
       return nil if doc.nil?
-      new(doc.slice(*all_property_keys))
+      new(doc.slice(*all_property_keys)).tap { |d| d.rev = doc[:_rev] }
     end
 
     def build_query(query, opts)
@@ -121,10 +118,6 @@ module Dolly
 
     def is_operator?(key)
       ALL_OPERATORS.include?(key)
-    end
-
-    def index_exists?(query)
-      Dolly::MangoIndex.find_by_fields(fetch_fields(query))
     end
 
     def fetch_fields(query)

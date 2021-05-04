@@ -11,7 +11,7 @@ module Dolly
     using StringRefinements
 
     def find *keys
-      query_hash = { keys: namespace_keys(keys).map { |k| k.cgi_escape } }
+      query_hash = { keys: namespace_keys(keys) }
 
       build_collection(query_hash).first_or_all&.itself ||
         raise(Dolly::ResourceNotFound)
@@ -46,7 +46,7 @@ module Dolly
     end
 
     def find_with doc, view_name, opts = {}
-      opts          = opts.each_with_object({}) { |(k, v), h| h[k] = escape_value(v) }
+      opts          = opts.each_with_object({}) { |(k, v), h| h[k] = v }
       query_results = raw_view(doc, view_name, opts)
 
       Collection.new({ rows: query_results, options: {} }).first_or_all
