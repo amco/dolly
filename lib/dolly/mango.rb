@@ -78,7 +78,7 @@ module Dolly
 
     def build_model_from_doc(doc)
       return nil if doc.nil?
-      new(doc.slice(*all_property_keys))
+      new(doc.slice(*all_property_keys)).tap { |d| d.rev = doc[:_rev] }
     end
 
     def perform_query(structured_query)
@@ -105,10 +105,6 @@ module Dolly
 
     def is_operator?(key)
       ALL_OPERATORS.include?(key) || key.to_s.starts_with?(SELECTOR_SYMBOL)
-    end
-
-    def index_exists?(query)
-      Dolly::MangoIndex.find_by_fields(fetch_fields(query))
     end
 
     def fetch_fields(query)
