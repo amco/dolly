@@ -71,10 +71,9 @@ module Dolly
       response[:docs]
     end
 
-    def where_bare(ids, fields, options = {})
-      q = { _id: { in: ids } }
-      opts = { fields: fields, limit: ids.length }.merge(options)
-      query = build_query(q, opts)
+    def where_bare(selector, fields, options = {})
+      opts = { fields: fields }.merge(options)
+      query = build_query(selector, opts)
       response = perform_query(query)
       response[:docs]
     end
