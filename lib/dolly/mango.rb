@@ -48,7 +48,9 @@ module Dolly
 
     def find_doc_by(query, opts = {})
       opts.merge!(limit: 1)
-      perform_query(build_query(query, opts))[:docs].first
+      response = perform_query(build_query(query, opts))
+      print_index_warning(query) if response.fetch(:warning)
+      response[:docs].first
     end
 
     def where(query, opts = {})
@@ -58,10 +60,21 @@ module Dolly
     end
 
     def docs_where(query, opts = {})
-      perform_query(build_query(query, opts))[:docs]
+      response = perform_query(build_query(query, opts))
+      print_index_warning(query) if response.fetch(:warning)
+      response[:docs]
     end
 
     private
+
+    def print_index_warning(query)
+      message = "Index not found for #{query.inspect}"
+      if (defined?(Rails.logger) && Rails&.env&.development?)
+        Rails.logger.info(message)
+      else
+        puts message
+      end
+    end
 
     def build_model_from_doc(doc)
       return nil if doc.nil?
@@ -86,11 +99,12 @@ module Dolly
     end
 
     def build_key(key)
+      return key if key.to_s.starts_with?(SELECTOR_SYMBOL)
       "#{SELECTOR_SYMBOL}#{key}"
     end
 
     def is_operator?(key)
-      ALL_OPERATORS.include?(key)
+      ALL_OPERATORS.include?(key) || key.to_s.starts_with?(SELECTOR_SYMBOL)
     end
 
     def fetch_fields(query)

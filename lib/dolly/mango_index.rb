@@ -29,7 +29,7 @@ module Dolly
 
       def find_by_fields(fields)
         rows = get(ALL_DOCS, key: key_from_fields(fields))[ROWS_KEY]
-        rows && rows.any?
+        (rows && rows.any?)
       end
 
       def delete_all
