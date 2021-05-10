@@ -18,7 +18,7 @@ GEM
     oj (3.9.2)
     power_assert (1.1.4)
     public_suffix (3.1.0)
-    rake (10.5.0)
+    rake (13.0.3)
     rr (1.2.1)
     safe_yaml (1.0.5)
     test-unit (3.3.3)
@@ -50,7 +50,7 @@ DEPENDENCIES
   bundler (~> 2.0)
   dolly!
   mocha
-  rake (~> 10.0)
+  rake (~> 13.0)
   test-unit-full
   webmock
 
