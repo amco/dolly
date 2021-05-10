@@ -14,10 +14,11 @@ module Dolly
 
     DEFAULT_HEADER = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
     SECURE_PROTOCOL = 'https'
+    DEFAULT_DATABASE = :default
 
     using StringRefinements
 
-    def initialize db = :default, app_env = :development
+    def initialize db = DEFAULT_DATABASE, app_env = :development
       @db      = db
       @app_env = app_env
     end

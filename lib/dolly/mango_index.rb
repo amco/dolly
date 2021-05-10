@@ -23,6 +23,10 @@ module Dolly
         post(DESIGN, build_index_structure(name, fields, type))
       end
 
+      def create_in_database(database, name, fields, type = 'json')
+        connection_for_database(database).post(DESIGN, build_index_structure(name, fields, type))
+      end
+
       def find_by_fields(fields)
         rows = get(ALL_DOCS, key: key_from_fields(fields))[ROWS_KEY]
         rows && rows.any?
@@ -41,6 +45,10 @@ module Dolly
       end
 
       private
+
+      def connection_for_database(database)
+        Dolly::Connection.new(database.to_sym, Rails.env || :development)
+      end
 
       def connection
         @connection ||= Dolly::Document.connection
