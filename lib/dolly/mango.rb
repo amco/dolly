@@ -89,6 +89,12 @@ module Dolly
       perform_query(build_query(query, options))
     end
 
+    def perform_query(structured_query)
+      connection.post(DESIGN, structured_query)
+    end
+
+    private
+
     def print_index_warning(query)
       message = "Index not found for #{query.inspect}"
       if (defined?(Rails.logger) && Rails&.env&.development?)
@@ -97,12 +103,6 @@ module Dolly
         puts message
       end
     end
-
-    def perform_query(structured_query)
-      connection.post(DESIGN, structured_query)
-    end
-
-    private
 
     def build_model_from_doc(doc)
       return nil if doc.nil?
