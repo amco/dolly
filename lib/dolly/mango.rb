@@ -65,6 +65,34 @@ module Dolly
       response[:docs]
     end
 
+    def find_bare(id, fields, options = {})
+      q = { _id: id }
+      opts = { fields: fields }.merge(options)
+      query = build_query(q, opts)
+      response = perform_query(query)
+      response[:docs]
+    end
+
+    def where_bare(selector, fields, options = {})
+      opts = { fields: fields }.merge(options)
+      query = build_query(selector, opts)
+      response = perform_query(query)
+      response[:docs]
+    end
+
+    def find_with_metadata(query, options = {})
+      opts = options.merge!(limit: 1)
+      perform_query(build_query(query, opts))
+    end
+
+    def where_with_metadata(query, options = {})
+      perform_query(build_query(query, options))
+    end
+
+    def perform_query(structured_query)
+      connection.post(DESIGN, structured_query)
+    end
+
     private
 
     def print_index_warning(query)
@@ -79,10 +107,6 @@ module Dolly
     def build_model_from_doc(doc)
       return nil if doc.nil?
       new(doc.slice(*all_property_keys)).tap { |d| d.rev = doc[:_rev] }
-    end
-
-    def perform_query(structured_query)
-      connection.post(DESIGN, structured_query)
     end
 
     def build_query(query, opts)
