@@ -23,7 +23,7 @@ module Dolly
         keys: keys_to_find.map { |key| namespace_key(key) }
       }
 
-      res = connection.post("_all_docs", data)
+      res = connection.post('_all_docs', data)
       Collection.new(rows: res, options: { doc_type: self.class_name })
     end
 
