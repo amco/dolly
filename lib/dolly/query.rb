@@ -17,8 +17,18 @@ module Dolly
         raise(Dolly::ResourceNotFound)
     end
 
+    def bulk_find(*keys_to_find)
+      data = {
+        query: { include_docs: true },
+        keys: keys_to_find.map { |key| namespace_key(key) }
+      }
+
+      res = connection.post('_all_docs', data)
+      Collection.new(rows: res, options: { doc_type: self.class_name })
+    end
+
     def find_all(*keys)
-      query_hash = { keys: namespace_keys(keys).map { |k| k.cgi_escape } }
+      query_hash = { keys: namespace_keys(keys) }
       return [] if query_hash[:keys].none?
 
       keys_to_find_counter = query_hash[:keys].length

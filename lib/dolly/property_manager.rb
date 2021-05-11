@@ -18,14 +18,14 @@ module Dolly
       end
     end
 
-    def write_attribute key, value
+    def write_attribute(key, value)
       value = set_property_value(key, value)
       instance_variable_set(:"@#{key}", value)
-      update_doc(key, value) unless value.nil?
+      update_doc(key, value)
     end
 
     def valid_property?(name)
-      properties.include? name
+      properties.include?(name)
     end
 
     def update_doc(key, value)
