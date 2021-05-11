@@ -49,7 +49,7 @@ module Dolly
     def find_doc_by(query, opts = {})
       opts.merge!(limit: 1)
       response = perform_query(build_query(query, opts))
-      print_index_warning(query) if response.fetch(:warning)
+      print_index_warning(query) if response.fetch(:warning, nil)
       response[:docs].first
     end
 
@@ -61,7 +61,7 @@ module Dolly
 
     def docs_where(query, opts = {})
       response = perform_query(build_query(query, opts))
-      print_index_warning(query) if response.fetch(:warning)
+      print_index_warning(query) if response.fetch(:warning, nil)
       response[:docs]
     end
 
