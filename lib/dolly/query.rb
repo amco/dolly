@@ -28,7 +28,7 @@ module Dolly
     end
 
     def find_all(*keys)
-      query_hash = { keys: namespace_keys(keys).map { |k| k.cgi_escape } }
+      query_hash = { keys: namespace_keys(keys) }
       return [] if query_hash[:keys].none?
 
       keys_to_find_counter = query_hash[:keys].length
