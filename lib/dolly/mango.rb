@@ -78,12 +78,12 @@ module Dolly
       response[:docs]
     end
 
-    def find_doc_by_with_metadata(query, options = {})
+    def find_with_metadata(query, options = {})
       opts = options.merge!(limit: 1)
       perform_query(build_query(query, opts))
     end
 
-    def docs_where_with_metadata(query, options = {})
+    def where_with_metadata(query, options = {})
       perform_query(build_query(query, options))
     end
 
