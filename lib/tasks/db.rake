@@ -69,7 +69,6 @@ namespace :db do
 
       files.each do |file|
         index_data = JSON.parse(File.read(file))
-
         database = index_data.fetch('db', 'default').to_sym
         puts "*" * 100
         puts "Creating index: #{index_data["name"]} for database: #{database}"
