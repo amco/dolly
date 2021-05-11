@@ -17,9 +17,9 @@ module Dolly
         raise(Dolly::ResourceNotFound)
     end
 
-    def bulk_find(*keys_to_find, include_docs = true)
+    def bulk_find(*keys_to_find)
       data = {
-        query: { include_docs: include_docs },
+        query: { include_docs: true },
         keys: keys_to_find.map { |key| namespace_key(key) }
       }
 
