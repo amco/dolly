@@ -49,6 +49,7 @@ module Dolly
     def find_doc_by(query, opts = {})
       opts.merge!(limit: 1)
       response = perform_query(build_query(query, opts))
+      print_index_warning(query) if response.fetch(:warning)
       response[:docs].first
     end
 
@@ -60,6 +61,7 @@ module Dolly
 
     def docs_where(query, opts = {})
       response = perform_query(build_query(query, opts))
+      print_index_warning(query) if response.fetch(:warning)
       response[:docs]
     end
 
@@ -87,6 +89,15 @@ module Dolly
       perform_query(build_query(query, options))
     end
 
+    def print_index_warning(query)
+      message = "Index not found for #{query.inspect}"
+      if (defined?(Rails.logger) && Rails&.env&.development?)
+        Rails.logger.info(message)
+      else
+        puts message
+      end
+    end
+
     def perform_query(structured_query)
       connection.post(DESIGN, structured_query)
     end
@@ -112,11 +123,12 @@ module Dolly
     end
 
     def build_key(key)
+      return key if key.to_s.starts_with?(SELECTOR_SYMBOL)
       "#{SELECTOR_SYMBOL}#{key}"
     end
 
     def is_operator?(key)
-      ALL_OPERATORS.include?(key)
+      ALL_OPERATORS.include?(key) || key.to_s.starts_with?(SELECTOR_SYMBOL)
     end
 
     def fetch_fields(query)
