@@ -30,7 +30,7 @@ module Dolly
     end
 
     def property_clean_doc(doc)
-      doc.reject { |key, _value| !property_keys.include?(key) }
+      doc.reject { |key, _value| property_keys.exclude?(key.to_sym) }
     end
   end
 end

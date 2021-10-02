@@ -10,7 +10,9 @@ module Dolly
     end
 
     def from_json(json)
-      from_doc(Oj.load(json, symbol_keys: true))
+      raw_data = Oj.load(json, symbol_keys: true)
+      data = defined?(ActiveSupport::HashWithIndifferentAccess) ? data.with_indifferent_access : raw_data
+      from_doc(data)
     end
 
     def create(attributes)
