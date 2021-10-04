@@ -5,7 +5,7 @@ module Dolly
       assign_rev_properties(attributes)
 
       lambda do |property|
-        name = property.key.to_sym
+        name = property.key
         next unless doc[name].nil?
         write_attribute(name, attributes[name])
       end

@@ -92,7 +92,12 @@ module Dolly
       raise Dolly::ResourceNotFound if res.status.to_i == 404
       raise Dolly::ServerError.new(res.status.to_i) if (400..600).include? res.status.to_i
       return res.header_str if method == :head
-      Oj.load(res.body_str, symbol_keys: true)
+
+      data = Oj.load(res.body_str, symbol_keys: true)
+      return data unless defined?(ActiveSupport::HashWithIndifferentAccess)
+      data.with_indifferent_access
+    rescue Oj::ParseError
+      res.body_str
     end
 
     def values_to_json hash

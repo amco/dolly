@@ -16,8 +16,13 @@ module Dolly
     def cast_value(value)
       return set_default if value.nil?
       return value unless class_name
-      return self_klass.new(value) unless respond_to?(klass_sym)
+      return custom_class(value) unless respond_to?(klass_sym)
       send(klass_sym, value)
+    end
+
+    def custom_class(value)
+      value = value.is_a?(Hash) ? value.symbolize_keys : value
+      self_klass.new(value)
     end
 
     def boolean?
@@ -30,6 +35,14 @@ module Dolly
 
     def hash_value(value)
       value.to_h
+    end
+
+    def hash_with_indifferent_access_value(value)
+      if defined?(Rails)
+        value.to_h.with_indifferent_access
+      else
+        value.to_h
+      end
     end
 
     def integer_value(value)
@@ -70,7 +83,13 @@ module Dolly
     end
 
     def klass_sym
-      :"#{self_klass.name.underscore}_value"
+      klass_name = self_klass.
+                   name.
+                   split('::').
+                   last.
+                   underscore
+
+      :"#{klass_name}_value"
     end
 
     def self_klass
