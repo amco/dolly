@@ -19,9 +19,9 @@ module Dolly
     end
 
     def write_attribute(key, value)
-      value = set_property_value(key, value)
-      instance_variable_set(:"@#{key}", value)
-      update_doc(key, value)
+      casted_value = set_property_value(key, value)
+      instance_variable_set(:"@#{key}", casted_value)
+      update_doc(key, casted_value)
     end
 
     def valid_property?(name)

@@ -6,10 +6,12 @@ require 'dolly/request_header'
 require 'dolly/exceptions'
 require 'dolly/configuration'
 require 'refinements/string_refinements'
+require 'dolly/framework_helper'
 
 module Dolly
   class Connection
     include Dolly::Configuration
+    include Dolly::FrameworkHelper
     attr_reader :db, :app_env
 
     DEFAULT_HEADER = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
@@ -94,7 +96,7 @@ module Dolly
       return res.header_str if method == :head
 
       data = Oj.load(res.body_str, symbol_keys: true)
-      return data unless defined?(ActiveSupport::HashWithIndifferentAccess)
+      return data unless rails?
       data.with_indifferent_access
     rescue Oj::ParseError
       res.body_str
