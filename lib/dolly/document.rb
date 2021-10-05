@@ -15,6 +15,7 @@ require 'dolly/timestamp'
 require 'dolly/query_arguments'
 require 'dolly/document_creation'
 require 'dolly/class_methods_delegation'
+require 'dolly/framework_helper'
 require 'refinements/string_refinements'
 
 module Dolly
@@ -35,6 +36,7 @@ module Dolly
     include Attachment
     include QueryArguments
     include ClassMethodsDelegation
+    include FrameworkHelper
 
     attr_writer :doc
 
@@ -46,7 +48,7 @@ module Dolly
     protected
 
     def doc
-      @doc ||= {}
+      @doc ||= doc_for_framework
     end
 
     def init_ancestor_properties
@@ -58,6 +60,11 @@ module Dolly
         rescue NoMethodError => e
         end
       end
+    end
+
+    def doc_for_framework
+      return {} unless rails?
+      {}.with_indifferent_access
     end
   end
 end
