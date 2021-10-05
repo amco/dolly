@@ -97,7 +97,8 @@ module Dolly
 
       data = Oj.load(res.body_str, symbol_keys: true)
       return data unless rails?
-      data.with_indifferent_access
+      return data.with_indifferent_access if data.is_a?(Hash)
+      data
     rescue Oj::ParseError
       res.body_str
     end
