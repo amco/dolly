@@ -65,11 +65,12 @@ module Dolly
     end
 
     def request(method, resource, data = {})
-      headers  = Dolly::HeaderRequest.new(data&.delete(:headers))
-      data&.merge!(data&.delete(:query) || {})
       db_resource = (resource =~ %r{^/}) ? resource : "/#{db_name}/#{resource}"
-      uri = URI("#{base_uri}#{db_resource}")
-      conn = curl_method_call(method, uri, data) do |curl|
+      headers     = fetch_headers(data)
+      body        = fetch_body(data)
+      uri         = URI("#{base_uri}#{db_resource}")
+
+      conn = curl_method_call(method, uri, body) do |curl|
         if env['username'].present?
           curl.http_auth_types = :basic
           curl.username = env['username']
@@ -82,6 +83,18 @@ module Dolly
     end
 
     private
+
+    def fetch_headers(data)
+      return unless data.is_a?(Hash)
+      Dolly::HeaderRequest.new(data&.delete(:headers))
+    end
+
+    def fetch_body(data)
+      return data unless data.is_a?(Hash)
+
+      data&.delete(:headers)
+      data&.merge!(data&.delete(:query) || {})
+    end
 
     def curl_method_call(method, uri, data, &block)
       return Curl::Easy.http_head(uri.to_s, &block) if method.to_sym == :head
