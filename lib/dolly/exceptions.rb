@@ -33,7 +33,7 @@ module Dolly
     end
 
     def to_s
-      "#{error} on #{obj} because #{reason}."
+      "#{@error} on #{@obj} because #{@reason}."
     end
   end
 
