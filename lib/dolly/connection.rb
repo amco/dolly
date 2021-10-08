@@ -22,7 +22,7 @@ module Dolly
 
     def initialize db = DEFAULT_DATABASE, app_env = :development
       @db      = db
-      @app_env = app_env
+      @app_env = defined?(Rails) ? Rails.env : app_env
     end
 
     def get(resource, data = {})
