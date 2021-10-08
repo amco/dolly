@@ -25,6 +25,18 @@ module Dolly
     end
   end
 
+  class BulkError < RuntimeError
+    def intialize(error:, reason:, obj:)
+      @error = error
+      @reason = reason
+      @obj = obj
+    end
+
+    def to_s
+      "#{error} on #{obj} because #{reason}."
+    end
+  end
+
   class IndexNotFoundError < RuntimeError; end
   class InvalidConfigFileError < RuntimeError; end
   class InvalidProperty < RuntimeError; end
