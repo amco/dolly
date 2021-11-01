@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'curb'
 require 'oj'
 require 'cgi'
@@ -79,6 +81,7 @@ module Dolly
 
         headers.each { |k, v| curl.headers[k] = v } if headers.present?
       end
+
       response_format(conn, method)
     end
 
@@ -114,6 +117,8 @@ module Dolly
       data
     rescue Oj::ParseError
       res.body_str
+    ensure
+      GC.start if res&.body_str&.length&.to_i > 250000
     end
 
     def values_to_json hash
