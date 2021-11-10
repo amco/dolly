@@ -93,6 +93,8 @@ module Dolly
       raise Dolly::ServerError.new(res.status.to_i) if (400..600).include? res.status.to_i
       return res.header_str if method == :head
       Oj.load(res.body_str, symbol_keys: true)
+    rescue Oj::ParseError
+      res.body_str
     end
 
     def values_to_json hash
