@@ -21,7 +21,7 @@ module Dolly
     end
 
     def custom_class(value)
-      value = value.is_a?(Hash) ? value.symbolize_keys : value
+      value = value.is_a?(Hash) ? hash_with_indifferent_access_value(value) : value
       self_klass.new(value)
     end
 
@@ -34,7 +34,7 @@ module Dolly
     end
 
     def hash_value(value)
-      value.to_h
+      hash_with_indifferent_access_value(value)
     end
 
     def hash_with_indifferent_access_value(value)
