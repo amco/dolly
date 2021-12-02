@@ -41,7 +41,6 @@ module Dolly
     attr_writer :doc
 
     def initialize(attributes = {})
-      init_ancestor_properties
       properties.each(&build_property(attributes))
     end
 
@@ -51,15 +50,8 @@ module Dolly
       @doc ||= doc_for_framework
     end
 
-    def init_ancestor_properties
-      self.class.ancestors.map do |ancestor|
-        begin
-          ancestor.properties.entries.each do |property|
-            properties << property
-          end
-        rescue NoMethodError => e
-        end
-      end
+    def self.inherited(base)
+      base.instance_variable_set(:@properties, self.properties.dup)
     end
 
     def doc_for_framework
