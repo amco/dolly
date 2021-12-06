@@ -1,3 +1,5 @@
+require 'delegate'
+
 module Dolly
   class Collection < DelegateClass(Array)
     attr_reader :options
@@ -21,7 +23,7 @@ module Dolly
     private
 
     def collect_docs
-      lambda do |row|
+      proc do |row|
         next unless collectable_row?(row)
         klass = Object.const_get(doc_model(row))
         klass.from_doc(row[:doc])
