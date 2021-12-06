@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'forwardable'
-require 'dolly/document'
 
 module Dolly
   class MangoIndex

@@ -1,19 +1,19 @@
 module Dolly
   module DepracatedDatabase
     Database = Struct.new(:connection) do
-      def request *args
-        connection.request *args
+      def request(*args)
+        connection.request(*args)
       end
 
-      def post *args
-        connection.post *args
+      def post(*args)
+        connection.post(*args)
       end
     end
 
-    def view *args
+    def view(*args)
       opts = args.pop if args.last.is_a? Hash
       opts ||= {}
-      connection.view *args, opts.merge(include_docs: true)
+      connection.view(*args, opts.merge(include_docs: true))
     end
 
     def database

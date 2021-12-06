@@ -26,7 +26,9 @@ class MangoTest < Test::Unit::TestCase
 
     view_resp   = build_view_response [data]
     empty_resp  =  build_view_response []
-    not_found_resp = generic_response [{ key: "foo_bar/2", error: "not_found" }]
+
+    generic_response [{ key: "foo_bar/2", error: "not_found" }]
+
     @multi_resp = build_view_response all_docs
     @multi_type_resp = build_view_collation_response all_docs
 
@@ -68,22 +70,6 @@ class MangoTest < Test::Unit::TestCase
     assert_equal(FooBar.find_by(foo: 'bar').class, FooBar)
   end
 
-  test '#find_by for a property that does not have an index' do
-    #TODO: clean up all the fake request creation
-    resp = { docs: [{ foo: 'bar', id: "foo_bar/1"} ] }
-    key = 'date'
-
-    stub_request(:post, query_base_path).
-     to_return(body: resp.to_json)
-
-    stub_request(:get, "#{all_docs_path}?key=\"_design/index_#{key}\"").
-     to_return(body: { rows: [] }.to_json)
-
-    assert_raise Dolly::IndexNotFoundError do
-      FooBar.find_by(date: Date.today)
-    end
-  end
-
   test '#find_by with no returned data' do
     resp = { docs: [] }
 
@@ -123,22 +109,6 @@ class MangoTest < Test::Unit::TestCase
      to_return(body: index_response(key).to_json)
 
     assert_equal(FooBar.where(foo: { eq: 'bar' }).map(&:class).uniq, [FooBar])
-  end
-
-  test '#where for a property that does not have an index' do
-    #TODO: clean up all the fake request creation
-    resp = { docs: [{ foo: 'bar', id: "foo_bar/1"} ] }
-
-    stub_request(:post, query_base_path).
-     to_return(body: resp.to_json)
-
-    key = 'date'
-    stub_request(:get, "#{all_docs_path}?key=\"_design/index_#{key}\"").
-     to_return(body: { rows: [] }.to_json)
-
-    assert_raise Dolly::IndexNotFoundError do
-      FooBar.where(date: Date.today)
-    end
   end
 
   test '#where with no returned data' do
