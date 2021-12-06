@@ -31,12 +31,11 @@ module Dolly
       query_hash = { keys: namespace_keys(keys) }
       return [] if query_hash[:keys].none?
 
-      keys_to_find_counter = query_hash[:keys].length
       build_collection(query_hash).first_or_all(true)&.itself
     end
 
-    def safe_find *keys
-      find *keys
+    def safe_find(*keys)
+      find(*keys)
     rescue Dolly::ResourceNotFound
       nil
     end
@@ -59,11 +58,11 @@ module Dolly
       opts          = opts.each_with_object({}) { |(k, v), h| h[k] = v }
       query_results = raw_view(doc, view_name, opts)
 
-      Collection.new({ rows: query_results, options: {} }).first_or_all
+      Collection.new(rows: query_results, options: {}).first_or_all
     end
 
     def build_collection(query)
-      Collection.new({ rows: connection.get('_all_docs', query.merge(include_docs: true)), options: { doc_type: self.class_name }})
+      Collection.new(rows: connection.get('_all_docs', query.merge(include_docs: true)), options: { doc_type: self.class_name })
     end
 
     def bulk_document

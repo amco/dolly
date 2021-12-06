@@ -79,7 +79,8 @@ module Dolly
     private
 
     def truthy_value?(value)
-      value =~ /true/ || value === true
+      value === true ||
+      (value.is_a?(String) && value =~ /true/)
     end
 
     def klass_sym

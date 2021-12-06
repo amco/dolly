@@ -12,7 +12,7 @@ module Dolly
     end
 
     def update_attribute
-      lambda do |key, value|
+      lambda do |(key, value)|
         raise InvalidProperty unless valid_property?(key)
         write_attribute(key, value)
       end

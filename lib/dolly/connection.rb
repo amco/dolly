@@ -73,13 +73,13 @@ module Dolly
       uri         = URI("#{base_uri}#{db_resource}")
 
       conn = curl_method_call(method, uri, body) do |curl|
-        if env['username'].present?
+        if env['username'] && !env['username'].empty?
           curl.http_auth_types = :basic
           curl.username = env['username']
           curl.password = env['password'].to_s
         end
 
-        headers.each { |k, v| curl.headers[k] = v } if headers.present?
+        headers.each { |k, v| curl.headers[k] = v } unless !headers || headers.empty?
       end
 
       response_format(conn, method)

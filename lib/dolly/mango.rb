@@ -123,12 +123,12 @@ module Dolly
     end
 
     def build_key(key)
-      return key if key.to_s.starts_with?(SELECTOR_SYMBOL)
+      return key if key.to_s.start_with?(SELECTOR_SYMBOL)
       "#{SELECTOR_SYMBOL}#{key}"
     end
 
     def is_operator?(key)
-      ALL_OPERATORS.include?(key) || key.to_s.starts_with?(SELECTOR_SYMBOL)
+      ALL_OPERATORS.include?(key) || key.to_s.start_with?(SELECTOR_SYMBOL)
     end
 
     def fetch_fields(query)

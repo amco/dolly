@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "curb", "0.9.8"
   spec.add_development_dependency "bundler", "~> 2.0"
   spec.add_development_dependency "rake", "~> 13.0"
+  spec.add_development_dependency 'rexml'
   spec.add_development_dependency "test-unit-full"
   spec.add_development_dependency "webmock"
   spec.add_development_dependency "mocha"

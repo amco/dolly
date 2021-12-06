@@ -9,7 +9,7 @@ module Dolly
     end
 
     def namespace_key(key)
-      return key if key =~ %r{^#{name_paramitized}/}
+      return "#{key}" if "#{key}" =~ %r{^#{name_paramitized}/}
       "#{name_paramitized}/#{key}"
     end
 
