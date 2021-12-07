@@ -37,6 +37,16 @@ module Dolly
     end
   end
 
+  class MissingSlugableProperties < RuntimeError
+    def initialize(properties)
+      @properties = properties.join(', ')
+    end
+
+    def to_s
+      "Missing slugable: #{@properties}."
+    end
+  end
+
   class PartitionedDataBaseExpectedError < RuntimeError; end
   class IndexNotFoundError < RuntimeError; end
   class InvalidConfigFileError < RuntimeError; end
