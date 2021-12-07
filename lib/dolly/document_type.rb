@@ -48,6 +48,10 @@ module Dolly
     end
 
     module ClassMethods
+      def absolute_id(id)
+        id.sub(%r{^[^/]+/}, '')
+      end
+
       def typed_model
         property :type, class_name: String
       end

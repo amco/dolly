@@ -4,36 +4,11 @@ module Dolly
       base.extend(ClassMethods)
     end
 
-    def initialize(attributes = {})
-      super
-      send(slug_callback) if slug_callback
-    end
-
-    def slug_hash
-      slugable_properties.each_with_object(Hash.new) do |property, hsh|
-        hsh[property] = self.send(property)
-      end.merge(type: self.name_paramitized)
-    end
-
     def slug
-      raise unless self.respond_to?(:slugable_properties)
-      raise if slugable_properties.none?
-      slugable_properties.map do |property|
-        self.send(property).to_s
-      end.map(&parameterize_item).join('_')
-    end
-
-    def set_default_id
-      self.id = self.class.namespace_key(slug)
-    end
-
-    def slug_callback
-      nil
-    end
-
-    def callback_cond(condition)
-      return condition unless condition.is_a?(Symbol)
-      send(condition)
+      slugable_properties.
+        map{ |property| send(:"#{property}").to_s }.
+        map(&parameterize_item).
+        join(slugable_separator)
     end
 
     def parameterize_item
@@ -43,24 +18,32 @@ module Dolly
       end
     end
 
+    def id
+      doc[:_id] ||= self.class.namespace_key(slug)
+    end
+
     module ClassMethods
-      def set_slug(method, opts = {})
-        define_method(:slug_callback) do
-          return if opts.key?(:unless) && callback_cond(opts[:unless])
-          return if opts.key?(:if) && !callback_cond(opts[:id])
-          return unless respond_to?(method)
-          method
+      DEFAULT_SEPARATOR = '_'
+
+      def set_slug(*slugable_properties, separator: DEFAULT_SEPARATOR)
+        validate_slug_property_presence!(slugable_properties)
+        define_method(:slugable_separator) { separator }
+        define_method(:slugable_properties) { slugable_properties }
+      end
+
+      def validate_slug_property_presence!(slugable_properties)
+        missing_properties = slugable_properties.select do |prop|
+          !instance_methods(false).include?(prop)
+        end
+
+        unless missing_properties.empty?
+          raise Dolly::MissingSlugableProperties, missing_properties
         end
       end
 
-      def slug(slugable_properties)
-        slugable_properties.map do |property|
-          property.to_s
-        end.map(&:parameterize).join('_')
-      end
-
-      def default_id(slug)
-        namespace_key(slug)
+      def callback_cond(condition)
+        return condition unless condition.is_a?(Symbol)
+        send(condition)
       end
     end
   end
