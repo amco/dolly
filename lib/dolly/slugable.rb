@@ -51,11 +51,6 @@ module Dolly
           raise Dolly::MissingSlugableProperties, missing_properties
         end
       end
-
-      def callback_cond(condition)
-        return condition unless condition.is_a?(Symbol)
-        send(condition)
-      end
     end
   end
 end
