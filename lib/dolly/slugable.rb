@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Dolly
   module Slugable
     def self.included(base)
