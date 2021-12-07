@@ -38,7 +38,7 @@ module Dolly
 
     def parameterize_item
       proc do |msg|
-        return msg.parameterize if msg.respond_to?(:parameterize)
+        next msg.parameterize if msg.respond_to?(:parameterize)
         msg
       end
     end
