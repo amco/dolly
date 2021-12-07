@@ -42,9 +42,15 @@ module Dolly
 
     def initialize(attributes = {})
       properties.each(&build_property(attributes))
+      send(slug_callback) if slugable?
     end
 
     protected
+
+    def slugable?
+      respond_to?(:slug_callback) &&
+        slug_callback
+    end
 
     def doc
       @doc ||= doc_for_framework
