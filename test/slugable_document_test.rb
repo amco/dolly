@@ -33,9 +33,7 @@ class SlugableDocumentTest < Test::Unit::TestCase
   end
 
   test 'bundled slug id cant be empty' do
-    assert_raise(Dolly::MissingSlugableProperties) do
-      MultiSlugedDocument.new(foo: "a").id
-    end
+    assert_equal MultiSlugedDocument.new(foo: "a").id, "multi_sluged_document/a_"
   end
 
   test 'custom seperator slug' do
