@@ -4,6 +4,11 @@ module Dolly
       base.extend(ClassMethods)
     end
 
+    def initialize(attributes = {})
+      super
+      send(slug_callback) if slug_callback
+    end
+
     def slug_hash
       slugable_properties.each_with_object(Hash.new) do |property, hsh|
         hsh[property] = self.send(property)
