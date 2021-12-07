@@ -16,10 +16,16 @@ travis: &travis
 development:
   default:
     <<: *couchdb
+  partitioned:
+    <<: *couchdb
+    name: partitioned
 
 test:
   default:
     <<: <%= ENV['TRAVIS'] ? "*travis" : "*couchdb" %>
+  partitioned:
+    <<: <%= ENV['TRAVIS'] ? "*travis" : "*couchdb" %>
+    name: partitioned
 
 staging:
   default:

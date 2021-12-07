@@ -9,12 +9,12 @@ module Dolly
     end
 
     def namespace_key(key)
-      return "#{key}" if "#{key}" =~ %r{^#{name_paramitized}/}
-      "#{name_paramitized}/#{key}"
+      return "#{key}" if "#{key}" =~ %r{^#{name_paramitized}#{type_sep}}
+      "#{name_paramitized}#{type_sep}#{key}"
     end
 
     def base_id
-      self.id.sub(%r{^#{name_paramitized}/}, '')
+      self.id.sub(%r{^#{name_paramitized}#{type_sep}}, '')
     end
 
     def name_paramitized
@@ -34,6 +34,15 @@ module Dolly
       write_attribute(:type, name_paramitized)
     end
 
+    def type_sep
+      return ':' if partitioned?
+      '/'
+    end
+
+    def partitioned?
+      false
+    end
+
     def self.included(base)
       base.extend(ClassMethods)
     end
@@ -41,6 +50,17 @@ module Dolly
     module ClassMethods
       def typed_model
         property :type, class_name: String
+      end
+
+      def partitioned!
+        check_db_partitioned!
+        define_method(:partitioned?) { true }
+      end
+
+      def check_db_partitioned!
+        !!connection.get('').
+          dig(:props, :partitioned) ||
+          raise(Dolly::PartitionedDataBaseExpectedError)
       end
     end
   end
