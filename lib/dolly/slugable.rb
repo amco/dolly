@@ -6,20 +6,31 @@ module Dolly
 
     def slug
       slugable_properties.
-        map{ |property| send(:"#{property}").to_s }.
+        map(&validate_and_normalize).
         map(&parameterize_item).
         join(slugable_separator)
     end
 
     def parameterize_item
-      proc do |msg|
-        next msg.parameterize if msg.respond_to?(:parameterize)
-        msg
+      proc do |message|
+        if message.respond_to?(:parameterize)
+          next message.parameterize
+        end
+
+        message
       end
     end
 
     def id
       doc[:_id] ||= self.class.namespace_key(slug)
+    end
+
+    def validate_and_normalize
+      proc do |property|
+        send(:"#{property}").to_s.tap do |prop|
+          prop.empty? && raise(Dolly::MissingSlugableProperties, [prop])
+        end
+      end
     end
 
     module ClassMethods
