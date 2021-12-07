@@ -37,6 +37,7 @@ module Dolly
     end
   end
 
+  class PartitionedDataBaseExpectedError < RuntimeError; end
   class IndexNotFoundError < RuntimeError; end
   class InvalidConfigFileError < RuntimeError; end
   class InvalidProperty < RuntimeError; end
