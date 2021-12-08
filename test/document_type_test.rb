@@ -8,6 +8,10 @@ class UntypedDoc < Dolly::Document
 end
 
 class DocumentTypeTest < Test::Unit::TestCase
+  test 'absolute id' do
+    assert_equal(TypedDoc.absolute_id("typed_doc/a"), "a")
+  end
+
   test 'typed?' do
     assert_equal(TypedDoc.new.typed?, true)
     assert_equal(UntypedDoc.new.typed?, false)
