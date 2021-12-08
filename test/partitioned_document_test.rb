@@ -28,6 +28,8 @@ class PartitionedDocumentTest < Test::Unit::TestCase
       property :foo, class_name: String
     end
 
+    assert_equal Partitioned.absolute_id("partitioned:abc"), "abc"
+
     doc = Partitioned.new(foo: "something")
     assert doc.id =~ /^partitioned:.+/
   end
