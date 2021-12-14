@@ -1,7 +1,7 @@
 module Dolly
   class PropertySet < Set
-    def include? key
-      keys.include?(key)
+    def include?(key)
+      keys.include?(key.to_sym)
     end
 
     def <<(property)
@@ -11,7 +11,7 @@ module Dolly
 
     def [](key)
       return detect {|property| property.key == key } if key.is_a?(Symbol)
-      super
+      detect {|property| property.key.to_s == key }
     end
 
     private
