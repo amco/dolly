@@ -1,7 +1,7 @@
 require 'delegate'
 
 module Dolly
-  class Collection < DelegateClass(Array)
+  class Collection < SimpleDelegator
     attr_reader :options
 
     def initialize(rows: [], options: {})
