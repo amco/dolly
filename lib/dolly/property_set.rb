@@ -10,8 +10,7 @@ module Dolly
     end
 
     def [](key)
-      return detect {|property| property.key == key } if key.is_a?(Symbol)
-      super
+      detect {|property| property.key == key.to_sym }
     end
 
     private
