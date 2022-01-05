@@ -41,7 +41,6 @@ module Dolly
     def reload
       reloaded_doc = self.class.find(id).send(:doc)
       attributes   = property_clean_doc(reloaded_doc)
-
       attributes.each(&update_attribute)
     end
 

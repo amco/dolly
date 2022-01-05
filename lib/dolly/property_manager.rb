@@ -25,7 +25,7 @@ module Dolly
     end
 
     def valid_property?(name)
-      properties.include?(name)
+      properties.include?(name.to_sym)
     end
 
     def update_doc(key, value)
