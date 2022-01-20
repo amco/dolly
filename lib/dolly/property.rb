@@ -14,7 +14,7 @@ module Dolly
     end
 
     def cast_value(value)
-      return set_default if value.nil?
+      return set_default if empty_value?(value)
       return value unless class_name
       return custom_class(value) unless respond_to?(klass_sym)
       send(klass_sym, value)
@@ -27,6 +27,11 @@ module Dolly
 
     def boolean?
       [TrueClass, FalseClass].include?(class_name)
+    end
+
+    def empty_value?(value)
+      return value&.empty? if value.respond_to?(:empty?)
+      value.nil?
     end
 
     def string_value(value)
