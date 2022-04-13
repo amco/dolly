@@ -9,7 +9,7 @@ TODO: Delete this and the text above, and describe your gem
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'dolly3'
+gem 'dolly'
 ```
 
 And then execute:
@@ -18,11 +18,50 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install dolly3
+    $ gem install dolly
+
+This gem is expecting a couchdb.yml file in a config folder, this folder must be in your root directory; follow this link to get the template:
+https://github.com/amco/dolly/blob/3.1/config/couchdb.yml
 
 ## Usage
 
-TODO: Write usage instructions here
+On non rails enviroment add the following gems
+
+```ruby
+require 'set'
+require 'yaml'
+require 'json'
+```
+
+To use it declare a class and inherit from Dolly::Document
+
+```ruby
+class Teacher < Dolly::Document
+    property :name #this property will be saved on DB
+
+end
+```
+
+Now you have access to Instance methods, you can get a glimpse of them on the following link:
+https://github.com/enrand22/dolly/blob/3.1/lib/dolly/query.rb
+
+And to class methods:
+https://github.com/amco/dolly/blob/3.1/lib/dolly/document_state.rb
+
+You can use the class like this:
+
+```ruby
+teacher = Teacher.new({:name => "enrique"})
+teacher.save!
+puts teacher.id #id is stored after the save! 
+```
+
+Also, it's possible to create using an instance method:
+
+```ruby
+teacher2 = Teacher.find teacher.id
+puts teacher2.name
+```
 
 ## Development
 
