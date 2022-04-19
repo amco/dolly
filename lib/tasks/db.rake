@@ -62,15 +62,26 @@ namespace :db do
   end
 
   namespace :search do
-    desc 'Creates search indexes for lucend style queries.'
-    task :create, [:db, :analyzer] => :environment do |_t, args|
-      analyzer = args[:analyzer].presence || 'standard'
+    require 'optparse'
 
-      db = args[:db].present? ? "/#{args[:db]}/" : ''
+    desc 'Creates search indexes for lucend style queries.'
+    task :create, [:db, :silent, :analyzer] => :environment do |_t, args|
+      options = {}
+      opts = OptionParser.new
+      opts.on("-d", "--db ARG", String) { |db| options[:db] = db }
+      opts.on("-s", "--silent", TrueClass) { options[:silent] = true }
+      opts.on("-a", "--analyzer ARG", String) { |analyzer| options[:analyzer] = analyzer }
+      args = opts.order!(ARGV) {}
+      opts.parse!(args)
+
+      analyzer = options[:analyzer].presence || 'standard'
+      db = options[:db].present? ? "/#{options[:db]}/" : ''
+      silent = options[:silent].present?
+
       design_dir = Rails.root.join 'db', 'searches'
       files = Dir.glob File.join design_dir, '**', '*.js'
 
-      puts "\n\e[44m== Updating search indexes ==\e[0m\n\n"
+      puts "\n\e[44m== Updating search indexes ==\e[0m\n\n" unless silent
 
       docs = files.map do |filename, acc|
         name  = File.basename(filename).sub(/.js/i, '')
@@ -94,15 +105,18 @@ namespace :db do
         }
 
         if data[:indexes].to_json == doc[:indexes].to_json
-          puts "\e[32mSearch index #{name} is up to date.\e[0m"
+          puts "\e[32mSearch index #{name} is up to date.\e[0m" unless silent
           {}
         else
-          puts "\e[36mSearch Index #{name} will be updated.\e[0m"
+          puts "\e[36mSearch Index #{name} will be updated.\e[0m" unless silent
           doc.merge!(data)
         end
       end
 
       res = Dolly::Document.connection.request :post, "#{db}_bulk_docs", docs: docs
+
+      next if silent
+
       failed = res.reject { |r| r[:ok] }
 
       if failed.present?
