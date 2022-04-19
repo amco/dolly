@@ -61,6 +61,43 @@ namespace :db do
     end
   end
 
+  namespace :search do
+    desc 'Creates search indexes for lucend style queries'
+    task :create, [:db, :analyzer] => :environment do |_t, args|
+      analyzer = args[:analyzer].presence || 'standard'
+
+      db = args[:db].present? ? "/#{args[:db]}/" : ''
+      design_dir = Rails.root.join 'db', 'searches'
+      files = Dir.glob File.join design_dir, '**', '*.js'
+
+      docs = files.map do |filename, acc|
+        name  = File.basename(filename).sub(/.js/i, '')
+        source = File.read filename
+        design_doc_name = "_design/#{name}"
+
+        doc = begin
+                Dolly::Document.connection.request(:get, "#{db}#{design_doc_name}")
+              rescue Dolly::ResourceNotFound
+                {}
+              end
+
+        doc.merge!({
+          _id: design_doc_name,
+          indexes: {
+            name => {
+              index: source,
+              analyzer: analyzer
+            }
+          }
+        })
+      end
+
+      puts docs.inspect
+
+      Dolly::Document.connection.request :post, "#{db}_bulk_docs", docs: docs
+    end
+  end
+
   namespace :index do
     desc 'Creates indexes for mango querys located in db/indexes/*.json'
     task create: :environment do
