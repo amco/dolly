@@ -62,13 +62,15 @@ namespace :db do
   end
 
   namespace :search do
-    desc 'Creates search indexes for lucend style queries'
+    desc 'Creates search indexes for lucend style queries.'
     task :create, [:db, :analyzer] => :environment do |_t, args|
       analyzer = args[:analyzer].presence || 'standard'
 
       db = args[:db].present? ? "/#{args[:db]}/" : ''
       design_dir = Rails.root.join 'db', 'searches'
       files = Dir.glob File.join design_dir, '**', '*.js'
+
+      puts "\n\e[44m== Updating search indexes ==\e[0m\n\n"
 
       docs = files.map do |filename, acc|
         name  = File.basename(filename).sub(/.js/i, '')
@@ -81,7 +83,7 @@ namespace :db do
                 {}
               end
 
-        doc.merge!({
+        data = {
           _id: design_doc_name,
           indexes: {
             name => {
@@ -89,12 +91,30 @@ namespace :db do
               analyzer: analyzer
             }
           }
-        })
+        }
+
+        if data[:indexes].to_json == doc[:indexes].to_json
+          puts "\e[32mSearch index #{name} is up to date.\e[0m"
+          {}
+        else
+          puts "\e[36mSearch Index #{name} will be updated.\e[0m"
+          doc.merge!(data)
+        end
       end
 
-      puts docs.inspect
+      res = Dolly::Document.connection.request :post, "#{db}_bulk_docs", docs: docs
+      failed = res.reject { |r| r[:ok] }
 
-      Dolly::Document.connection.request :post, "#{db}_bulk_docs", docs: docs
+      if failed.present?
+        puts "\n\e[31mThe following indexes failed to be persisted:\e[0m"
+
+        failed.each do |doc|
+          puts "  \e[35m* #{doc[:id]}\e[0m"
+        end
+        puts "\n"
+      else
+        puts "\n\e[5m\e[42mAll search indexes saved successfully.\e[0m\e[25m\n\n"
+      end
     end
   end
 
