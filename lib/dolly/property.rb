@@ -80,7 +80,7 @@ module Dolly
 
     def truthy_value?(value)
       value === true ||
-      (value.is_a?(String) && value =~ /true/)
+        (value.is_a?(String) && value.match?(/true/))
     end
 
     def klass_sym
