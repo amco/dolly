@@ -2,3 +2,5 @@
 *.rbc
 /tmp/
 /test/tmp/
+Gemfile.lock
+.ruby-version

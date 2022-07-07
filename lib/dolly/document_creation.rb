@@ -16,7 +16,7 @@ module Dolly
 
     def from_json(json)
       raw_data = Oj.load(json, symbol_keys: true)
-      data = rails? ? data.with_indifferent_access : raw_data
+      data = rails? ? raw_data.with_indifferent_access : raw_data
       from_doc(data)
     end
 
