@@ -13,9 +13,11 @@ module Dolly
 
       new(attributes).tap do |model|
         doc.each_key do |key|
-          next unless model.respond_to?(key.to_sym)
-
-          model.send(:"#{key}=", doc[key])
+          if model.respond_to?(:"#{key}=")
+            model.send(:"#{key}=", doc[key])
+          else
+            model.send(:doc)[key] = doc[key]
+          end
         end
       end
     end
