@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'dolly/mango'
 require 'dolly/mango_index'
 require 'dolly/query'
@@ -41,21 +43,25 @@ module Dolly
     attr_writer :doc
 
     def initialize(attributes = {})
+      @doc = doc_for_framework
       properties.each(&build_property(attributes))
     end
 
     protected
 
+    def self.inherited(base)
+      base.instance_variable_set(:@properties, properties.dup)
+    end
+
     def doc
       @doc ||= doc_for_framework
     end
 
-    def self.inherited(base)
-      base.instance_variable_set(:@properties, self.properties.dup)
-    end
-
     def doc_for_framework
+      return @doc if @doc
+
       return {} unless rails?
+
       {}.with_indifferent_access
     end
   end

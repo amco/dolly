@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Dolly
   module PropertyManager
     def build_property(attributes)
@@ -7,13 +9,15 @@ module Dolly
       lambda do |property|
         name = property.key
         next unless doc[name].nil?
+
         write_attribute(name, attributes[name])
       end
     end
 
     def update_attribute
       lambda do |(key, value)|
-        raise InvalidProperty unless valid_property?(key)
+        raise InvalidProperty, "Invalid property: #{key}" unless valid_property?(key)
+
         write_attribute(key, value)
       end
     end
@@ -21,15 +25,15 @@ module Dolly
     def write_attribute(key, value)
       casted_value = set_property_value(key, value)
       instance_variable_set(:"@#{key}", casted_value)
-      update_doc(key, casted_value)
+      update_doc(key)
     end
 
     def valid_property?(name)
-      properties.include?(name)
+      properties.include?(name.to_sym)
     end
 
-    def update_doc(key, value)
-      doc[key] = value
+    def update_doc(key, _value = nil)
+      doc.regular_writer(key.to_s, instance_variable_get(:"@#{key}"))
     end
 
     def properties

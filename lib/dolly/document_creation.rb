@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'dolly/properties'
 require 'dolly/framework_helper'
 
@@ -10,7 +12,13 @@ module Dolly
       attributes = property_clean_doc(doc)
 
       new(attributes).tap do |model|
-        model.send(:doc).merge!(doc)
+        doc.each_key do |key|
+          if model.respond_to?(:"#{key}=")
+            model.send(:"#{key}=", doc[key])
+          else
+            model.send(:doc)[key] = doc[key]
+          end
+        end
       end
     end
 
@@ -21,7 +29,7 @@ module Dolly
     end
 
     def create(attributes)
-      new(attributes).tap { |model| model.save }
+      new(attributes).tap(&:save)
     end
   end
 end
