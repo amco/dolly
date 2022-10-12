@@ -16,7 +16,7 @@ module Dolly
 
     def update_attribute
       lambda do |(key, value)|
-        raise InvalidProperty unless valid_property?(key)
+        raise InvalidProperty, "Invalid property: #{key}" unless valid_property?(key)
 
         write_attribute(key, value)
       end
@@ -29,7 +29,7 @@ module Dolly
     end
 
     def valid_property?(name)
-      properties.include?(name)
+      properties.include?(name.to_sym)
     end
 
     def update_doc(key, _value = nil)
