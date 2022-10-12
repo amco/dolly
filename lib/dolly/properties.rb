@@ -16,7 +16,10 @@ module Dolly
 
         send(:attr_reader, opt)
 
-        define_method(:"#{opt}=") { |value| write_attribute(opt, value) }
+        define_method(:"#{opt}=") do |value|
+          write_attribute(opt, value)
+        end
+
         define_method(:"#{opt}?") { send(opt) } if prop.boolean?
         define_method(:"[]") { |name| send(name) }
       end
