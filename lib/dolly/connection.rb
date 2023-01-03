@@ -33,7 +33,9 @@ module Dolly
     end
 
     def post resource, data
-      request :post, resource.cgi_escape, data
+      query_str = to_query(data.delete(:query)) if data[:query]
+      query = "?#{query_str}" if query_str
+      request :post, "#{resource.cgi_escape}#{query}", data
     end
 
     def put resource, data
