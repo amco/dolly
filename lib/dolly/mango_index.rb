@@ -25,6 +25,7 @@ module Dolly
       def create_in_database(database, name, fields, type = 'json')
         db_conn = connection_for_database(database)
         return "Migrations for #{database} skiped." if db_conn.skip_migrations?
+
         db_conn.post(DESIGN, build_index_structure(name, fields, type))
       end
 
