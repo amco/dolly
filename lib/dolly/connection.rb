@@ -27,6 +27,10 @@ module Dolly
       @app_env = defined?(Rails) ? Rails.env : app_env
     end
 
+    def skip_migrations?
+      env['skip_migrations']
+    end
+
     def get(resource, data = {})
       query = { query: values_to_json(data) } if data
       request :get, resource, query
