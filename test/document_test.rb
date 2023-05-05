@@ -463,7 +463,7 @@ class DocumentTest < Test::Unit::TestCase
     test_foo = FooBar.new
     test_foo.foo = 'test_value'
     assert_equal 'test_value', test_foo.foo
-    assert_equal 'test_value', test_foo.send(:doc)[:foo]
+    assert_equal 'test_value', test_foo.send(:doc)['foo']
     assert_equal 'test_value', test_foo.instance_variable_get(:@foo)
   end
 

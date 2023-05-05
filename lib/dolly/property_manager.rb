@@ -33,7 +33,7 @@ module Dolly
     end
 
     def update_doc(key, _value = nil)
-      doc.regular_writer(key.to_s, instance_variable_get(:"@#{key}"))
+      doc[key.to_s] = instance_variable_get(:"@#{key}")
     end
 
     def properties

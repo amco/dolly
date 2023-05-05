@@ -19,6 +19,10 @@ development:
   partitioned:
     <<: *couchdb
     name: partitioned
+  design_skipped:
+    <<: *couchdb
+    name: design_skipped
+    skip_migrations: true
 
 test:
   default:

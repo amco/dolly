@@ -49,7 +49,8 @@ module Dolly
       private
 
       def connection_for_database(database)
-        Dolly::Connection.new(database.to_sym, Rails.env || :development)
+        rails_env = defined?(Rails) ? Rails.env : :development
+        Dolly::Connection.new(database.to_sym, rails_env)
       end
 
       def connection
