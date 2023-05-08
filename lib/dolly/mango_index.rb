@@ -23,7 +23,10 @@ module Dolly
       end
 
       def create_in_database(database, name, fields, type = 'json')
-        connection_for_database(database).post(DESIGN, build_index_structure(name, fields, type))
+        db_conn = connection_for_database(database)
+        return "Migrations for #{database} skiped." if db_conn.skip_migrations?
+
+        db_conn.post(DESIGN, build_index_structure(name, fields, type))
       end
 
       def find_by_fields(fields)
@@ -46,7 +49,8 @@ module Dolly
       private
 
       def connection_for_database(database)
-        Dolly::Connection.new(database.to_sym, Rails.env || :development)
+        rails_env = defined?(Rails) ? Rails.env : :development
+        Dolly::Connection.new(database.to_sym, rails_env)
       end
 
       def connection

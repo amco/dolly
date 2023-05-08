@@ -21,7 +21,7 @@ class MangoIndexTest < Test::Unit::TestCase
         ddoc: nil,
         name:"_all_docs",
         type:"special",
-        def:{ fields:[{ _id:"asc" }] }
+        def:{ fields:[{ _id: "asc" }] }
       },
       {
         ddoc: "_design/1",
@@ -30,6 +30,25 @@ class MangoIndexTest < Test::Unit::TestCase
         def:{ fields:[{ foo:"asc" }] }
       }
     ]}.to_json)
+  end
+
+  test '#create_in_database' do
+    assert_equal "Migrations for design_skipped skiped.", Dolly::MangoIndex.create_in_database(
+      :design_skipped,
+      "demo",
+      [:_id]
+    )
+  end
+
+  test '#create_in_database' do
+    stub_request(:post, "http://localhost:5984/test/_index").
+      to_return(status: 200, body: "Design doc run", headers: {})
+
+    assert_equal "Design doc run", Dolly::MangoIndex.create_in_database(
+      :default,
+      "demo",
+      [:_id]
+    )
   end
 
   test '#delete_all' do
