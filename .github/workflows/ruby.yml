@@ -36,8 +36,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-mix-${{ env.cache-name }}-
       - name: Install system dependencies
-        run: |
-          sudo apt-get install libcurl4-openssl-dev
+        run: apt-get source libcurl4-openssl-dev
+        - run: ls -l
+        - run: apt-get install libcurl4-openssl-dev
       - name: Set up Ruby
         uses: ruby/setup-ruby@ec02537da5712d66d4d50a0f33b7eb52773b5ed1
         with:
