@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    dolly (3.1.4)
+    dolly (3.1.5)
       curb (= 0.9.8)
       oj
 
