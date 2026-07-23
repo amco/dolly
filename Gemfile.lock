@@ -23,7 +23,7 @@ GEM
       ostruct (>= 0.2)
     ostruct (0.6.1)
     power_assert (2.0.5)
-    public_suffix (6.0.1)
+    public_suffix (5.1.1)
     rake (13.2.1)
     rexml (3.4.1)
     rr (3.1.1)
@@ -51,6 +51,7 @@ GEM
       hashdiff (>= 0.4.0, < 2.0.0)
 
 PLATFORMS
+  arm64-darwin-22
   ruby
 
 DEPENDENCIES
@@ -63,4 +64,4 @@ DEPENDENCIES
   webmock
 
 BUNDLED WITH
-   2.3.6
+   2.3.22

@@ -58,7 +58,7 @@ module Dolly
     end
 
     def doc_for_framework
-      return @doc if @doc
+      return @doc if defined?(@doc) && @doc
 
       return {} unless rails?
 

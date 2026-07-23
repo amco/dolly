@@ -47,6 +47,22 @@ module Dolly
     end
   end
 
+  class AmbiguousWriteError < RuntimeError
+    attr_reader :method, :uri, :cause
+
+    def initialize(method:, uri:, cause:)
+      @method = method
+      @uri = uri
+      @cause = cause
+      super()
+    end
+
+    def to_s
+      "Ambiguous #{method.upcase} to #{uri} after #{cause.class}: #{cause.message}. " \
+        'The request may or may not have been applied.'
+    end
+  end
+
   class PartitionedDataBaseExpectedError < RuntimeError; end
   class IndexNotFoundError < RuntimeError; end
   class InvalidConfigFileError < RuntimeError; end
