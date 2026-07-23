@@ -9,8 +9,9 @@ Gem::Specification.new do |spec|
   spec.authors       = ["javierg"]
   spec.email         = ["javierg@amcoonline.net"]
 
-  spec.description   = "couch adapter "
-  spec.summary       = "will write something"
+  spec.description   = "CouchDB adapter for Ruby with thread-local Curb connections, " \
+                       "stale keep-alive recovery, and safe write reconciliation."
+  spec.summary       = "CouchDB adapter for Ruby"
   spec.homepage      = "https://www.amco.me"
 
   spec.files         = Dir["README.md", "lib/**/*"]

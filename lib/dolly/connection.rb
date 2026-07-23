@@ -1,19 +1,17 @@
 # frozen_string_literal: true
 
-require 'curb'
-require 'oj'
 require 'cgi'
 require 'net/http'
 require 'dolly/request_header'
 require 'dolly/exceptions'
 require 'dolly/configuration'
+require 'dolly/curl'
 require 'refinements/string_refinements'
-require 'dolly/framework_helper'
 
 module Dolly
   class Connection
     include Dolly::Configuration
-    include Dolly::FrameworkHelper
+    include Dolly::Curl::ResponseFormatter
     attr_reader :db, :app_env
 
     DEFAULT_HEADER = { 'Content-Type' => 'application/json', 'Accept' => 'application/json' }
@@ -78,7 +76,7 @@ module Dolly
       body        = fetch_body(data)
       uri         = URI("#{base_uri}#{db_resource}")
 
-      conn = curl_method_call(method, uri, body) do |curl|
+      conn = curl_connection.request(method, uri, body) do |curl|
         if env['username'] && !env['username'].empty?
           curl.http_auth_types = :basic
           curl.username = env['username']
@@ -88,10 +86,19 @@ module Dolly
         headers.each { |k, v| curl.headers[k] = v } unless !headers || headers.empty?
       end
 
+      return conn unless conn.is_a?(::Curl::Easy)
+
       response_format(conn, method)
     end
 
     private
+
+    def curl_connection
+      @curl_connection ||= Dolly::Curl::Connection.new(
+        db_name: db_name,
+        reader: Dolly::Curl::Reader.new(self)
+      )
+    end
 
     def fetch_headers(data)
       return unless data.is_a?(Hash)
@@ -103,28 +110,6 @@ module Dolly
 
       data&.delete(:headers)
       data&.merge!(data&.delete(:query) || {})
-    end
-
-    def curl_method_call(method, uri, data, &block)
-      return Curl::Easy.http_head(uri.to_s, &block) if method.to_sym == :head
-      return Curl.delete(uri.to_s, &block) if method.to_sym == :delete
-      return Curl.send(method, uri, data, &block) if method.to_sym == :get
-      Curl.send(method, uri.to_s, data.to_json, &block)
-    end
-
-    def response_format(res, method)
-      raise Dolly::ResourceNotFound if res.status.to_i == 404
-      raise Dolly::ServerError.new(res.status.to_i) if (400..600).include? res.status.to_i
-      return res.header_str if method == :head
-
-      data = Oj.load(res.body_str, symbol_keys: true)
-      return data unless rails?
-      return data.with_indifferent_access if data.is_a?(Hash)
-      data
-    rescue Oj::ParseError
-      res.body_str
-    ensure
-      GC.start if res&.body_str&.length&.to_i > 250000
     end
 
     def values_to_json hash

@@ -44,4 +44,71 @@ class BulkDocumentTest < Test::Unit::TestCase
     assert_equal [], @doc.docs
     assert_equal [], @doc.payload[:docs]
   end
+
+  test 'save reconciles when bulk post is ambiguous but docs are committed' do
+    docs = 2.times.map { |i| Doc.new(name: "doc-#{i}").tap { |d| d.id = "doc/#{i}" } }
+    docs.each { |d| @doc << d }
+
+    connection = @doc.connection
+    curl = connection.send(:curl_connection)
+    curl.stubs(:perform).with do |method, uri, *_|
+      method.to_sym == :post && uri.path.end_with?('/_bulk_docs')
+    end.raises(Curl::Err::RecvError)
+
+    curl.reader.stubs(:fetch_documents_by_ids).returns(
+      docs.each_with_object({}) do |d, memo|
+        memo[d.id] = { id: d.id, doc: d.to_h.merge(_rev: "1-#{d.id}") }
+      end
+    )
+
+    @doc.save
+
+    assert_equal [], @doc.errors
+    assert_equal [], @doc.docs
+    docs.each { |d| assert_equal "1-#{d.id}", d.rev }
+  end
+
+  test 'save retries only unapplied docs after ambiguous bulk post' do
+    committed = Doc.new(name: 'committed').tap { |d| d.id = 'doc/1' }
+    pending = Doc.new(name: 'pending').tap { |d| d.id = 'doc/2' }
+    @doc << committed
+    @doc << pending
+
+    connection = @doc.connection
+    curl = connection.send(:curl_connection)
+    bulk_attempts = 0
+    retry_body = [{ ok: true, id: 'doc/2', rev: '2-doc/2' }]
+    pending_payloads = []
+
+    curl.stubs(:perform).with do |method, uri, data, *_|
+      next false unless method.to_sym == :post && uri.path.end_with?('/_bulk_docs')
+
+      bulk_attempts += 1
+      raise Curl::Err::RecvError if bulk_attempts == 1
+
+      pending_payloads << data
+      true
+    end.returns(
+      stub(
+        status: '200',
+        body_str: retry_body.to_json,
+        header_str: ''
+      )
+    )
+
+    curl.reader.stubs(:fetch_documents_by_ids).returns(
+      'doc/1' => { id: 'doc/1', doc: committed.to_h.merge(_rev: '1-doc/1') },
+      'doc/2' => { id: 'doc/2', error: 'not_found' }
+    )
+
+    @doc.save
+
+    assert_equal 2, bulk_attempts
+    assert_equal 1, pending_payloads.size
+    assert_equal ['doc/2'], pending_payloads.first[:docs].map { |d| d[:_id] || d['_id'] }
+    assert_equal [], @doc.errors
+    assert_equal [], @doc.docs
+    assert_equal '1-doc/1', committed.rev
+    assert_equal '2-doc/2', pending.rev
+  end
 end

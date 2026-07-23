@@ -32,7 +32,7 @@ class MangoIndexTest < Test::Unit::TestCase
     ]}.to_json)
   end
 
-  test '#create_in_database' do
+  test '#create_in_database skips when migrations are disabled' do
     assert_equal "Migrations for design_skipped skiped.", Dolly::MangoIndex.create_in_database(
       :design_skipped,
       "demo",
@@ -40,7 +40,7 @@ class MangoIndexTest < Test::Unit::TestCase
     )
   end
 
-  test '#create_in_database' do
+  test '#create_in_database posts index to database' do
     stub_request(:post, "http://localhost:5984/test/_index").
       to_return(status: 200, body: "Design doc run", headers: {})
 
