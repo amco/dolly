@@ -62,10 +62,23 @@ module Dolly
 
       def thread_local_handle
         store = Thread.current[THREAD_STORE_KEY] ||= {}
-        store[self.class] ||= ::Curl::Easy.new
+        handle = store[self.class]
+        return handle unless handle.nil? || mocked_curl_class?(handle)
+
+        begin
+          handle&.close
+        rescue StandardError
+          nil
+        end
+
+        store[self.class] = ::Curl::Easy.new
       end
 
       private
+
+      def mocked_curl_class?(handle)
+        !handle.instance_of?(::Curl::Easy)
+      end
 
       def reconciler
         @reconciler ||= WriteReconciler.new(
